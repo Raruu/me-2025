@@ -1,8 +1,9 @@
 import React from "react";
 
 interface DropDownProps {
+  ref?: React.RefObject<{ handleOpen: () => void }>;
   children: React.ReactNode;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   align?: "left" | "center" | "right";
   placement?: "top" | "bottom";
   triggerGap?: number;
@@ -16,6 +17,7 @@ export const DropDownContentContext = React.createContext<{
 });
 
 export const DropDown = ({
+  ref,
   children,
   trigger,
   placement,
@@ -23,11 +25,18 @@ export const DropDown = ({
   triggerGap,
   callback,
 }: DropDownProps) => {
+  React.useEffect(() => {
+    if (ref) {
+      Object.assign(ref.current, { handleOpen });
+    }
+  });
+
   const [isOpen, setIsOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
+    // console.log("handleOpen");
     contentRef.current?.classList.remove("hidden");
     setTimeout(() => {
       callback?.(!isOpen);
@@ -36,7 +45,7 @@ export const DropDown = ({
   };
 
   const onTransitionEnd = (event: React.TransitionEvent) => {
-    if (!isOpen && event.propertyName === 'opacity') {
+    if (!isOpen && event.propertyName === "opacity") {
       contentRef.current?.classList.add("hidden");
       callback?.(isOpen);
     }
@@ -65,7 +74,7 @@ export const DropDown = ({
 
         let y;
         if (placement === "top") {
-          if (contentRect.top > innerHeight) {
+          if (contentRect.top < innerHeight) {
             y = innerHeight - contentRect.height;
           } else {
             y = triggerRect.top;
@@ -116,7 +125,7 @@ export const DropDown = ({
         <div
           className={`${
             isOpen ? "scale-100 opacity-100" : "scale-50 opacity-0"
-          } transition-all duration-100 flex flex-col p-4 rounded-3xl bg-background`}
+          } transition-all duration-100 flex flex-col p-4 rounded-3xl bg-background max-h-[75vh] overflow-y-auto`}
           onTransitionEnd={onTransitionEnd}
         >
           <DropDownContentContext.Provider value={{ setIsOpen }}>

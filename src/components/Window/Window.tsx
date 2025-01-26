@@ -14,9 +14,14 @@ const WindowActionButton = ({
   onClick,
 }: WindowActionButtonProps) => {
   return (
-    <button className={useRightMargin ? "mr-2" : ""} onClick={onClick}>
+    <button
+      className={`flex items-center justify-center bg-gray-200 hover:bg-gray-300 
+        dark:bg-slate-50 dark:hover:bg-slate-300 dark:bg-opacity-25 dark:hover:bg-opacity-25 
+        w-6 h-6 rounded-full ${useRightMargin ? "mr-2" : ""}`}
+      onClick={onClick}
+    >
       <Icon
-        className="opacity-65 hover:opacity-100 transition-opacity duration-150"
+        className="opacity-65 hover:opacity-100 transition-all duration-150 w-1/2 h-full"
         icon={icon}
       />
     </button>
@@ -26,10 +31,6 @@ const WindowActionButton = ({
 interface WindowProps extends WindowState {
   isFocused: boolean;
   borderConstrains: BorderConstrains;
-  minSize?: {
-    width: number;
-    height: number;
-  };
   dispatch: Dispatch<WindowAction>;
 }
 
@@ -44,7 +45,7 @@ export const Window = ({
   size,
   isFocused,
   borderConstrains,
-  minSize = { width: 200, height: 200 },
+  minSize,
   dispatch,
 }: WindowProps) => {
   const [isDraggingMove, setIsDraggingMove] = useState(false);
@@ -240,11 +241,12 @@ export const Window = ({
 
   return (
     <div
-      className={`absolute flex flex-col w-96 h-96 bg-amber-200 rounded-lg shadow-lg select-none cursor-move ${
-        !isDraggingResize && !isDraggingMove
-          ? "transition-all duration-300"
-          : ""
-      }`}
+      className={`absolute flex flex-col w-96 h-96 bg-transparent rounded-lg 
+        shadow-lg select-none cursor-move text-foreground ${
+          !isDraggingResize && !isDraggingMove
+            ? "transition-all duration-300"
+            : ""
+        }`}
       onMouseMove={handleMouseResizeCursor}
       onMouseDown={(e: MouseEvent) => {
         if (
@@ -275,7 +277,7 @@ export const Window = ({
     >
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-green-300"
+        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-background"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
             handleMouseDownMove(e);
@@ -314,7 +316,11 @@ export const Window = ({
       </div>
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className="overflow-auto bg-red-200 w-full h-full rounded-b-lg p-2 select-all"
+        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all  ${
+          isDraggingResize || isDraggingMove || !isFocused
+            ? "pointer-events-none"
+            : ""
+        }`}
       >
         {content}
       </div>

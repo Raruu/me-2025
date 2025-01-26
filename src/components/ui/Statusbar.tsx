@@ -45,7 +45,7 @@ const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
   return (
     <header
       ref={ref}
-      className="flex flex-row items-center justify-between min-h-7 px-3 py-1"
+      className="bg-background z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1"
     >
       <div className="sm:w-1/3 hidden sm:flex flex-row justify-start">
         <a href="https://github.com/Raruu" target="_blank" rel="noreferrer">

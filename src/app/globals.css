@@ -5,11 +5,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --taskbar-bg: #d1d1d1;
 }
 
 [data-theme="dark"] {
   --background: #282828;
   --foreground: #ededed;
+  --taskbar-bg: #3c3c3c;
 }
 
 body {

@@ -1,10 +1,13 @@
-import { useReducer, useRef } from "react";
+import { useReducer, useRef, useEffect, useState } from "react";
 import { Window } from "./Window";
 import { StatusBar } from "../ui/Statusbar";
+import { Taskbar } from "../ui/Taskbar";
 
 export interface WindowState {
   id: number;
+  appId?: string;
   title: string;
+  icon?: string;
   subtitle?: string;
   content: React.ReactNode;
   isMinimized: boolean;
@@ -14,6 +17,10 @@ export interface WindowState {
     y: number;
   };
   size: {
+    width: number;
+    height: number;
+  };
+  minSize: {
     width: number;
     height: number;
   };
@@ -37,19 +44,30 @@ export type BorderConstrains = {
 
 export const WindowManager = () => {
   const statusBarRef = useRef<HTMLDivElement>(null);
-  const borderConstrains: BorderConstrains = {
+  const [borderConstrains, setBorderConstrains] = useState<BorderConstrains>({
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
-  };
+  });
 
-  if (statusBarRef.current) {
-    borderConstrains.top = statusBarRef.current.clientHeight;
-    borderConstrains.right = window.innerWidth;
-    borderConstrains.bottom = window.innerHeight;
-    borderConstrains.left = 0;
-  }
+  useEffect(() => {
+    const handleWindowResize = () => {
+      if (statusBarRef.current) {
+        setBorderConstrains({
+          top: statusBarRef.current.clientHeight,
+          right: window.innerWidth,
+          bottom: window.innerHeight,
+          left: 0,
+        });
+      }
+    };
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, []);
 
   const reducer = (
     state: WindowState[],
@@ -73,6 +91,15 @@ export const WindowManager = () => {
       case "CLOSE":
         return state.filter((window) => window.id !== action.id);
       case "ADD_WINDOW":
+        if (
+          action.window.position?.x === 0 &&
+          action.window.position?.y === 0
+        ) {
+          action.window.position = {
+            x: borderConstrains.left,
+            y: borderConstrains.top,
+          };
+        }
         return [...state, action.window];
       case "MOVE":
         return state.map((window) => {
@@ -107,6 +134,7 @@ export const WindowManager = () => {
         );
         if (targetIndex > -1) {
           const targetWindow = state[targetIndex];
+          targetWindow.isMinimized = false;
           return [
             ...state.slice(0, targetIndex),
             ...state.slice(targetIndex + 1),
@@ -121,29 +149,10 @@ export const WindowManager = () => {
 
   const [windows, dispatch] = useReducer(reducer, []);
 
-  const addWindow = () => {
-    dispatch({
-      type: "ADD_WINDOW",
-      window: {
-        id: Date.now(),
-        title: `Window ${windows.length}`,
-        content: <div>Content</div>,
-        isMinimized: false,
-        isMaximized: false,
-        position: {
-          x: borderConstrains.left,
-          y: borderConstrains.top,
-        },
-        size: { width: 400, height: 300 },
-      },
-    });
-  };
-
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="flex flex-col justify-between min-h-screen">
       <StatusBar ref={statusBarRef} />
-      <div className="bg-foreground text-background  flex-1 min-w-full p-8">
-        <button onClick={addWindow}>Open Window</button>
+      <div className="bg-foreground text-background absolute min-h-full min-w-full p-8 z-0">
         {windows.map((window, index) => (
           <Window
             key={window.id}
@@ -154,6 +163,7 @@ export const WindowManager = () => {
           />
         ))}
       </div>
+      <Taskbar windows={windows} dispatch={dispatch} />
     </main>
   );
 };
