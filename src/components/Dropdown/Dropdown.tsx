@@ -6,7 +6,8 @@ interface DropDownProps {
   trigger?: React.ReactNode;
   align?: "left" | "center" | "right";
   placement?: "top" | "bottom";
-  triggerGap?: number;
+  triggerGapX?: number;
+  triggerGapY?: number;
   callback?: (isOpen: boolean) => void;
 }
 
@@ -22,7 +23,8 @@ export const DropDown = ({
   trigger,
   placement,
   align,
-  triggerGap,
+  triggerGapX,
+  triggerGapY,
   callback,
 }: DropDownProps) => {
   React.useEffect(() => {
@@ -61,15 +63,20 @@ export const DropDown = ({
         let xPos = 0;
         if (align === "left") {
           xPos = triggerRect.left;
+          xPos += triggerGapX || 0;
         } else if (align === "right") {
           xPos = triggerRect.left - contentRect.width;
+          xPos -= triggerGapX || 0;
         } else {
           xPos =
             triggerRect.left + triggerRect.width / 2 - contentRect.width / 2;
+          xPos += triggerGapX || 0;
         }
         const x =
           contentRect.right > innerWidth
-            ? innerWidth - contentRect.width
+            ? innerWidth - contentRect.width - (triggerGapX || 0)
+            : xPos < 0
+            ? 0
             : xPos;
 
         let y;
@@ -79,14 +86,14 @@ export const DropDown = ({
           } else {
             y = triggerRect.top;
           }
-          y -= triggerGap || 0;
+          y -= triggerGapY || 0;
         } else {
           if (contentRect.bottom > innerHeight) {
             y = innerHeight - contentRect.height;
           } else {
             y = triggerRect.bottom;
           }
-          y += triggerGap || 0;
+          y += triggerGapY || 0;
         }
         return { x, y };
       }
@@ -110,7 +117,7 @@ export const DropDown = ({
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [isOpen, align, placement, triggerGap]);
+  }, [isOpen, align, placement, triggerGapY, triggerGapX]);
 
   return (
     <div>

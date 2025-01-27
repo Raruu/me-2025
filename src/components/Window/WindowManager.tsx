@@ -1,7 +1,7 @@
 import { useReducer, useRef, useEffect, useState } from "react";
 import { Window } from "./Window";
 import { StatusBar } from "../ui/Statusbar";
-import { Taskbar } from "../ui/Taskbar";
+import { Taskbar } from "../ui/Taskbar/Taskbar";
 
 export interface WindowState {
   id: number;
@@ -43,7 +43,12 @@ export type BorderConstrains = {
 };
 
 export const WindowManager = () => {
-  const statusBarRef = useRef<HTMLDivElement>(null);
+  const statusBarRef = useRef<HTMLDivElement>(
+    null as unknown as HTMLDivElement
+  );
+  const taskBarRef = useRef<HTMLDivElement & BorderConstrains>(
+    null as unknown as HTMLDivElement & BorderConstrains
+  );
   const [borderConstrains, setBorderConstrains] = useState<BorderConstrains>({
     top: 0,
     right: 0,
@@ -51,18 +56,23 @@ export const WindowManager = () => {
     left: 0,
   });
 
-  useEffect(() => {
-    const handleWindowResize = () => {
-      if (statusBarRef.current) {
-        setBorderConstrains({
-          top: statusBarRef.current.clientHeight,
-          right: window.innerWidth,
-          bottom: window.innerHeight,
-          left: 0,
-        });
-      }
-    };
+  const handleWindowResize = () => {
+    if (statusBarRef.current) {
+      // console.log(
+      //   taskBarRef.current.left,
+      //   taskBarRef.current.right,
+      //   taskBarRef.current.bottom
+      // );
+      setBorderConstrains({
+        top: statusBarRef.current.clientHeight,
+        right: window.innerWidth - (taskBarRef.current.right ?? 0),
+        bottom: window.innerHeight - (taskBarRef.current.bottom ?? 0),
+        left: 0 + (taskBarRef.current.left ?? 0),
+      });
+    }
+  };
 
+  useEffect(() => {
     handleWindowResize();
 
     window.addEventListener("resize", handleWindowResize);
@@ -154,7 +164,7 @@ export const WindowManager = () => {
   return (
     <main className="flex flex-col justify-between min-h-screen">
       <StatusBar ref={statusBarRef} />
-      <div className="bg-foreground text-background absolute min-h-full min-w-full p-8 z-0">
+      <div className="bg-foreground transition-colors duration-300 text-background absolute min-h-full min-w-full p-8 z-0">
         {windows.map((window, index) => (
           <Window
             key={window.id}
@@ -165,7 +175,13 @@ export const WindowManager = () => {
           />
         ))}
       </div>
-      <Taskbar windows={windows} dispatch={dispatch} />
+      <Taskbar
+        reTriggerConstrains={handleWindowResize}
+        taskBarRef={taskBarRef}
+        statusBarRef={statusBarRef}
+        windows={windows}
+        dispatch={dispatch}
+      />
     </main>
   );
 };

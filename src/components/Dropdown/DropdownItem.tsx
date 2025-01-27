@@ -9,7 +9,7 @@ interface DropDownItemProps {
   onClick?: () => void;
 }
 
-const DropDownItem = ({
+export const DropDownItem = ({
   text,
   checked,
   iconifyString,
@@ -39,4 +39,16 @@ const DropDownItem = ({
   );
 };
 
-export { DropDownItem };
+interface DropDownItemSeparatorProps {
+  space?: number;
+}
+
+export const DropDownItemSeparator = ({
+  space = 4,
+}: DropDownItemSeparatorProps) => {
+  return (
+    <div
+      className={`w-full h-0.5 my-[${space}] bg-gray-300 dark:bg-gray-600`}
+    ></div>
+  );
+};

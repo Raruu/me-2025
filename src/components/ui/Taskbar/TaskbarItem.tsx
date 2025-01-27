@@ -2,9 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Dispatch, useState, useRef, useEffect } from "react";
-import { WindowAction, WindowState } from "../Window/WindowManager";
-import { DropDown } from "../Dropdown/Dropdown";
-import { DropDownItem } from "../Dropdown/DropdownItem";
+import { WindowAction, WindowState } from "../../Window/WindowManager";
+import { DropDown } from "../../Dropdown/Dropdown";
+import { DropDownItem } from "../../Dropdown/DropdownItem";
+import { TaskbarPlacement } from "./Taskbar";
 
 interface AddWindowProps
   extends Pick<
@@ -28,13 +29,15 @@ interface AddWindowProps
 }
 
 interface TaskbarItemProps {
+  taskbarPlacement: TaskbarPlacement;
   taskBarRef: React.RefObject<HTMLDivElement>;
   addWindowProps: AddWindowProps;
   windows: WindowState[];
   dispatch: Dispatch<WindowAction>;
 }
 
-const TaskbarItem = ({
+export const TaskbarItem = ({
+  taskbarPlacement,
   taskBarRef,
   addWindowProps,
   windows,
@@ -49,11 +52,6 @@ const TaskbarItem = ({
   const [windowsAppId, setwindowsAppId] = useState<WindowState[]>([]);
 
   useEffect(() => {
-    if (windows.length > 0 && windowsAppId.length > 0) {
-      if(windows[windows.length - 1].appId !== windowsAppId[windowsAppId.length - 1].appId) {
-        return;
-      }
-    };
     console.log("windowsAppId Changed");
     setwindowsAppId(
       windows.filter((window) => window.appId === addWindowProps.appId)
@@ -111,8 +109,26 @@ const TaskbarItem = ({
           }
           setIsContextOpen(isOpen);
         }}
-        placement="top"
-        triggerGap={(taskBarRef.current?.clientHeight ?? 80) + 5}
+        placement={taskbarPlacement === "bottom" ? "top" : undefined}
+        align={
+          taskbarPlacement === "left"
+            ? "left"
+            : taskbarPlacement === "right"
+            ? "right"
+            : undefined
+        }
+        triggerGapX={
+          taskbarPlacement !== "bottom"
+            ? taskbarPlacement === "left"
+              ? 40
+              : 92
+            : undefined
+        }
+        triggerGapY={
+          taskbarPlacement === "bottom"
+            ? (taskBarRef.current?.clientHeight ?? 80) + 5
+            : undefined
+        }
       >
         {windowsAppId.map((window) => (
           <DropDownItem
@@ -165,62 +181,6 @@ const TaskbarItem = ({
             ></div>
           );
         })}
-      </div>
-    </div>
-  );
-};
-
-interface TaskbarProps {
-  windows: WindowState[];
-  dispatch: Dispatch<WindowAction>;
-}
-
-export const Taskbar = ({ windows, dispatch }: TaskbarProps) => {
-  const taskBarRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
-
-  return (
-    <div className="flex flex-row items-center justify-center w-full">
-      <div
-        ref={taskBarRef}
-        className="z-[1] flex flex-row items-center justify-start gap-2 
-        bg-[--taskbar-bg] rounded-3xl px-8 w-fit h-20 transition-all duration-300"
-      >
-        <TaskbarItem
-          taskBarRef={taskBarRef}
-          windows={windows}
-          addWindowProps={{
-            title: `Test`,
-            appId: "test0",
-            content: (
-              <p className="text-red-700">asda</p>
-            ),
-            size: {
-              width: 300,
-              height: 300,
-            },
-          }}
-          dispatch={dispatch}
-        />
-        <TaskbarItem
-          taskBarRef={taskBarRef}
-          windows={windows}
-          addWindowProps={{
-            title: `Iyaaaa`,
-            appId: "test1",
-            content: (
-              <iframe
-                className="w-full h-full"
-                src="http://localhost:3000/"
-                allowFullScreen
-              ></iframe>
-            ),
-            size: {
-              width: 300,
-              height: 300,
-            },
-          }}
-          dispatch={dispatch}
-        />
       </div>
     </div>
   );
