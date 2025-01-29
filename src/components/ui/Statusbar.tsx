@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { useContext, useState, Ref } from "react";
 import { DropDown } from "../Dropdown/Dropdown";
 import { DropDownItem } from "../Dropdown/DropdownItem";
-import { themeContext, setTheme, getSystemTheme } from "@/styles/theme";
+import { themeContext, getSystemTheme } from "@/styles/theme";
 
 interface StatusBarProps {
   children: React.ReactNode;
@@ -37,15 +37,15 @@ const StatusBarItem = ({
   );
 };
 
-const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
-  const { theme, setThemeState } = useContext(themeContext);
+export const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
+  const { theme, setTheme } = useContext(themeContext);
   const [dropDownThemeIsOpen, setdropDownThemeIsOpen] = useState(false);
   const [dropDownClockIsOpen, setDropDownClockIsOpen] = useState(false);
 
   return (
     <header
       ref={ref}
-      className="bg-background transition-colors duration-300 z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1"
+      className="transition-colors duration-300 z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1"
     >
       <div className="sm:w-1/3 hidden sm:flex flex-row justify-start">
         <a href="https://github.com/Raruu" target="_blank" rel="noreferrer">
@@ -76,7 +76,7 @@ const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
         <div className="flex flex-row items-center gap-1">
           <button
             className="focus:outline-none"
-            onClick={() => setTheme(setThemeState, theme)}
+            onClick={() => setTheme(undefined)}
           >
             <StatusBarItem>
               <Icon
@@ -103,18 +103,18 @@ const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
               text="Light"
               iconifyString="iconamoon:mode-light"
               checked={theme == "light"}
-              onClick={() => setTheme(setThemeState, theme, "light")}
+              onClick={() => setTheme("tr-light")}
             />
             <DropDownItem
               text="Dark"
               iconifyString="iconamoon:mode-dark"
               checked={theme == "dark"}
-              onClick={() => setTheme(setThemeState, theme, "dark")}
+              onClick={() => setTheme("tr-dark")}
             />
             <DropDownItem
               text="System"
               iconifyString="iconamoon:settings"
-              onClick={() => setTheme(setThemeState, theme, getSystemTheme())}
+              onClick={() => setTheme(getSystemTheme())}
             />
           </DropDown>
         </div>
@@ -123,4 +123,3 @@ const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
   );
 };
 
-export { StatusBar };

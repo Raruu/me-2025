@@ -39,7 +39,21 @@ export const Taskbar = ({
 
   const [xContextGap, setXContextGap] = useState(0);
   const [yContextGap, setYContextGap] = useState<number | undefined>(undefined);
+  const [widthNotExpanded, setWidthNotExpanded] = useState<number | undefined>(
+    undefined
+  );
+  const [heightNotExpanded, setHeightNotExpanded] = useState<
+    number | undefined
+  >(undefined);
   const [isExpand, setIsExpand] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setWidthNotExpanded(taskBarRef.current?.clientWidth);
+      // setHeightNotExpanded(taskBarRef.current?.clientHeight);
+    }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const assignConstrains = () => {
@@ -125,29 +139,61 @@ export const Taskbar = ({
             text="Expand"
             iconifyString="material-symbols:width-wide"
             checked={isExpand}
-            onClick={() => setIsExpand(!isExpand)}
+            onClick={() => {
+              if (!isExpand) {
+                setWidthNotExpanded(
+                  taskbarPlacement === "bottom"
+                    ? taskBarRef.current.clientWidth
+                    : undefined
+                );
+                setHeightNotExpanded(
+                  taskbarPlacement !== "bottom"
+                    ? taskBarRef.current.clientHeight
+                    : undefined
+                );
+              }
+              setIsExpand(!isExpand);
+            }}
           />
         </DropDown>
       </div>
 
       <div
         ref={taskBarRef}
-        className={`z-[1] flex items-center gap-2 pointer-events-auto ${
+        className={`z-[1] flex items-center gap-2 pointer-events-auto relative ${
           taskbarPlacement === "bottom" ? "flex-row px-8" : "flex-col py-6 px-4"
         } ${
           isExpand
             ? taskbarPlacement === "bottom"
-              ? "w-full justify-center"
+              ? "justify-center"
               : "h-full"
-            : "w-fit h-fit justify-start rounded-3xl"
+            : "w-fit h-fit justify-start "
         }
-        bg-[--taskbar-bg] min-h-20 transition-all duration-300`}
+        min-h-20 transition-all duration-300`}
+        style={{
+          width: isExpand
+            ? "100%"
+            : taskbarPlacement === "bottom"
+            ? widthNotExpanded ?? ""
+            : "",
+          height: isExpand
+            ? "100%"
+            : taskbarPlacement !== "bottom"
+            ? heightNotExpanded ?? ""
+            : "",
+        }}
         onContextMenu={(e) => {
           if (e.target !== e.currentTarget) return;
           e.preventDefault();
           dropDownRef.current?.handleOpen();
         }}
       >
+        <div
+          className={`absolute inset-0 w-full h-full pointer-events-none
+         bg-[--taskbar-bg] backdrop-blur-sm -z-10 ${
+           isExpand ? "" : "rounded-3xl"
+         }`}
+        />
         <TaskbarItem
           taskBarRef={taskBarRef}
           taskbarPlacement={taskbarPlacement}
@@ -155,7 +201,11 @@ export const Taskbar = ({
           addWindowProps={{
             title: `Test`,
             appId: "test0",
-            content: <p className="text-red-700">asda</p>,
+            content: (
+              <div className="w-full h-full bg-amber-300">
+                <p className="text-red-500">Nothing in Here OwO</p>
+              </div>
+            ),
             size: {
               width: 300,
               height: 300,
@@ -168,23 +218,8 @@ export const Taskbar = ({
           taskbarPlacement={taskbarPlacement}
           windows={windows}
           addWindowProps={{
-            title: `Test`,
-            appId: "test0",
-            content: <p className="text-red-700">asda</p>,
-            size: {
-              width: 300,
-              height: 300,
-            },
-          }}
-          dispatch={dispatch}
-        />
-        <TaskbarItem
-          taskBarRef={taskBarRef}
-          taskbarPlacement={taskbarPlacement}
-          windows={windows}
-          addWindowProps={{
-            title: `Iyaaaa`,
-            appId: "test1",
+            title: `localhost`,
+            appId: "localhostApp",
             content: (
               <iframe
                 className="w-full h-full"

@@ -1,26 +1,29 @@
 "use client";
 
-import { Dispatch, SetStateAction, createContext } from "react";
+import { ActionDispatch, createContext } from "react";
 
-export type themeType = "light" | "dark";
+export type themeType = "light" | "dark" | "tr-light" | "tr-dark";
 
 export const themeContext = createContext<{
   theme: themeType;
-  setThemeState: Dispatch<SetStateAction<themeType>>;
+  setTheme: ActionDispatch<[action: themeType | undefined]>;
 }>({
   theme: "dark",
-  setThemeState: () => {},
+  setTheme: () => {},
 });
 
 export const getSystemTheme = (): themeType => {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+    ? "tr-dark"
+    : "tr-light";
 };
 
+// me lazy ehe
 export const getTheme = (): themeType => {
   const theme = localStorage.getItem("theme");
-  return theme === "light" || theme === "dark" ? theme : getSystemTheme();
+  return `tr-${
+    theme === "light" || theme === "dark" ? theme : (getSystemTheme().replace("tr-", "") as string)
+  }` as themeType;
 };
 
 export const initTheme = (): themeType => {
@@ -29,13 +32,11 @@ export const initTheme = (): themeType => {
   return savedTheme;
 };
 
-export const setTheme = (
-  setThemeState: Dispatch<SetStateAction<themeType>>,
-  theme: themeType,
-  preferedTheme?: themeType
-) => {
-  preferedTheme = preferedTheme ?? (theme == "light" ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", preferedTheme);
-  localStorage.setItem("theme", preferedTheme);
-  setThemeState(preferedTheme);
+export const reducer = (state: themeType, action?: themeType): themeType => {
+  action = action ?? (state == "light" ? "tr-dark" : "tr-light");
+  if (!action?.includes("tr")) {
+    document.documentElement.setAttribute("data-theme", action);
+    localStorage.setItem("theme", action);
+  }
+  return action;
 };

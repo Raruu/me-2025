@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --taskbar-bg: #d1d1d1;
+  --background: oklch(100% 0 0);
+  --foreground: oklch(20.46% 0 0);
+  --taskbar-bg: oklch(86.07% 0 0 / 50%);
 }
 
 [data-theme="dark"] {
-  --background: #282828;
-  --foreground: #ededed;
-  --taskbar-bg: #3c3c3c;
+  --background: oklch(27.68% 0 0);
+  --foreground: oklch(94.61% 0 0);
+  --taskbar-bg: oklch(35.62% 0 0 / 50%);
 }
 
 body {

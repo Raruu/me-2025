@@ -48,7 +48,8 @@ export const DropDownItemSeparator = ({
 }: DropDownItemSeparatorProps) => {
   return (
     <div
-      className={`w-full h-0.5 my-[${space}] bg-gray-300 dark:bg-gray-600`}
+    style={{ marginTop: space, marginBottom: space }}
+      className={`w-full h-0.5 bg-gray-300 dark:bg-gray-600`}
     ></div>
   );
 };

@@ -2,6 +2,7 @@ import { useReducer, useRef, useEffect, useState } from "react";
 import { Window } from "./Window";
 import { StatusBar } from "../ui/Statusbar";
 import { Taskbar } from "../ui/Taskbar/Taskbar";
+import { BackgroundUwU } from "../ui/BackgroundUwU";
 
 export interface WindowState {
   id: number;
@@ -164,7 +165,8 @@ export const WindowManager = () => {
   return (
     <main className="flex flex-col justify-between min-h-screen">
       <StatusBar ref={statusBarRef} />
-      <div className="bg-foreground transition-colors duration-300 text-background absolute min-h-full min-w-full p-8 z-0">
+      <BackgroundUwU statusBarRef={statusBarRef} />
+      <div className="bg-transparent transition-colors duration-300 text-background absolute min-h-full min-w-full p-8 z-0">
         {windows.map((window, index) => (
           <Window
             key={window.id}
