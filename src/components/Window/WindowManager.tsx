@@ -148,6 +148,15 @@ export const WindowManager = () => {
         if (targetIndex > -1) {
           const targetWindow = state[targetIndex];
           targetWindow.isMinimized = false;
+          const { innerWidth, innerHeight } = window;
+          const { x, y } = targetWindow.position;
+          const { width, height } = targetWindow.size;
+          if (x + width > innerWidth) {
+            targetWindow.position.x = innerWidth - width;
+          }
+          if (y + height > innerHeight) {
+            targetWindow.position.y = innerHeight - height;
+          }
           return [
             ...state.slice(0, targetIndex),
             ...state.slice(targetIndex + 1),
@@ -162,10 +171,21 @@ export const WindowManager = () => {
 
   const [windows, dispatch] = useReducer(reducer, []);
 
+  useEffect(() => {
+    const hasMaximizedWindow = windows.some(
+      (window) => window.isMaximized && !window.isMinimized
+    );
+    if (hasMaximizedWindow) {
+      document.documentElement.setAttribute("class", "no-tr");
+    } else {
+      document.documentElement.setAttribute("class", "");
+    }
+  }, [windows]);
+
   return (
     <main className="flex flex-col justify-between min-h-screen">
       <StatusBar ref={statusBarRef} />
-      <BackgroundUwU statusBarRef={statusBarRef} />
+      <BackgroundUwU statusBarRef={statusBarRef} taskBarRef={taskBarRef} />
       <div className="bg-transparent transition-colors duration-300 text-background absolute min-h-full min-w-full p-8 z-0">
         {windows.map((window, index) => (
           <Window

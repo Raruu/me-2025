@@ -151,9 +151,10 @@ export const TaskbarItem = ({
       />
       <p
         style={{ width: 40 }}
-        className={`transition-all duration-300 select-none text-ellipsis text-nowrap overflow-hidden ${
-          hovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
-        } `}
+        className={`transition-all duration-300 select-none 
+          text-ellipsis text-nowrap overflow-hidden text-center ${
+            hovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
+          } `}
       >
         {addWindowProps.title}
       </p>

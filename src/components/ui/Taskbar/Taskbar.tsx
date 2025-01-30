@@ -189,7 +189,8 @@ export const Taskbar = ({
         }}
       >
         <div
-          className={`absolute inset-0 w-full h-full pointer-events-none
+          id="taskbar-bg"
+          className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-300
          bg-[--taskbar-bg] backdrop-blur-sm -z-10 ${
            isExpand ? "" : "rounded-3xl"
          }`}
@@ -218,12 +219,12 @@ export const Taskbar = ({
           taskbarPlacement={taskbarPlacement}
           windows={windows}
           addWindowProps={{
-            title: `localhost`,
+            title: `This`,
             appId: "localhostApp",
             content: (
               <iframe
                 className="w-full h-full"
-                src="http://localhost:3000/"
+                src={typeof window === "undefined" ? "" : window.location.href}
                 allowFullScreen
               ></iframe>
             ),

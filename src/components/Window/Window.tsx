@@ -237,16 +237,29 @@ export const Window = ({
     isMaximized,
   ]);
 
+  const [animateMinimize, setAnimateMinimize] = useState(false);
+
+  useEffect(() => {
+    if (isMinimized) return;
+    setAnimateMinimize(false);
+  }, [isMinimized]);
+
   if (isMinimized) return null;
 
   return (
     <div
       className={`absolute flex flex-col w-96 h-96 bg-transparent rounded-lg 
-        shadow-lg select-none cursor-move text-foreground ${
+        shadow-lg select-none cursor-move text-foreground overflow-hidden max-w-full max-h-full ${
           !isDraggingResize && !isDraggingMove
             ? "transition-all duration-300"
             : ""
-        }`}
+        } ${animateMinimize ? "opacity-0" : "opacity-100"}`}
+      onTransitionEnd={() => {
+        if (animateMinimize) {
+          dispatch({ type: "MINIMIZE", id });
+          // setAnimateMinimize(false);
+        }
+      }}
       onMouseMove={handleMouseResizeCursor}
       onMouseDown={(e: MouseEvent) => {
         if (
@@ -277,7 +290,7 @@ export const Window = ({
     >
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-background"
+        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--taskbar-bg] backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
             handleMouseDownMove(e);
@@ -301,7 +314,7 @@ export const Window = ({
           <WindowActionButton
             icon="mingcute:minimize-fill"
             useRightMargin
-            onClick={() => dispatch({ type: "MINIMIZE", id })}
+            onClick={() => setAnimateMinimize(true)}
           />
           <WindowActionButton
             icon={`mingcute:${isMaximized ? "restore-fill" : "square-line"}`}

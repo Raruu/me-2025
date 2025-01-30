@@ -6,14 +6,18 @@ import { themeContext, themeType } from "@/styles/theme";
 
 interface BackgroundUwUProps {
   statusBarRef: React.RefObject<HTMLDivElement>;
+  taskBarRef: React.RefObject<HTMLDivElement>;
 }
 
-export const BackgroundUwU = ({ statusBarRef }: BackgroundUwUProps) => {
+export const BackgroundUwU = ({
+  statusBarRef,
+  taskBarRef,
+}: BackgroundUwUProps) => {
   const webPImage = "/azusa-dance.webp";
   const bgLightImage = "/background-light.webp";
   const bgDarkImage = "/background-dark.webp";
   const filterId = useId();
-  const [bgUrl, setBgUrl] = useState(bgDarkImage);
+  const [bgUrl, setBgUrl] = useState(webPImage);
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
   const [resizing, setIsAnimating] = useState(false);
@@ -21,16 +25,22 @@ export const BackgroundUwU = ({ statusBarRef }: BackgroundUwUProps) => {
   useEffect(() => {
     if (!theme.includes("tr-")) return;
     setShow(true);
+    const taskbarBg = Array.from(taskBarRef.current?.children || []).filter(
+      (child) => (child as HTMLElement).id === "taskbar-bg"
+    )[0] as HTMLElement;
+    taskbarBg.style.opacity = "0";
     setTimeout(() => {
       setTimeout(() => {
         const tmpTheme = theme.replace("tr-", "") as themeType;
         setTheme(tmpTheme);
         setBgUrl(tmpTheme === "light" ? bgLightImage : bgDarkImage);
+        taskbarBg.style.opacity = "";
         setShow(false);
         setIsAnimating(false);
       }, 150);
       setIsAnimating(true);
     }, 700);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setTheme, theme]);
 
   return (
@@ -40,7 +50,7 @@ export const BackgroundUwU = ({ statusBarRef }: BackgroundUwUProps) => {
         style={{ opacity: show ? 0 : 1 }}
       >
         <div
-          className="w-full bg-[--taskbar-bg] backdrop-blur-z-10"
+          className="w-full bg-[--taskbar-bg] backdrop-blur -z-10 transition-colors"
           style={{
             height: statusBarRef.current?.clientHeight || 0,
           }}
@@ -52,6 +62,7 @@ export const BackgroundUwU = ({ statusBarRef }: BackgroundUwUProps) => {
           width={0}
           height={0}
           unoptimized
+          priority
           alt="background Image"
         />
       </div>
