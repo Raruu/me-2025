@@ -12,6 +12,7 @@ import {
   DropDownItem,
   DropDownItemSeparator,
 } from "../../Dropdown/DropdownItem";
+import { AboutMe } from "@/components/AboutMe";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
 
@@ -30,7 +31,6 @@ export const Taskbar = ({
   windows,
   dispatch,
 }: TaskbarProps) => {
-  // const taskBarRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const dropDownRef = useRef<{ handleOpen: () => void }>({
     handleOpen: () => {},
   });
@@ -200,16 +200,13 @@ export const Taskbar = ({
           taskbarPlacement={taskbarPlacement}
           windows={windows}
           addWindowProps={{
-            title: `Test`,
-            appId: "test0",
-            content: (
-              <div className="w-full h-full bg-amber-300">
-                <p className="text-red-500">Nothing in Here OwO</p>
-              </div>
-            ),
+            title: `Me`,
+            appId: "me",
+            icon: "raruu:azusa-cat",
+            content: <AboutMe />,
             size: {
-              width: 300,
-              height: 300,
+              width: 500,
+              height: 500,
             },
           }}
           dispatch={dispatch}

@@ -64,7 +64,7 @@ export const TaskbarItem = ({
       type: "ADD_WINDOW",
       window: {
         id: Date.now(),
-        title: addWindowProps.title + windowsAppId.length,
+        title: addWindowProps.title,
         appId: addWindowProps.appId,
         subtitle: addWindowProps.subtitle,
         icon: addWindowProps.icon ?? "mingcute:terminal-box-line",

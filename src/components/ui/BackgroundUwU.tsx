@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useEffect, useContext, useState } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 import { themeContext, themeType } from "@/styles/theme";
 
 interface BackgroundUwUProps {
@@ -21,6 +21,19 @@ export const BackgroundUwU = ({
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
   const [resizing, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    const imagesToPreload = [webPImage, bgLightImage, bgDarkImage];
+
+    imagesToPreload.forEach((url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(err);
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (!theme.includes("tr-")) return;
@@ -55,7 +68,7 @@ export const BackgroundUwU = ({
             height: statusBarRef.current?.clientHeight || 0,
           }}
         ></div>
-        <Image
+        <NextImage
           src={bgUrl}
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10"
           style={{ width: "100%", height: "auto" }}
@@ -78,7 +91,7 @@ export const BackgroundUwU = ({
             <feComposite in="flood" in2="SourceAlpha" operator="in" />
           </filter>
         </svg>
-        <Image
+        <NextImage
           className="transition-all duration-300 w-1/3 h-auto"
           src={webPImage}
           style={{

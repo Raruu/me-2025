@@ -59,11 +59,6 @@ export const WindowManager = () => {
 
   const handleWindowResize = () => {
     if (statusBarRef.current) {
-      // console.log(
-      //   taskBarRef.current.left,
-      //   taskBarRef.current.right,
-      //   taskBarRef.current.bottom
-      // );
       setBorderConstrains({
         top: statusBarRef.current.clientHeight,
         right: window.innerWidth - (taskBarRef.current.right ?? 0),
@@ -109,8 +104,12 @@ export const WindowManager = () => {
           action.window.position?.y === 0
         ) {
           action.window.position = {
-            x: borderConstrains.left,
-            y: borderConstrains.top,
+            x:
+              (borderConstrains.right + borderConstrains.left) / 2 -
+              action.window.size.width / 2,
+            y:
+              (borderConstrains.bottom + borderConstrains.top) / 2 -
+              action.window.size.height / 2,
           };
         }
         return [...state, action.window];
