@@ -1,7 +1,9 @@
 import React from "react";
 
+export type DropDownRef = { handleOpen: () => void };
+
 interface DropDownProps {
-  ref?: React.RefObject<{ handleOpen: () => void }>;
+  ref?: React.RefObject<DropDownRef>;
   children: React.ReactNode;
   trigger?: React.ReactNode;
   align?: "left" | "center" | "right";

@@ -1,29 +1,35 @@
-import NextImage from "next/image";
 import { TextRotate } from "./TextRotate";
+import { AzusaBounce } from "./AzusaBounce";
+import { SeeMee } from "./SeeMee";
+import { mediaQueryContext, useElementSize } from "@/hooks/useElementSize";
 
 export const AboutMe = () => {
+  const { mediaQuery, elementRef } = useElementSize();
+
   return (
-    <div className="flex flex-row items-center justify-center bg-background w-full h-full">
-      <div className="flex flex-col items-center w-48">
-        <NextImage
-          src={"/me-azusa.webp"}
-          style={{ width: "100%", height: "auto" }}
-          alt="Picture of me"
-          width={200}
-          height={200}
-        />
-        <div className="h-4" />
-        <TextRotate
-          textPrefix="Hi, I'm"
-          texts={["Widi", "Raruu", "ᓀ‸ᓂ"]}
-          animFrom="end"
-          displayDuration={500}
-        />
-        <div className="h-2"></div>
-        <h1 className="text-sm font-bold">I code, Student</h1>
-        <div className="h-2"></div>
-        <h1 className="text-xs italic">Build this website brick by brick</h1>
-      </div>
+    <div
+      ref={elementRef}
+      className="flex flex-row items-center justify-center bg-background w-full h-full select-none overflow-auto"
+    >
+      <mediaQueryContext.Provider value={mediaQuery}>
+        <div className="flex flex-col items-center">
+          <AzusaBounce />
+          <div className="h-4" />
+          <TextRotate
+            prefix="Hi, I'm"
+            texts={["Widi", "Raruu", "ᓀ‸ᓂ"]}
+            animFrom="end"
+            displayDuration={500}
+            mediaQuery={mediaQuery}
+          />
+          <div className="h-2"></div>
+          <h1 className="text-sm font-bold">I code, Student</h1>
+          <div className="h-2"></div>
+          <SeeMee />
+          <div className="h-2"></div>
+          <h1 className="text-xs italic">Build this site brick by brick</h1>
+        </div>
+      </mediaQueryContext.Provider>
     </div>
   );
 };

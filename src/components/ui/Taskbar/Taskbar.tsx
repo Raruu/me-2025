@@ -7,12 +7,12 @@ import {
   WindowState,
 } from "../../Window/WindowManager";
 import { TaskbarItem } from "./TaskbarItem";
-import { DropDown } from "../../Dropdown/Dropdown";
+import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
 import {
   DropDownItem,
   DropDownItemSeparator,
 } from "../../Dropdown/DropdownItem";
-import { AboutMe } from "@/components/AboutMe";
+import { TaskBarItems } from "@/configs/TaskBarItems";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
 
@@ -31,7 +31,7 @@ export const Taskbar = ({
   windows,
   dispatch,
 }: TaskbarProps) => {
-  const dropDownRef = useRef<{ handleOpen: () => void }>({
+  const dropDownRef = useRef<DropDownRef>({
     handleOpen: () => {},
   });
   const [taskbarPlacement, setTaskbarPlacement] =
@@ -191,47 +191,20 @@ export const Taskbar = ({
         <div
           id="taskbar-bg"
           className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-300
-         bg-[--taskbar-bg] backdrop-blur-sm -z-10 ${
-           isExpand ? "" : "rounded-3xl"
-         }`}
+            bg-[var(--taskbar-bg)] backdrop-blur-sm -z-10 ${
+              isExpand ? "" : "rounded-3xl"
+            }`}
         />
-        <TaskbarItem
-          taskBarRef={taskBarRef}
-          taskbarPlacement={taskbarPlacement}
-          windows={windows}
-          addWindowProps={{
-            title: `Me`,
-            appId: "me",
-            icon: "raruu:azusa-cat",
-            content: <AboutMe />,
-            size: {
-              width: 500,
-              height: 500,
-            },
-          }}
-          dispatch={dispatch}
-        />
-        <TaskbarItem
-          taskBarRef={taskBarRef}
-          taskbarPlacement={taskbarPlacement}
-          windows={windows}
-          addWindowProps={{
-            title: `This`,
-            appId: "localhostApp",
-            content: (
-              <iframe
-                className="w-full h-full"
-                src={typeof window === "undefined" ? "" : window.location.href}
-                allowFullScreen
-              ></iframe>
-            ),
-            size: {
-              width: 300,
-              height: 300,
-            },
-          }}
-          dispatch={dispatch}
-        />
+        {TaskBarItems.map((item, index) => (
+          <TaskbarItem
+            key={index}
+            taskBarRef={taskBarRef}
+            taskbarPlacement={taskbarPlacement}
+            windows={windows}
+            addWindowProps={item}
+            dispatch={dispatch}
+          />
+        ))}
       </div>
     </div>
   );

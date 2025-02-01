@@ -3,6 +3,7 @@
 import { useId, useEffect, useContext, useState } from "react";
 import NextImage from "next/image";
 import { themeContext, themeType } from "@/styles/theme";
+import { themeTrImage, bgLightImage, bgDarkImage } from "@/utils/picture-helper";
 
 interface BackgroundUwUProps {
   statusBarRef: React.RefObject<HTMLDivElement>;
@@ -13,27 +14,11 @@ export const BackgroundUwU = ({
   statusBarRef,
   taskBarRef,
 }: BackgroundUwUProps) => {
-  const webPImage = "/azusa-dance.webp";
-  const bgLightImage = "/background-light.webp";
-  const bgDarkImage = "/background-dark.webp";
   const filterId = useId();
-  const [bgUrl, setBgUrl] = useState(webPImage);
+  const [bgUrl, setBgUrl] = useState(themeTrImage);
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
   const [resizing, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    const imagesToPreload = [webPImage, bgLightImage, bgDarkImage];
-
-    imagesToPreload.forEach((url) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => resolve(img);
-        img.onerror = (err) => reject(err);
-      });
-    });
-  }, []);
 
   useEffect(() => {
     if (!theme.includes("tr-")) return;
@@ -63,7 +48,7 @@ export const BackgroundUwU = ({
         style={{ opacity: show ? 0 : 1 }}
       >
         <div
-          className="w-full bg-[--taskbar-bg] backdrop-blur -z-10 transition-colors"
+          className="w-full bg-[var(--taskbar-bg)] backdrop-blur -z-10 transition-colors"
           style={{
             height: statusBarRef.current?.clientHeight || 0,
           }}
@@ -93,7 +78,7 @@ export const BackgroundUwU = ({
         </svg>
         <NextImage
           className="transition-all duration-300 w-1/3 h-auto"
-          src={webPImage}
+          src={themeTrImage}
           style={{
             filter: `url(#${filterId})`,
             width: resizing ? "calc(100vw + 100vh)" : "40vh",

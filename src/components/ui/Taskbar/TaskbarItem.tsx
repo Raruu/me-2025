@@ -7,7 +7,7 @@ import { DropDown } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
 
-interface AddWindowProps
+export interface AddWindowProps
   extends Pick<
     WindowState,
     "title" | "appId" | "icon" | "subtitle" | "content"
@@ -82,7 +82,7 @@ export const TaskbarItem = ({
     <div
       className={`flex flex-col items-center justify-center cursor-pointer
         transition-all duration-300 ${
-          windowsAppId.length > 0 ? "gap-[5]" : "gap-1"
+          windowsAppId.length > 0 ? "gap-[5px]" : "gap-1"
         }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -164,7 +164,7 @@ export const TaskbarItem = ({
         )}
         {windowsAppId.map((window, index) => {
           if (index > 2) return null;
-          const expand = "w-[40] h-1 mt-0";
+          const expand = "w-[40px] h-1 mt-0";
           const hide = "opacity-0 w-0 -mr-1";
           return (
             <div
