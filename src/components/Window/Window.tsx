@@ -59,21 +59,40 @@ export const Window = ({
     setTimeout(() => dispatch({ type: "MAXIMIZE", id }), 1);
   };
 
-  const RESIZE_THRESHOLD = 5;
+  const RESIZE_THRESHOLD = 10;
+
+  const getClientCoordinates = (
+    e:
+      | globalThis.MouseEvent
+      | MouseEvent
+      | React.TouchEvent<HTMLDivElement>
+      | TouchEvent
+  ): { clientX: number; clientY: number } => {
+    if ("touches" in e && e.touches.length > 0) {
+      return {
+        clientX: e.touches[0].clientX,
+        clientY: e.touches[0].clientY,
+      };
+    }
+    return {
+      clientX: (e as MouseEvent).clientX,
+      clientY: (e as MouseEvent).clientY,
+    };
+  };
 
   const calculateResizeDirection = (
-    mouseX: number,
-    mouseY: number
+    clientX: number,
+    clientY: number
   ): string | null => {
     const { x, y } = position;
     const { width, height } = size;
 
-    const nearTop = mouseY >= y && mouseY <= y + RESIZE_THRESHOLD;
+    const nearTop = clientY >= y && clientY <= y + RESIZE_THRESHOLD;
     const nearBottom =
-      mouseY >= y + height - RESIZE_THRESHOLD && mouseY <= y + height;
-    const nearLeft = mouseX >= x && mouseX <= x + RESIZE_THRESHOLD;
+      clientY >= y + height - RESIZE_THRESHOLD && clientY <= y + height;
+    const nearLeft = clientX >= x && clientX <= x + RESIZE_THRESHOLD;
     const nearRight =
-      mouseX >= x + width - RESIZE_THRESHOLD && mouseX <= x + width;
+      clientX >= x + width - RESIZE_THRESHOLD && clientX <= x + width;
 
     if (nearTop && nearLeft) return "top-left";
     if (nearTop && nearRight) return "top-right";
@@ -87,9 +106,12 @@ export const Window = ({
     return null;
   };
 
-  const handleMouseResizeCursor = (e: MouseEvent) => {
+  const handleMouseResizeCursor = (
+    e: MouseEvent | React.TouchEvent<HTMLDivElement>
+  ) => {
     if (!isDraggingResize) {
-      const direction = calculateResizeDirection(e.clientX, e.clientY);
+      const { clientX, clientY } = getClientCoordinates(e);
+      const direction = calculateResizeDirection(clientX, clientY);
       const cursorMap: Record<string, string> = {
         "top-left": "nwse-resize",
         "top-right": "nesw-resize",
@@ -104,8 +126,11 @@ export const Window = ({
     }
   };
 
-  const handleMouseDownResize = (e: MouseEvent) => {
-    const direction = calculateResizeDirection(e.clientX, e.clientY);
+  const handleDownResize = (
+    e: MouseEvent | React.TouchEvent<HTMLDivElement>
+  ) => {
+    const { clientX, clientY } = getClientCoordinates(e);
+    const direction = calculateResizeDirection(clientX, clientY);
     // console.log(direction);
     if (direction) {
       setIsDraggingResize(true);
@@ -113,34 +138,38 @@ export const Window = ({
     }
   };
 
-  const handleMouseDownMove = (e: MouseEvent) => {
+  const handleDownMove = (e: MouseEvent | React.TouchEvent<HTMLDivElement>) => {
+    const { clientX, clientY } = getClientCoordinates(e);
     setIsDraggingMove(true);
     setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
+      x: clientX - position.x,
+      y: clientY - position.y,
     });
   };
 
   const checkOutofConstrains = useCallback(
-    (e: globalThis.MouseEvent) => {
+    (clientX: number, clientY: number) => {
       return (
-        e.clientX < borderConstrains.left ||
-        e.clientX > borderConstrains.right ||
-        e.clientY < borderConstrains.top ||
-        e.clientY > borderConstrains.bottom
+        // clientX < borderConstrains.left ||
+        // clientX > borderConstrains.right ||
+        clientY < borderConstrains.top
+        // clientY > borderConstrains.bottom
       );
     },
     [borderConstrains]
   );
 
   useEffect(() => {
-    const handleResize = (e: globalThis.MouseEvent) => {
+    const handleResize = (
+      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent
+    ) => {
       if (!isDraggingResize || !resizeDirection || isMaximized) return;
-      if (checkOutofConstrains(e)) {
-        setIsDraggingResize(false);
-        setResizeDirection(null);
-        return;
-      }
+      const { clientX, clientY } = getClientCoordinates(e);
+      // if (checkOutofConstrains(clientX, clientY)) {
+      //   setIsDraggingResize(false);
+      //   setResizeDirection(null);
+      //   return;
+      // }
       const { x, y } = position;
       const { width, height } = size;
 
@@ -150,18 +179,18 @@ export const Window = ({
       let newY = y;
 
       if (resizeDirection.includes("right")) {
-        newWidth = e.clientX - x + RESIZE_THRESHOLD;
+        newWidth = clientX - x + RESIZE_THRESHOLD;
       }
       if (resizeDirection.includes("left")) {
-        newWidth = width + (x - e.clientX) + RESIZE_THRESHOLD;
-        newX = e.clientX - RESIZE_THRESHOLD;
+        newWidth = width + (x - clientX) + RESIZE_THRESHOLD;
+        newX = clientX - RESIZE_THRESHOLD;
       }
       if (resizeDirection.includes("bottom")) {
-        newHeight = e.clientY - y + RESIZE_THRESHOLD;
+        newHeight = clientY - y + RESIZE_THRESHOLD;
       }
       if (resizeDirection.includes("top")) {
-        newHeight = height + (y - e.clientY) + RESIZE_THRESHOLD;
-        newY = e.clientY - RESIZE_THRESHOLD;
+        newHeight = height + (y - clientY) + RESIZE_THRESHOLD;
+        newY = clientY - RESIZE_THRESHOLD;
       }
 
       if (newWidth < minSize.width) {
@@ -193,8 +222,10 @@ export const Window = ({
     };
 
     document.addEventListener("mousemove", handleResize);
+    document.addEventListener("touchmove", handleResize, { passive: false });
     return () => {
       document.removeEventListener("mousemove", handleResize);
+      document.removeEventListener("touchmove", handleResize);
     };
   }, [
     checkOutofConstrains,
@@ -210,23 +241,28 @@ export const Window = ({
   ]);
 
   useEffect(() => {
-    const handleMove = (e: globalThis.MouseEvent) => {
+    const handleMove = (
+      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent
+    ) => {
       if (!isDraggingMove || isMaximized) return;
-      if (checkOutofConstrains(e)) {
+      const { clientX, clientY } = getClientCoordinates(e);
+      if (checkOutofConstrains(clientX, clientY)) {
         setIsDraggingMove(false);
       }
       dispatch({
         type: "MOVE",
         id,
         position: {
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
+          x: clientX - dragOffset.x,
+          y: clientY - dragOffset.y,
         },
       });
     };
     document.addEventListener("mousemove", handleMove);
+    document.addEventListener("touchmove", handleMove, { passive: false });
     return () => {
       document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("touchmove", handleMove);
     };
   }, [
     checkOutofConstrains,
@@ -270,10 +306,19 @@ export const Window = ({
           dispatch({ type: "FOCUS", id });
         }
         if (e.target === e.currentTarget) {
-          handleMouseDownResize(e);
+          handleDownResize(e);
         }
       }}
       onMouseUp={() => setIsDraggingResize(false)}
+      onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+          handleDownResize(e);
+        }
+      }}
+      onTouchEnd={() => {
+        setIsDraggingResize(false);
+        setIsDraggingMove(false);
+      }}
       style={{
         top: isMaximized ? borderConstrains.top : position.y,
         left: isMaximized ? borderConstrains.left : position.x,
@@ -283,7 +328,7 @@ export const Window = ({
         height: isMaximized
           ? `calc(100% - ${borderConstrains.top}px - (100% - ${borderConstrains.bottom}px))`
           : size.height,
-        padding: isMaximized ? 0 : "6px 4px 4px 4px",
+        padding: isMaximized ? 0 : "10px 8px 8px 8px",
         borderRadius: isMaximized ? 0 : "",
         cursor: cursorStyle,
       }}
@@ -293,21 +338,31 @@ export const Window = ({
         className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--taskbar-bg] backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
-            handleMouseDownMove(e);
+            handleDownMove(e);
           }
         }}
         onMouseUp={() => setIsDraggingMove(false)}
+        onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+          if (e.target === e.currentTarget) handleDownMove(e);
+        }}
+        onTouchEnd={() => setIsDraggingMove(false)}
       >
         <div
           className="flex flex-col justify-center"
-          onMouseDown={(e: MouseEvent) => handleMouseDownMove(e)}
+          onMouseDown={(e: MouseEvent) => handleDownMove(e)}
+          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
+            handleDownMove(e)
+          }
         >
           <h1 className="font-bold text-base leading-none">{title}</h1>
           <p className="font-thin text-xs leading-none">{subtitle}</p>
         </div>
         <div
           className="flex-1 h-full w-full"
-          onMouseDown={(e: MouseEvent) => handleMouseDownMove(e)}
+          onMouseDown={(e: MouseEvent) => handleDownMove(e)}
+          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
+            handleDownMove(e)
+          }
           onDoubleClick={maximize}
         ></div>
         <div id="window-actions" className="flex flex-row">

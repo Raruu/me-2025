@@ -116,20 +116,26 @@ export const WindowManager = () => {
       case "MOVE":
         return state.map((window) => {
           if (window.id === action.id) {
-            let { x, y } = action.position;
-            x =
-              x + window.size.width > borderConstrains.right
-                ? borderConstrains.right - window.size.width
-                : x < borderConstrains.left
-                ? borderConstrains.left
-                : x;
-            y =
-              y < borderConstrains.top
-                ? borderConstrains.top
-                : y + window.size.height > borderConstrains.bottom
-                ? borderConstrains.bottom - window.size.height
-                : y;
-            return { ...window, position: { x, y } };
+            const { x, y } = action.position;
+            // x =
+            //   x + window.size.width > borderConstrains.right
+            //     ? borderConstrains.right - window.size.width
+            //     : x < borderConstrains.left
+            //     ? borderConstrains.left
+            //     : x;
+            // y =
+            //   y < borderConstrains.top
+            //     ? borderConstrains.top
+            //     : y + window.size.height > borderConstrains.bottom
+            //     ? borderConstrains.bottom - window.size.height
+            //     : y;
+            return {
+              ...window,
+              position: {
+                x,
+                y: y < borderConstrains.top ? borderConstrains.top : y,
+              },
+            };
           }
           return window;
         });
@@ -185,7 +191,10 @@ export const WindowManager = () => {
     <main className="flex flex-col justify-between min-h-screen">
       <StatusBar ref={statusBarRef} />
       <BackgroundUwU statusBarRef={statusBarRef} taskBarRef={taskBarRef} />
-      <div className="bg-transparent transition-colors duration-300 text-background absolute min-h-full min-w-full p-8 z-0">
+      <div
+        className="bg-transparent transition-colors duration-300
+        text-background absolute min-h-full min-w-full overflow-hidden z-0"
+      >
         {windows.map((window, index) => (
           <Window
             key={window.id}

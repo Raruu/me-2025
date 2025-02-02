@@ -1,7 +1,8 @@
-import { TextRotate } from "./TextRotate";
-import { AzusaBounce } from "./AzusaBounce";
-import { SeeMee } from "./SeeMee";
-import { mediaQueryContext, useElementSize } from "@/hooks/useElementSize";
+import { TextRotate } from "../TextRotate";
+import { AzusaBounce } from "../AzusaBounce";
+import { SeeMee } from "../SeeMee";
+import { mediaQueryContext } from "@/hooks/useMediaQuery";
+import { useElementSize } from "@/hooks/useElementSize";
 
 export const AboutMe = () => {
   const { mediaQuery, elementRef } = useElementSize();

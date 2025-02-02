@@ -1,5 +1,5 @@
-import { mapMediaQuery, mediaQueryContext } from "@/hooks/useElementSize";
-import { azusaCatImage, notice1Image } from "@/utils/picture-helper";
+import { mapMediaQuery, mediaQueryContext } from "@/hooks/useMediaQuery";
+import { azusaCatImage, noticeAzusaCatImage } from "@/utils/picture-helper";
 import NextImage from "next/image";
 import { useContext, useState } from "react";
 
@@ -17,7 +17,7 @@ export const AzusaBounce = () => {
         className={`transition-opacity duration-150 ${
           isHover ? "opacity-100 animate-wiggle" : "opacity-0"
         }`}
-        src={notice1Image}
+        src={noticeAzusaCatImage}
         style={{
           width: "30px",
           height: "auto",

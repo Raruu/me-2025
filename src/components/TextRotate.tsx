@@ -1,4 +1,4 @@
-import { mapMediaQuery, MediaQuery } from "@/hooks/useElementSize";
+import { mapMediaQuery, MediaQuery } from "@/hooks/useMediaQuery";
 import { RefObject, useEffect, useRef, useState } from "react";
 
 export type TextRotateRef = {

@@ -81,7 +81,7 @@ export const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
             <StatusBarItem>
               <Icon
                 icon={
-                  theme == "light"
+                  theme.includes("light")
                     ? "iconamoon:mode-dark"
                     : "iconamoon:mode-light"
                 }
@@ -122,4 +122,3 @@ export const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
     </header>
   );
 };
-

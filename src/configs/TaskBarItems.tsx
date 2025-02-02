@@ -1,4 +1,4 @@
-import { AboutMe } from "@/components/AboutMe";
+import { AboutMe } from "@/components/Apps/AboutMe";
 import { AddWindowProps } from "@/components/ui/Taskbar/TaskbarItem";
 
 export const TaskBarItems: AddWindowProps[] = [

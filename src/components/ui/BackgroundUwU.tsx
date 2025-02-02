@@ -1,9 +1,16 @@
 "use client";
 
-import { useId, useEffect, useContext, useState } from "react";
+import { useId, useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
 import { themeContext, themeType } from "@/styles/theme";
-import { themeTrImage, bgLightImage, bgDarkImage } from "@/utils/picture-helper";
+import {
+  themeTrImage,
+  bgHzLightImage,
+  bgHzDarkImage,
+  bgVerLightImage,
+  bgVerDarkImage,
+} from "@/utils/picture-helper";
+import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface BackgroundUwUProps {
   statusBarRef: React.RefObject<HTMLDivElement>;
@@ -14,11 +21,37 @@ export const BackgroundUwU = ({
   statusBarRef,
   taskBarRef,
 }: BackgroundUwUProps) => {
+  const mediaQuery = useMediaQuery();
   const filterId = useId();
   const [bgUrl, setBgUrl] = useState(themeTrImage);
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
   const [resizing, setIsAnimating] = useState(false);
+
+  const changeBackground = useCallback(
+    (tmpTheme?: themeType) => {
+      tmpTheme = tmpTheme ?? theme;
+      if(tmpTheme.includes("tr-")) return;
+      setBgUrl(
+        tmpTheme === "light"
+          ? mapMediaQuery(mediaQuery, {
+              default: bgVerLightImage,
+              sm: bgHzLightImage,
+            })
+          : mapMediaQuery(mediaQuery, {
+              default: bgVerDarkImage,
+              sm: bgHzDarkImage,
+            })
+      );
+    },
+    [mediaQuery, theme]
+  );
+
+  useEffect(() => {
+    if(bgUrl === themeTrImage) return;
+    changeBackground();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaQuery]);
 
   useEffect(() => {
     if (!theme.includes("tr-")) return;
@@ -31,7 +64,7 @@ export const BackgroundUwU = ({
       setTimeout(() => {
         const tmpTheme = theme.replace("tr-", "") as themeType;
         setTheme(tmpTheme);
-        setBgUrl(tmpTheme === "light" ? bgLightImage : bgDarkImage);
+        changeBackground(tmpTheme);
         taskbarBg.style.opacity = "";
         setShow(false);
         setIsAnimating(false);
