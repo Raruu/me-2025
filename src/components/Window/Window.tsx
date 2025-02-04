@@ -1,12 +1,30 @@
 import { Icon } from "@iconify/react";
 import { WindowState, WindowAction, BorderConstrains } from "./WindowManager";
-import { Dispatch, MouseEvent, useState, useEffect, useCallback } from "react";
+import {
+  Dispatch,
+  MouseEvent,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 
 interface WindowActionButtonProps {
   icon: string;
   useRightMargin?: boolean;
   onClick?: () => void;
 }
+
+type ResizeDirection =
+  | "top"
+  | "right"
+  | "bottom"
+  | "left"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | null;
 
 const WindowActionButton = ({
   icon,
@@ -46,20 +64,21 @@ export const Window = ({
   isFocused,
   borderConstrains,
   minSize,
+  launcherRef,
   dispatch,
 }: WindowProps) => {
   const [isDraggingMove, setIsDraggingMove] = useState(false);
   const [isDraggingResize, setIsDraggingResize] = useState(false);
-  const [resizeDirection, setResizeDirection] = useState<string | null>(null);
+  const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [cursorStyle, setCursorStyle] = useState("default");
+  const headerRef = useRef<HTMLDivElement>(null);
 
   const maximize = () => {
     dispatch({ type: "FOCUS", id });
     setTimeout(() => dispatch({ type: "MAXIMIZE", id }), 1);
   };
 
-  const RESIZE_THRESHOLD = 10;
+  const RESIZE_THRESHOLD = 2;
 
   const getClientCoordinates = (
     e:
@@ -80,62 +99,13 @@ export const Window = ({
     };
   };
 
-  const calculateResizeDirection = (
-    clientX: number,
-    clientY: number
-  ): string | null => {
-    const { x, y } = position;
-    const { width, height } = size;
-
-    const nearTop = clientY >= y && clientY <= y + RESIZE_THRESHOLD;
-    const nearBottom =
-      clientY >= y + height - RESIZE_THRESHOLD && clientY <= y + height;
-    const nearLeft = clientX >= x && clientX <= x + RESIZE_THRESHOLD;
-    const nearRight =
-      clientX >= x + width - RESIZE_THRESHOLD && clientX <= x + width;
-
-    if (nearTop && nearLeft) return "top-left";
-    if (nearTop && nearRight) return "top-right";
-    if (nearBottom && nearLeft) return "bottom-left";
-    if (nearBottom && nearRight) return "bottom-right";
-    if (nearTop) return "top";
-    if (nearBottom) return "bottom";
-    if (nearLeft) return "left";
-    if (nearRight) return "right";
-
-    return null;
-  };
-
-  const handleMouseResizeCursor = (
-    e: MouseEvent | React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (!isDraggingResize) {
-      const { clientX, clientY } = getClientCoordinates(e);
-      const direction = calculateResizeDirection(clientX, clientY);
-      const cursorMap: Record<string, string> = {
-        "top-left": "nwse-resize",
-        "top-right": "nesw-resize",
-        "bottom-left": "nesw-resize",
-        "bottom-right": "nwse-resize",
-        top: "ns-resize",
-        bottom: "ns-resize",
-        left: "ew-resize",
-        right: "ew-resize",
-      };
-      setCursorStyle(direction ? cursorMap[direction] : "default");
-    }
-  };
-
   const handleDownResize = (
-    e: MouseEvent | React.TouchEvent<HTMLDivElement>
+    e: MouseEvent | React.TouchEvent<HTMLDivElement>,
+    direction: ResizeDirection
   ) => {
-    const { clientX, clientY } = getClientCoordinates(e);
-    const direction = calculateResizeDirection(clientX, clientY);
-    // console.log(direction);
-    if (direction) {
-      setIsDraggingResize(true);
-      setResizeDirection(direction);
-    }
+    e.stopPropagation();
+    setIsDraggingResize(true);
+    setResizeDirection(direction);
   };
 
   const handleDownMove = (e: MouseEvent | React.TouchEvent<HTMLDivElement>) => {
@@ -160,16 +130,21 @@ export const Window = ({
   );
 
   useEffect(() => {
+    const stopResizing = () => {
+      setIsDraggingResize(false);
+      setResizeDirection(null);
+      document.body.style.cursor = "";
+    };
+
     const handleResize = (
       e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent
     ) => {
       if (!isDraggingResize || !resizeDirection || isMaximized) return;
       const { clientX, clientY } = getClientCoordinates(e);
-      // if (checkOutofConstrains(clientX, clientY)) {
-      //   setIsDraggingResize(false);
-      //   setResizeDirection(null);
-      //   return;
-      // }
+      if (checkOutofConstrains(clientX, clientY)) {
+        stopResizing();
+        return;
+      }
       const { x, y } = position;
       const { width, height } = size;
 
@@ -177,6 +152,20 @@ export const Window = ({
       let newHeight = height;
       let newX = x;
       let newY = y;
+
+      const cursorMap: Record<string, string> = {
+        "top-left": "nwse-resize",
+        "top-right": "nesw-resize",
+        "bottom-left": "nesw-resize",
+        "bottom-right": "nwse-resize",
+        top: "ns-resize",
+        bottom: "ns-resize",
+        left: "ew-resize",
+        right: "ew-resize",
+      };
+      document.body.style.cursor = resizeDirection
+        ? cursorMap[resizeDirection]
+        : "default";
 
       if (resizeDirection.includes("right")) {
         newWidth = clientX - x + RESIZE_THRESHOLD;
@@ -193,13 +182,17 @@ export const Window = ({
         newY = clientY - RESIZE_THRESHOLD;
       }
 
-      if (newWidth < minSize.width) {
-        newWidth = minSize.width;
-        if (resizeDirection.includes("left")) newX = x + width - minSize.width;
+      const headerMinWidth = parseInt(headerRef.current?.style.minWidth || "0");
+      if (newWidth < minSize.width || newWidth < headerMinWidth) {
+        newWidth =
+          minSize.width > headerMinWidth ? minSize.width : headerMinWidth;
+        if (resizeDirection.includes("left")) newX = x + width - newWidth;
       }
-      if (newHeight < minSize.height) {
-        newHeight = minSize.height;
-        if (resizeDirection.includes("top")) newY = y + height - minSize.height;
+      const headerHeight = headerRef.current?.offsetHeight || 0;
+      if (newHeight < minSize.height || newHeight < headerHeight) {
+        newHeight =
+          minSize.height > headerHeight ? minSize.height : headerHeight;
+        if (resizeDirection.includes("top")) newY = y + height - newHeight;
       }
 
       dispatch({
@@ -223,9 +216,13 @@ export const Window = ({
 
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("touchmove", handleResize, { passive: false });
+    document.addEventListener("mouseup", stopResizing);
+    document.addEventListener("touchend", stopResizing);
     return () => {
       document.removeEventListener("mousemove", handleResize);
       document.removeEventListener("touchmove", handleResize);
+      document.removeEventListener("mouseup", stopResizing);
+      document.removeEventListener("touchend", stopResizing);
     };
   }, [
     checkOutofConstrains,
@@ -273,7 +270,17 @@ export const Window = ({
     isMaximized,
   ]);
 
-  const [animateMinimize, setAnimateMinimize] = useState(false);
+  const focus = (e: React.TouchEvent<HTMLDivElement> | MouseEvent) => {
+    if (
+      !isFocused &&
+      e.target instanceof HTMLElement &&
+      e.target.id !== "window-actions"
+    ) {
+      dispatch({ type: "FOCUS", id });
+    }
+  };
+
+  const [animateMinimize, setAnimateMinimize] = useState(true);
 
   useEffect(() => {
     if (isMinimized) return;
@@ -282,59 +289,52 @@ export const Window = ({
 
   if (isMinimized) return null;
 
+  const launcherPosX = launcherRef?.current
+    ? isMaximized
+      ? 0
+      : launcherRef?.current?.getBoundingClientRect().x
+    : 0;
+
+  const launcherPosY = launcherRef?.current?.getBoundingClientRect().y ?? 0;
+
   return (
     <div
       className={`absolute flex flex-col w-96 h-96 bg-transparent rounded-lg 
-        shadow-lg select-none cursor-move text-foreground overflow-hidden max-w-full max-h-full ${
+        shadow-lg select-none text-foreground overflow-hidden max-w-full max-h-full ${
           !isDraggingResize && !isDraggingMove
             ? "transition-all duration-300"
             : ""
-        } ${animateMinimize ? "opacity-0" : "opacity-100"}`}
+        }`}
       onTransitionEnd={() => {
         if (animateMinimize) {
           dispatch({ type: "MINIMIZE", id });
-          // setAnimateMinimize(false);
         }
       }}
-      onMouseMove={handleMouseResizeCursor}
-      onMouseDown={(e: MouseEvent) => {
-        if (
-          !isFocused &&
-          e.target instanceof HTMLElement &&
-          e.target.id !== "window-actions"
-        ) {
-          dispatch({ type: "FOCUS", id });
-        }
-        if (e.target === e.currentTarget) {
-          handleDownResize(e);
-        }
-      }}
-      onMouseUp={() => setIsDraggingResize(false)}
-      onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-          handleDownResize(e);
-        }
-      }}
-      onTouchEnd={() => {
-        setIsDraggingResize(false);
-        setIsDraggingMove(false);
-      }}
+      onMouseDown={(e: MouseEvent) => focus(e)}
+      onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => focus(e)}
+      onTouchEnd={() => setIsDraggingMove(false)}
       style={{
-        top: isMaximized ? borderConstrains.top : position.y,
-        left: isMaximized ? borderConstrains.left : position.x,
+        top: 0,
+        left: 0,
+        transform: animateMinimize
+          ? `translate(${launcherPosX}px, ${launcherPosY}px)`
+          : isMaximized
+          ? `translate(${borderConstrains.left}px, ${borderConstrains.top}px)`
+          : `translate(${position.x}px, ${position.y}px)`,
         width: isMaximized
           ? `calc(100% - ${borderConstrains.left}px - (100% - ${borderConstrains.right}px))`
           : size.width,
         height: isMaximized
           ? `calc(100% - ${borderConstrains.top}px - (100% - ${borderConstrains.bottom}px))`
           : size.height,
-        padding: isMaximized ? 0 : "10px 8px 8px 8px",
         borderRadius: isMaximized ? 0 : "",
-        cursor: cursorStyle,
+        opacity: animateMinimize ? 0 : 1,
+        scale: animateMinimize ? 0.75 : 1,
       }}
     >
       <div
-        style={{ borderRadius: isMaximized ? 0 : "" }}
+        ref={headerRef}
+        style={{ borderRadius: isMaximized ? 0 : "", minWidth: "130px" }}
         className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--taskbar-bg] backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
@@ -345,7 +345,6 @@ export const Window = ({
         onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
           if (e.target === e.currentTarget) handleDownMove(e);
         }}
-        onTouchEnd={() => setIsDraggingMove(false)}
       >
         <div
           className="flex flex-col justify-center"
@@ -391,6 +390,104 @@ export const Window = ({
         }`}
       >
         {content}
+      </div>
+      <div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "100%",
+            height: "6px",
+            left: "0px",
+            bottom: "-3px",
+            cursor: isDraggingResize ? "" : "ns-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "bottom")}
+          onTouchStart={(e) => handleDownResize(e, "bottom")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "6px",
+            height: "100%",
+            top: "0px",
+            left: "-3px",
+            cursor: isDraggingResize ? "" : "ew-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "left")}
+          onTouchStart={(e) => handleDownResize(e, "left")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "6px",
+            height: "100%",
+            top: "0px",
+            right: "-3px",
+            cursor: isDraggingResize ? "" : "ew-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "right")}
+          onTouchStart={(e) => handleDownResize(e, "right")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "100%",
+            height: "6px",
+            top: "-3px",
+            left: "0px",
+            cursor: isDraggingResize ? "" : "ns-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "top")}
+          onTouchStart={(e) => handleDownResize(e, "top")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "12px",
+            height: "12px",
+            left: "-3px",
+            top: "-3px",
+            cursor: isDraggingResize ? "" : "nwse-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "top-left")}
+          onTouchStart={(e) => handleDownResize(e, "top-left")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "12px",
+            height: "12px",
+            right: "-3px",
+            top: "-3px",
+            cursor: isDraggingResize ? "" : "nesw-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "top-right")}
+          onTouchStart={(e) => handleDownResize(e, "top-right")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "12px",
+            height: "12px",
+            left: "-3px",
+            bottom: "-3px",
+            cursor: isDraggingResize ? "" : "nesw-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "bottom-left")}
+          onTouchStart={(e) => handleDownResize(e, "bottom-left")}
+        ></div>
+        <div
+          className="absolute select-none"
+          style={{
+            width: "12px",
+            height: "12px",
+            right: "-3px",
+            bottom: "-3px",
+            cursor: isDraggingResize ? "" : "nwse-resize",
+          }}
+          onMouseDown={(e) => handleDownResize(e, "bottom-right")}
+          onTouchStart={(e) => handleDownResize(e, "bottom-right")}
+        ></div>
       </div>
     </div>
   );

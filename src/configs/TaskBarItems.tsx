@@ -1,5 +1,6 @@
 import { AboutMe } from "@/components/Apps/AboutMe";
 import { AddWindowProps } from "@/components/ui/Taskbar/TaskbarItem";
+import { createRef } from "react";
 
 export const TaskBarItems: AddWindowProps[] = [
   {
@@ -12,9 +13,10 @@ export const TaskBarItems: AddWindowProps[] = [
       height: 450,
     },
     minSize: {
-      width: 400,
-      height: 450,
+      width: 0,
+      height: 0,
     },
+    launcherRef: createRef(),
   },
   {
     title: `This`,
@@ -30,5 +32,6 @@ export const TaskBarItems: AddWindowProps[] = [
       width: 300,
       height: 700,
     },
+    launcherRef: createRef(),
   },
 ];

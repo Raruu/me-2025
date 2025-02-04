@@ -203,6 +203,7 @@ export const Taskbar = ({
             windows={windows}
             addWindowProps={item}
             dispatch={dispatch}
+            ref={item.launcherRef}
           />
         ))}
       </div>

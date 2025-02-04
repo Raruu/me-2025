@@ -10,7 +10,7 @@ import { TaskbarPlacement } from "./Taskbar";
 export interface AddWindowProps
   extends Pick<
     WindowState,
-    "title" | "appId" | "icon" | "subtitle" | "content"
+    "title" | "appId" | "icon" | "subtitle" | "content" | "launcherRef"
   > {
   isMinimized?: boolean;
   isMaximized?: boolean;
@@ -29,6 +29,7 @@ export interface AddWindowProps
 }
 
 interface TaskbarItemProps {
+  ref?: React.RefObject<HTMLDivElement | null>;
   taskbarPlacement: TaskbarPlacement;
   taskBarRef: React.RefObject<HTMLDivElement>;
   addWindowProps: AddWindowProps;
@@ -37,6 +38,7 @@ interface TaskbarItemProps {
 }
 
 export const TaskbarItem = ({
+  ref,
   taskbarPlacement,
   taskBarRef,
   addWindowProps,
@@ -74,12 +76,14 @@ export const TaskbarItem = ({
         size: addWindowProps.size ?? { width: 300, height: 300 },
         position: addWindowProps.position ?? { x: 0, y: 0 },
         minSize: addWindowProps.minSize ?? { width: 300, height: 300 },
+        launcherRef: addWindowProps.launcherRef,
       },
     });
   };
 
   return (
     <div
+      ref={ref}
       className={`flex flex-col items-center justify-center cursor-pointer
         transition-all duration-300 ${
           windowsAppId.length > 0 ? "gap-[5px]" : "gap-1"

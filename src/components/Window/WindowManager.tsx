@@ -25,6 +25,7 @@ export interface WindowState {
     width: number;
     height: number;
   };
+  launcherRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export type WindowAction =
