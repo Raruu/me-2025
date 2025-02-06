@@ -11,16 +11,10 @@ import {
   bgVerDarkImage,
 } from "@/utils/picture-helper";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
+import { WindowManagerContext } from "../Window/WindowManager";
 
-interface BackgroundUwUProps {
-  statusBarRef: React.RefObject<HTMLDivElement>;
-  taskBarRef: React.RefObject<HTMLDivElement>;
-}
-
-export const BackgroundUwU = ({
-  statusBarRef,
-  taskBarRef,
-}: BackgroundUwUProps) => {
+export const BackgroundUwU = () => {
+  const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);
   const mediaQuery = useMediaQuery();
   const filterId = useId();
   const [bgUrl, setBgUrl] = useState(themeTrImage);
@@ -31,7 +25,7 @@ export const BackgroundUwU = ({
   const changeBackground = useCallback(
     (tmpTheme?: themeType) => {
       tmpTheme = tmpTheme ?? theme;
-      if(tmpTheme.includes("tr-")) return;
+      if (tmpTheme.includes("tr-")) return;
       setBgUrl(
         tmpTheme === "light"
           ? mapMediaQuery(mediaQuery, {
@@ -48,7 +42,7 @@ export const BackgroundUwU = ({
   );
 
   useEffect(() => {
-    if(bgUrl === themeTrImage) return;
+    if (bgUrl === themeTrImage) return;
     changeBackground();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaQuery]);
@@ -80,6 +74,7 @@ export const BackgroundUwU = ({
         className="transition-all duration-300 w-full h-full "
         style={{ opacity: show ? 0 : 1 }}
       >
+        {/* Statubar Bg */}
         <div
           className="w-full bg-[var(--taskbar-bg)] backdrop-blur -z-10 transition-colors"
           style={{

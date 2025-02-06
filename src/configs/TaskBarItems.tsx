@@ -1,8 +1,8 @@
 import { AboutMe } from "@/components/Apps/AboutMe";
-import { AddWindowProps } from "@/components/ui/Taskbar/TaskbarItem";
+import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
 import { createRef } from "react";
 
-export const TaskBarItems: AddWindowProps[] = [
+export const TaskBarItems: WindowLauncherProps[] = [
   {
     title: `Me`,
     appId: "me",
@@ -18,20 +18,5 @@ export const TaskBarItems: AddWindowProps[] = [
     },
     launcherRef: createRef(),
   },
-  {
-    title: `This`,
-    appId: "localhostApp",
-    content: (
-      <iframe
-        className="w-full h-full"
-        src={typeof window === "undefined" ? "" : window.location.href}
-        allowFullScreen
-      ></iframe>
-    ),
-    size: {
-      width: 300,
-      height: 700,
-    },
-    launcherRef: createRef(),
-  },
+  
 ];

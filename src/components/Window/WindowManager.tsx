@@ -1,8 +1,40 @@
-import { useReducer, useRef, useEffect, useState } from "react";
+import {
+  useReducer,
+  useRef,
+  useEffect,
+  useState,
+  createContext,
+} from "react";
 import { Window } from "./Window";
-import { StatusBar } from "../ui/Statusbar";
-import { Taskbar } from "../ui/Taskbar/Taskbar";
+import { StatusBar } from "../ui/Statusbar/Statusbar";
+import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/BackgroundUwU";
+import { AppsMenu } from "../ui/AppsMenu";
+
+type TaskBarRef = HTMLDivElement &
+  BorderConstrains & { taskbarPlacement?: TaskbarPlacement };
+
+type AppsMenuRef = HTMLDivElement & { close: () => void };
+
+export const WindowManagerContext = createContext<{
+  taskBarRef: React.RefObject<TaskBarRef>;
+  statusBarRef: React.RefObject<HTMLDivElement>;
+  appsMenuRef: React.RefObject<AppsMenuRef>;
+  isAppsMenuOpen: boolean;
+  setIsAppsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  windows: WindowState[];
+  borderConstrains: BorderConstrains;
+  dispatch: React.Dispatch<WindowAction>;
+}>({
+  taskBarRef: { current: null as unknown as TaskBarRef },
+  statusBarRef: { current: null as unknown as HTMLDivElement },
+  appsMenuRef: { current: null as unknown as AppsMenuRef },
+  isAppsMenuOpen: false,
+  setIsAppsMenuOpen: () => {},
+  windows: [],
+  borderConstrains: { top: 0, right: 0, bottom: 0, left: 0 },
+  dispatch: () => {},
+});
 
 export interface WindowState {
   id: number;
@@ -48,9 +80,8 @@ export const WindowManager = () => {
   const statusBarRef = useRef<HTMLDivElement>(
     null as unknown as HTMLDivElement
   );
-  const taskBarRef = useRef<HTMLDivElement & BorderConstrains>(
-    null as unknown as HTMLDivElement & BorderConstrains
-  );
+  const taskBarRef = useRef<TaskBarRef>(null as unknown as TaskBarRef);
+  const appsMenuRef = useRef<AppsMenuRef>(null as unknown as AppsMenuRef);
   const [borderConstrains, setBorderConstrains] = useState<BorderConstrains>({
     top: 0,
     right: 0,
@@ -113,23 +144,21 @@ export const WindowManager = () => {
               action.window.size.height / 2,
           };
         }
+
+        if (action.window.launcherRef?.current === null) {
+          const existingWindow = state.find(
+            (window) => window.appId === action.window.appId
+          );
+          if (existingWindow) {
+            action.window.launcherRef = existingWindow.launcherRef;
+          }
+        }
+
         return [...state, action.window];
       case "MOVE":
         return state.map((window) => {
           if (window.id === action.id) {
             const { x, y } = action.position;
-            // x =
-            //   x + window.size.width > borderConstrains.right
-            //     ? borderConstrains.right - window.size.width
-            //     : x < borderConstrains.left
-            //     ? borderConstrains.left
-            //     : x;
-            // y =
-            //   y < borderConstrains.top
-            //     ? borderConstrains.top
-            //     : y + window.size.height > borderConstrains.bottom
-            //     ? borderConstrains.bottom - window.size.height
-            //     : y;
             return {
               ...window,
               position: {
@@ -188,31 +217,40 @@ export const WindowManager = () => {
     }
   }, [windows]);
 
+  const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
+
   return (
-    <main className="flex flex-col justify-between min-h-screen">
-      <StatusBar ref={statusBarRef} />
-      <BackgroundUwU statusBarRef={statusBarRef} taskBarRef={taskBarRef} />
-      <div
-        className="bg-transparent transition-colors duration-300
+    <WindowManagerContext.Provider
+      value={{
+        taskBarRef,
+        statusBarRef,
+        appsMenuRef,
+        isAppsMenuOpen,
+        setIsAppsMenuOpen,
+        windows,
+        borderConstrains,
+        dispatch,
+      }}
+    >
+      <main className="flex flex-col justify-between min-h-screen">
+        <StatusBar />
+        <BackgroundUwU />
+        <div
+          className="bg-transparent transition-colors duration-300
         text-background absolute min-h-full min-w-full overflow-hidden z-0"
-      >
-        {windows.map((window, index) => (
-          <Window
-            key={window.id}
-            {...window}
-            isFocused={index == windows.length - 1}
-            borderConstrains={borderConstrains}
-            dispatch={dispatch}
-          />
-        ))}
-      </div>
-      <Taskbar
-        reTriggerConstrains={handleWindowResize}
-        taskBarRef={taskBarRef}
-        statusBarRef={statusBarRef}
-        windows={windows}
-        dispatch={dispatch}
-      />
-    </main>
+        >
+          {windows.map((window, index) => (
+            <Window
+              key={window.id}
+              {...window}
+              isFocused={index == windows.length - 1}
+              dispatch={dispatch}
+            />
+          ))}
+        </div>
+        <Taskbar reTriggerConstrains={handleWindowResize} />
+        {isAppsMenuOpen && <AppsMenu />}
+      </main>
+    </WindowManagerContext.Provider>
   );
 };

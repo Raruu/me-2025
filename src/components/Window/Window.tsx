@@ -1,5 +1,9 @@
 import { Icon } from "@iconify/react";
-import { WindowState, WindowAction, BorderConstrains } from "./WindowManager";
+import {
+  WindowState,
+  WindowAction,
+  WindowManagerContext,
+} from "./WindowManager";
 import {
   Dispatch,
   MouseEvent,
@@ -7,6 +11,7 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useContext,
 } from "react";
 
 interface WindowActionButtonProps {
@@ -48,7 +53,6 @@ const WindowActionButton = ({
 
 interface WindowProps extends WindowState {
   isFocused: boolean;
-  borderConstrains: BorderConstrains;
   dispatch: Dispatch<WindowAction>;
 }
 
@@ -62,11 +66,11 @@ export const Window = ({
   position,
   size,
   isFocused,
-  borderConstrains,
   minSize,
   launcherRef,
   dispatch,
 }: WindowProps) => {
+  const borderConstrains = useContext(WindowManagerContext).borderConstrains;
   const [isDraggingMove, setIsDraggingMove] = useState(false);
   const [isDraggingResize, setIsDraggingResize] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
@@ -317,7 +321,9 @@ export const Window = ({
         top: 0,
         left: 0,
         transform: animateMinimize
-          ? `translate(${launcherPosX}px, ${launcherPosY}px)`
+          ? launcherRef?.current === null
+            ? `translate(${position.x}px, ${position.y}px)`
+            : `translate(${launcherPosX}px, ${launcherPosY}px)`
           : isMaximized
           ? `translate(${borderConstrains.left}px, ${borderConstrains.top}px)`
           : `translate(${position.x}px, ${position.y}px)`,

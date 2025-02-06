@@ -7,7 +7,7 @@ import { DropDown } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
 
-export interface AddWindowProps
+export interface WindowLauncherProps
   extends Pick<
     WindowState,
     "title" | "appId" | "icon" | "subtitle" | "content" | "launcherRef"
@@ -28,24 +28,28 @@ export interface AddWindowProps
   };
 }
 
-interface TaskbarItemProps {
+interface TaskbarItemWindowLauncherProps {
   ref?: React.RefObject<HTMLDivElement | null>;
-  taskbarPlacement: TaskbarPlacement;
+  taskbarPlacement?: TaskbarPlacement;
   taskBarRef: React.RefObject<HTMLDivElement>;
-  addWindowProps: AddWindowProps;
+  windowLauncherProps: WindowLauncherProps;
   windows: WindowState[];
+  size?: number;
+  isShowTitle?: boolean;
   dispatch: Dispatch<WindowAction>;
 }
 
-export const TaskbarItem = ({
+export const TaskbarItemWindowLauncher = ({
   ref,
   taskbarPlacement,
   taskBarRef,
-  addWindowProps,
+  windowLauncherProps,
   windows,
+  isShowTitle,
+  size = 40,
   dispatch,
-}: TaskbarItemProps) => {
-  const [hovered, setHovered] = useState(false);
+}: TaskbarItemWindowLauncherProps) => {
+  const [isHovered, setHovered] = useState(false);
   const [isContextOpen, setIsContextOpen] = useState(false);
   const dropDownRef = useRef<{ handleOpen: () => void }>({
     handleOpen: () => {},
@@ -54,9 +58,10 @@ export const TaskbarItem = ({
   const [windowsAppId, setwindowsAppId] = useState<WindowState[]>([]);
 
   useEffect(() => {
+    if(!taskbarPlacement) return;
     console.log("windowsAppId Changed");
     setwindowsAppId(
-      windows.filter((window) => window.appId === addWindowProps.appId)
+      windows.filter((window) => window.appId === windowLauncherProps.appId)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windows.length]);
@@ -66,17 +71,17 @@ export const TaskbarItem = ({
       type: "ADD_WINDOW",
       window: {
         id: Date.now(),
-        title: addWindowProps.title,
-        appId: addWindowProps.appId,
-        subtitle: addWindowProps.subtitle,
-        icon: addWindowProps.icon ?? "mingcute:terminal-box-line",
-        content: addWindowProps.content,
-        isMaximized: addWindowProps.isMaximized ?? false,
-        isMinimized: addWindowProps.isMinimized ?? false,
-        size: addWindowProps.size ?? { width: 300, height: 300 },
-        position: addWindowProps.position ?? { x: 0, y: 0 },
-        minSize: addWindowProps.minSize ?? { width: 300, height: 300 },
-        launcherRef: addWindowProps.launcherRef,
+        title: windowLauncherProps.title,
+        appId: windowLauncherProps.appId,
+        subtitle: windowLauncherProps.subtitle,
+        icon: windowLauncherProps.icon ?? "mingcute:terminal-box-line",
+        content: windowLauncherProps.content,
+        isMaximized: windowLauncherProps.isMaximized ?? false,
+        isMinimized: windowLauncherProps.isMinimized ?? false,
+        size: windowLauncherProps.size ?? { width: 300, height: 300 },
+        position: windowLauncherProps.position ?? { x: 0, y: 0 },
+        minSize: windowLauncherProps.minSize ?? { width: 300, height: 300 },
+        launcherRef: windowLauncherProps.launcherRef,
       },
     });
   };
@@ -91,6 +96,7 @@ export const TaskbarItem = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onContextMenu={(e) => {
+        if (!taskbarPlacement) return;
         e.preventDefault();
         if (dropDownRef.current) {
           dropDownRef.current.handleOpen();
@@ -98,7 +104,11 @@ export const TaskbarItem = ({
       }}
       onClick={() => {
         if (isContextOpen) return;
-        if (windowsAppId.length > 0 && dropDownRef.current) {
+        if (
+          windowsAppId.length > 0 &&
+          dropDownRef.current &&
+          taskbarPlacement
+        ) {
           dropDownRef.current.handleOpen();
           return;
         }
@@ -124,7 +134,7 @@ export const TaskbarItem = ({
         triggerGapX={
           taskbarPlacement !== "bottom"
             ? taskbarPlacement === "left"
-              ? 40
+              ? size
               : 92
             : undefined
         }
@@ -149,45 +159,95 @@ export const TaskbarItem = ({
         />
       </DropDown>
       <Icon
-        icon={addWindowProps.icon ?? "hugeicons:ai-programming"}
-        width={40}
-        height={40}
+        icon={windowLauncherProps.icon ?? "mingcute:terminal-box-line"}
+        width={size}
+        height={size}
       />
       <p
-        style={{ width: 40 }}
+        style={{
+          width: size + 10,
+          opacity: isShowTitle ? 1 : "",
+          lineHeight: isShowTitle ? 0.8 : "",
+        }}
         className={`transition-all duration-300 select-none 
           text-ellipsis text-nowrap overflow-hidden text-center ${
-            hovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
+            isHovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
           } `}
       >
-        {addWindowProps.title}
+        {windowLauncherProps.title}
       </p>
-      <div className="flex flex-row items-center justify-center gap-1">
-        {windowsAppId.length === 0 && (
-          <div className="w-2 h-2 -mt-2 bg-transparent"></div>
-        )}
-        {windowsAppId.map((window, index) => {
-          if (index > 2) return null;
-          const expand = "w-[40px] h-1 mt-0";
-          const hide = "opacity-0 w-0 -mr-1";
-          return (
-            <div
-              key={index}
-              className={`transition-all duration-300 bg-black dark:bg-white rounded-full ${
-                hovered
-                  ? index == 0
-                    ? windowsAppId.length <= 2
+      {taskbarPlacement && (
+        <div className="flex flex-row items-center justify-center gap-1">
+          {windowsAppId.length === 0 && (
+            <div className="w-2 h-2 -mt-2 bg-transparent"></div>
+          )}
+          {windowsAppId.map((window, index) => {
+            if (index > 2) return null;
+            const expand = `w-[${size}px] h-1 mt-0`;
+            const hide = "opacity-0 w-0 -mr-1";
+            return (
+              <div
+                key={index}
+                className={`transition-all duration-300 bg-black dark:bg-white rounded-full ${
+                  isHovered
+                    ? index == 0
+                      ? windowsAppId.length <= 2
+                        ? expand
+                        : hide
+                      : index == 1 && windowsAppId.length > 2
                       ? expand
                       : hide
-                    : index == 1 && windowsAppId.length > 2
-                    ? expand
-                    : hide
-                  : "w-2 h-2 -mt-2"
-              }`}
-            ></div>
-          );
-        })}
-      </div>
+                    : "w-2 h-2 -mt-2"
+                }`}
+              ></div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface TaskbarItemProps {
+  iconify?: string;
+  title?: string;
+  size?: number;
+  isShowTitle?: boolean;
+  onClick?: () => void;
+}
+
+export const TaskbarItem = ({
+  iconify = "mingcute:terminal-box-line",
+  title,
+  size = 40,
+  isShowTitle,
+  onClick,
+}: TaskbarItemProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+    >
+      <Icon icon={iconify} width={size} height={size} />
+      {title && (
+        <p
+          style={{
+            width: size + 10,
+            opacity: isShowTitle ? 1 : "",
+            lineHeight: isShowTitle ? 0.8 : "",
+          }}
+          className={`transition-all duration-300 select-none 
+          text-ellipsis text-nowrap overflow-hidden text-center ${
+            isHovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
+          } `}
+        >
+          {title}
+        </p>
+      )}
     </div>
   );
 };

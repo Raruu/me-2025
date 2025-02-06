@@ -1,12 +1,12 @@
 "use client";
 
-import { Dispatch, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { WindowManagerContext, WindowState } from "../../Window/WindowManager";
 import {
-  BorderConstrains,
-  WindowAction,
-  WindowState,
-} from "../../Window/WindowManager";
-import { TaskbarItem } from "./TaskbarItem";
+  TaskbarItem,
+  TaskbarItemWindowLauncher,
+  WindowLauncherProps,
+} from "./TaskbarItem";
 import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
 import {
   DropDownItem,
@@ -18,19 +18,19 @@ export type TaskbarPlacement = "left" | "bottom" | "right";
 
 interface TaskbarProps {
   reTriggerConstrains: () => void;
-  taskBarRef: React.RefObject<HTMLDivElement & BorderConstrains>;
-  statusBarRef: React.RefObject<HTMLDivElement>;
-  windows: WindowState[];
-  dispatch: Dispatch<WindowAction>;
 }
 
-export const Taskbar = ({
-  reTriggerConstrains,
-  taskBarRef,
-  statusBarRef,
-  windows,
-  dispatch,
-}: TaskbarProps) => {
+export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
+  const {
+    taskBarRef,
+    statusBarRef,
+    appsMenuRef,
+    isAppsMenuOpen,
+    setIsAppsMenuOpen,
+    windows,
+    dispatch,
+  } = useContext(WindowManagerContext);
+
   const dropDownRef = useRef<DropDownRef>({
     handleOpen: () => {},
   });
@@ -48,14 +48,6 @@ export const Taskbar = ({
   const [isExpand, setIsExpand] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setWidthNotExpanded(taskBarRef.current?.clientWidth);
-      // setHeightNotExpanded(taskBarRef.current?.clientHeight);
-    }, 500);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     const assignConstrains = () => {
       Object.assign(taskBarRef.current, {
         left:
@@ -68,6 +60,7 @@ export const Taskbar = ({
           taskbarPlacement === "bottom"
             ? taskBarRef.current.clientHeight ?? 0
             : 0,
+        taskbarPlacement: taskbarPlacement,
       });
       reTriggerConstrains();
     };
@@ -91,6 +84,29 @@ export const Taskbar = ({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskBarRef.current?.clientWidth, taskbarPlacement, isExpand]);
+
+  const [combinedWindows, setCombinedWindows] = useState<
+    WindowState[] | WindowLauncherProps[]
+  >([]);
+
+  useEffect(() => {
+    const combinedWindowsIds = new Set(
+      TaskBarItems.flatMap((item) => item).map((window) => window.appId)
+    );
+    const combinedWindows = windows
+      .filter((window) => !combinedWindowsIds.has(window.appId))
+      .filter(
+        (window, index, self) =>
+          self.findIndex((w) => w.appId === window.appId) === index
+      );
+    setCombinedWindows([
+      ...TaskBarItems.flatMap((item) => item),
+      ...combinedWindows,
+    ]);
+
+    setWidthNotExpanded(undefined);
+    setHeightNotExpanded(undefined);
+  }, [windows]);
 
   return (
     <div
@@ -152,7 +168,9 @@ export const Taskbar = ({
                     : undefined
                 );
               }
-              setIsExpand(!isExpand);
+              setTimeout(() => {
+                setIsExpand(!isExpand);
+              }, 50);
             }}
           />
         </DropDown>
@@ -191,21 +209,33 @@ export const Taskbar = ({
         <div
           id="taskbar-bg"
           className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-300
-            bg-[var(--taskbar-bg)] backdrop-blur-sm -z-10 ${
+            bg-[var(--taskbar-bg)] backdrop-blur -z-10 ${
               isExpand ? "" : "rounded-3xl"
             }`}
         />
-        {TaskBarItems.map((item, index) => (
-          <TaskbarItem
+        {combinedWindows.map((item, index) => (
+          <TaskbarItemWindowLauncher
             key={index}
             taskBarRef={taskBarRef}
             taskbarPlacement={taskbarPlacement}
             windows={windows}
-            addWindowProps={item}
+            windowLauncherProps={item}
             dispatch={dispatch}
             ref={item.launcherRef}
           />
         ))}
+        {/* <div className="w-1 h-1"></div> */}
+        <TaskbarItem
+          iconify="mage:dots-menu"
+          title="Menu"
+          onClick={() => {
+            if (!isAppsMenuOpen) {
+              setIsAppsMenuOpen(!isAppsMenuOpen);
+              return;
+            }
+            appsMenuRef.current?.close();
+          }}
+        />
       </div>
     </div>
   );

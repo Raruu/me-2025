@@ -10,6 +10,8 @@ interface DropDownProps {
   placement?: "top" | "bottom";
   triggerGapX?: number;
   triggerGapY?: number;
+  backgroundColor?: string;
+  backgroundColorHover?: string;
   callback?: (isOpen: boolean) => void;
 }
 
@@ -27,6 +29,8 @@ export const DropDown = ({
   align,
   triggerGapX,
   triggerGapY,
+  backgroundColor = "var(--taskbar-bg)",
+  backgroundColorHover = "var(--background)",
   callback,
 }: DropDownProps) => {
   React.useEffect(() => {
@@ -36,6 +40,7 @@ export const DropDown = ({
   });
 
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isHover, setIsHover] = React.useState(false);
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -130,12 +135,19 @@ export const DropDown = ({
         ref={contentRef}
         className={`z-[900001] hidden fixed`}
         onClick={(e) => e.stopPropagation()}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
       >
         <div
           className={`${
             isOpen ? "scale-100 opacity-100" : "scale-50 opacity-0"
-          } transition-all duration-100 flex flex-col p-4 rounded-3xl bg-background max-h-[75vh] overflow-y-auto`}
+          } transition-all flex flex-col p-4 rounded-3xl backdrop-blur shadow-md max-h-[75vh] overflow-y-auto`}
           onTransitionEnd={onTransitionEnd}
+          style={{
+            background: isHover ? backgroundColorHover : backgroundColor,
+            transition: "all, background-color",
+            transitionDuration: "100ms, 300ms",
+          }}
         >
           <DropDownContentContext.Provider value={{ setIsOpen }}>
             {children}

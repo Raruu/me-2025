@@ -2,10 +2,12 @@
 
 import { Clock } from "@/components/Clock";
 import { Icon } from "@iconify/react";
-import { useContext, useState, Ref } from "react";
-import { DropDown } from "../Dropdown/Dropdown";
-import { DropDownItem } from "../Dropdown/DropdownItem";
+import { useContext, useState } from "react";
+import { DropDown } from "../../Dropdown/Dropdown";
+import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { themeContext, getSystemTheme } from "@/styles/theme";
+import { Calendar } from "./Calendar";
+import { WindowManagerContext } from "@/components/Window/WindowManager";
 
 interface StatusBarProps {
   children: React.ReactNode;
@@ -37,7 +39,8 @@ const StatusBarItem = ({
   );
 };
 
-export const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
+export const StatusBar = () => {
+  const { statusBarRef: ref } = useContext(WindowManagerContext);
   const { theme, setTheme } = useContext(themeContext);
   const [dropDownThemeIsOpen, setdropDownThemeIsOpen] = useState(false);
   const [dropDownClockIsOpen, setDropDownClockIsOpen] = useState(false);
@@ -69,7 +72,7 @@ export const StatusBar = ({ ref }: { ref?: Ref<HTMLDivElement> }) => {
             </StatusBarItem>
           }
         >
-          ~~~Nothing here yet~~~
+          <Calendar />
         </DropDown>
       </div>
       <div className="sm:w-1/3 flex flex-row justify-end">
