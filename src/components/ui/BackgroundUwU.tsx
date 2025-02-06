@@ -51,7 +51,7 @@ export const BackgroundUwU = () => {
     if (!theme.includes("tr-")) return;
     setShow(true);
     const taskbarBg = Array.from(taskBarRef.current?.children || []).filter(
-      (child) => (child as HTMLElement).id === "taskbar-bg"
+      (child) => (child as HTMLElement).id === "background-tr"
     )[0] as HTMLElement;
     taskbarBg.style.opacity = "0";
     setTimeout(() => {
@@ -76,7 +76,7 @@ export const BackgroundUwU = () => {
       >
         {/* Statubar Bg */}
         <div
-          className="w-full bg-[var(--taskbar-bg)] backdrop-blur -z-10 transition-colors"
+          className="w-full bg-[var(--background-tr)] backdrop-blur -z-10 transition-colors"
           style={{
             height: statusBarRef.current?.clientHeight || 0,
           }}

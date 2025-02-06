@@ -12,6 +12,10 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "background-tr": "var(--background-tr)",
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        tertiary: "var(--tertiary)",
       },
       animation: {
         "bounce-small": "bounce-small 1s infinite",

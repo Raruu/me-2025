@@ -207,9 +207,9 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
         }}
       >
         <div
-          id="taskbar-bg"
+          id="background-tr"
           className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-300
-            bg-[var(--taskbar-bg)] backdrop-blur -z-10 ${
+            bg-[var(--background-tr)] backdrop-blur -z-10 ${
               isExpand ? "" : "rounded-3xl"
             }`}
         />

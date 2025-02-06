@@ -18,7 +18,7 @@ export const SeeMeeItem = ({
   iconifyStyle,
   texts,
   textColor = "var(--foreground)",
-  bgColor = "var(--taskbar-bg)",
+  bgColor = "var(--background-tr)",
   href,
 }: SeeMeeItemProps) => {
   const duration = 700;

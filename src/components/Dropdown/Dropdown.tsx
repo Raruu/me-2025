@@ -29,7 +29,7 @@ export const DropDown = ({
   align,
   triggerGapX,
   triggerGapY,
-  backgroundColor = "var(--taskbar-bg)",
+  backgroundColor = "var(--background-tr)",
   backgroundColorHover = "var(--background)",
   callback,
 }: DropDownProps) => {

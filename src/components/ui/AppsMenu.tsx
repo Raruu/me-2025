@@ -152,7 +152,7 @@ export const AppsMenu = () => {
     <div
       ref={appsMenuRef}
       className="absolute top-0 left-0 w-full h-full
-        bg-[var(--taskbar-bg)] backdrop-blur transition-opacity duration-300"
+        bg-[var(--background-tr)] backdrop-blur transition-opacity duration-300"
       style={{
         paddingTop: `${borderConstrains.top}px`,
         opacity: isAnimating ? 0 : 1,

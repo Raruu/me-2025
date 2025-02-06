@@ -60,6 +60,7 @@ export const Window = ({
   id,
   title,
   subtitle,
+  icon,
   content,
   isMinimized,
   isMaximized,
@@ -341,7 +342,7 @@ export const Window = ({
       <div
         ref={headerRef}
         style={{ borderRadius: isMaximized ? 0 : "", minWidth: "130px" }}
-        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--taskbar-bg] backdrop-blur"
+        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--background-tr] backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
             handleDownMove(e);
@@ -352,16 +353,20 @@ export const Window = ({
           if (e.target === e.currentTarget) handleDownMove(e);
         }}
       >
-        <div
-          className="flex flex-col justify-center"
-          onMouseDown={(e: MouseEvent) => handleDownMove(e)}
-          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
-            handleDownMove(e)
-          }
-        >
-          <h1 className="font-bold text-base leading-none">{title}</h1>
-          <p className="font-thin text-xs leading-none">{subtitle}</p>
+        <div className="flex flex-row items-center gap-2">
+          {icon && <Icon icon={icon} width={24} height={24} />}
+          <div
+            className="flex flex-col h-full justify-center"
+            onMouseDown={(e: MouseEvent) => handleDownMove(e)}
+            onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
+              handleDownMove(e)
+            }
+          >
+            <h1 className="font-bold text-base leading-none">{title}</h1>
+            <p className="font-thin text-xs leading-none">{subtitle}</p>
+          </div>
         </div>
+
         <div
           className="flex-1 h-full w-full"
           onMouseDown={(e: MouseEvent) => handleDownMove(e)}
@@ -370,7 +375,7 @@ export const Window = ({
           }
           onDoubleClick={maximize}
         ></div>
-        <div id="window-actions" className="flex flex-row">
+        <div id="window-actions" className="flex flex-row items-center">
           <WindowActionButton
             icon="mingcute:minimize-fill"
             useRightMargin
