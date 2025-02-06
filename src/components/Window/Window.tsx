@@ -1,11 +1,6 @@
 import { Icon } from "@iconify/react";
+import { WindowState, WindowManagerContext } from "./WindowManager";
 import {
-  WindowState,
-  WindowAction,
-  WindowManagerContext,
-} from "./WindowManager";
-import {
-  Dispatch,
   MouseEvent,
   useState,
   useEffect,
@@ -53,7 +48,6 @@ const WindowActionButton = ({
 
 interface WindowProps extends WindowState {
   isFocused: boolean;
-  dispatch: Dispatch<WindowAction>;
 }
 
 export const Window = ({
@@ -69,9 +63,8 @@ export const Window = ({
   isFocused,
   minSize,
   launcherRef,
-  dispatch,
 }: WindowProps) => {
-  const borderConstrains = useContext(WindowManagerContext).borderConstrains;
+  const { borderConstrains, dispatch } = useContext(WindowManagerContext);
   const [isDraggingMove, setIsDraggingMove] = useState(false);
   const [isDraggingResize, setIsDraggingResize] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
@@ -394,7 +387,7 @@ export const Window = ({
       </div>
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all  ${
+        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all will-change-auto ${
           isDraggingResize || isDraggingMove || !isFocused
             ? "pointer-events-none"
             : ""

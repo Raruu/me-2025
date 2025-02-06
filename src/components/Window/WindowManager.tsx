@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   createContext,
+  useMemo,
 } from "react";
 import { Window } from "./Window";
 import { StatusBar } from "../ui/Statusbar/Statusbar";
@@ -219,19 +220,23 @@ export const WindowManager = () => {
 
   const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
 
+  const contextValue = useMemo(
+    () => ({
+      taskBarRef,
+      statusBarRef,
+      appsMenuRef,
+      isAppsMenuOpen,
+      setIsAppsMenuOpen,
+      windows,
+      borderConstrains,
+      dispatch,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [taskBarRef, statusBarRef, appsMenuRef, isAppsMenuOpen, borderConstrains, windows.length]
+  );
+
   return (
-    <WindowManagerContext.Provider
-      value={{
-        taskBarRef,
-        statusBarRef,
-        appsMenuRef,
-        isAppsMenuOpen,
-        setIsAppsMenuOpen,
-        windows,
-        borderConstrains,
-        dispatch,
-      }}
-    >
+    <WindowManagerContext.Provider value={contextValue}>
       <main className="flex flex-col justify-between min-h-screen">
         <StatusBar />
         <BackgroundUwU />
@@ -243,8 +248,7 @@ export const WindowManager = () => {
             <Window
               key={window.id}
               {...window}
-              isFocused={index == windows.length - 1}
-              dispatch={dispatch}
+              isFocused={index == windows.length - 1}             
             />
           ))}
         </div>
