@@ -58,7 +58,7 @@ export const TaskbarItemWindowLauncher = ({
   const [windowsAppId, setwindowsAppId] = useState<WindowState[]>([]);
 
   useEffect(() => {
-    if(!taskbarPlacement) return;
+    if (!taskbarPlacement) return;
     console.log("windowsAppId Changed");
     setwindowsAppId(
       windows.filter((window) => window.appId === windowLauncherProps.appId)
@@ -92,7 +92,7 @@ export const TaskbarItemWindowLauncher = ({
       className={`flex flex-col items-center justify-center cursor-pointer
         transition-all duration-300 ${
           windowsAppId.length > 0 ? "gap-[5px]" : "gap-1"
-        }`}
+        } ${taskbarPlacement ? " h-16" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onContextMenu={(e) => {
@@ -150,6 +150,8 @@ export const TaskbarItemWindowLauncher = ({
             text={window.title}
             iconifyString={window.icon}
             onClick={() => dispatch({ type: "FOCUS", id: window.id })}
+            rightIcon="mingcute:close-line"
+            rightIconClick={() => dispatch({ type: "CLOSE", id: window.id })}
           />
         ))}
         <DropDownItem
@@ -166,13 +168,11 @@ export const TaskbarItemWindowLauncher = ({
       <p
         style={{
           width: size + 10,
-          opacity: isShowTitle ? 1 : "",
-          lineHeight: isShowTitle ? 0.8 : "",
+          opacity: isShowTitle || isHovered ? 1 : 0,
+          lineHeight: isShowTitle || isHovered ? 0.8 : 0,
         }}
-        className={`transition-all duration-300 select-none 
-          text-ellipsis text-nowrap overflow-hidden text-center ${
-            isHovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
-          } `}
+        className={`transition-all duration-300 select-none flex 
+          text-ellipsis text-nowrap  text-center items-center justify-center  `}
       >
         {windowLauncherProps.title}
       </p>
@@ -183,7 +183,7 @@ export const TaskbarItemWindowLauncher = ({
           )}
           {windowsAppId.map((window, index) => {
             if (index > 2) return null;
-            const expand = `w-[${size}px] h-1 mt-0`;
+            const expand = `w-[40px] h-1 mt-0`;
             const hide = "opacity-0 w-0 -mr-1";
             return (
               <div

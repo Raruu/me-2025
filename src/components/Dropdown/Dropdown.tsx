@@ -35,7 +35,7 @@ export const DropDown = ({
 }: DropDownProps) => {
   React.useEffect(() => {
     if (ref) {
-      Object.assign(ref.current, { handleOpen });
+      ref.current.handleOpen = handleOpen;
     }
   });
 

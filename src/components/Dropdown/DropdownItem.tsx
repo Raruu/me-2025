@@ -1,5 +1,5 @@
 import { DropDownContentContext } from "./Dropdown";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Icon } from "@iconify/react";
 
 interface DropDownItemProps {
@@ -7,6 +7,11 @@ interface DropDownItemProps {
   checked?: boolean;
   iconifyString?: string;
   onClick?: () => void;
+  hoverColor?: string;
+  rightIcon?: string;
+  rightIconClick?: () => void;
+  rightIconHoverColor?: string;
+  rightIconBgHoverColor?: string;
 }
 
 export const DropDownItem = ({
@@ -14,11 +19,24 @@ export const DropDownItem = ({
   checked,
   iconifyString,
   onClick,
+  hoverColor = "var(--primary)",
+  rightIcon,
+  rightIconClick,
+  rightIconHoverColor = "var(--background)",
+  rightIconBgHoverColor = "var(--tertiary)",
 }: DropDownItemProps) => {
   const { setIsOpen } = useContext(DropDownContentContext);
+  const [isHover, setIsHover] = useState(false);
+  const [isRightIconHover, setIsRightIconHover] = useState(false);
+
   return (
     <div
-      className="flex flex-row rounded-3xl cursor-pointer select-none transition min-w-32 px-2 py-1 gap-2 hover:bg-pink-300"
+      className="flex flex-row rounded-3xl cursor-pointer select-none transition-colors duration-150 min-w-32 px-2 py-1 gap-2"
+      style={{
+        backgroundColor: isHover ? hoverColor : "",
+      }}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
       onClick={() => {
         onClick?.();
         setIsOpen(false);
@@ -30,9 +48,28 @@ export const DropDownItem = ({
         </div>
       )}
       <div className="flex items-center justify-start w-full">{text}</div>
-      {checked && (
+      {checked && !rightIconClick && (
         <div className="flex items-center justify-start">
           <Icon icon={"ri-check-line"} />
+        </div>
+      )}
+      {rightIconClick && (
+        <div
+          className="flex items-center justify-center rounded-full w-14 -m-1 -mr-2 transition-colors duration-150"
+          style={{
+            color: isRightIconHover ? rightIconHoverColor : "",
+            backgroundColor: isRightIconHover ? rightIconBgHoverColor : "",
+            height: "auto",
+          }}
+          onMouseEnter={() => setIsRightIconHover(true)}
+          onMouseLeave={() => setIsRightIconHover(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(false);
+            rightIconClick();
+          }}
+        >
+          <Icon icon={rightIcon ?? "mingcute:right-line"} />
         </div>
       )}
     </div>
@@ -48,7 +85,7 @@ export const DropDownItemSeparator = ({
 }: DropDownItemSeparatorProps) => {
   return (
     <div
-    style={{ marginTop: space, marginBottom: space }}
+      style={{ marginTop: space, marginBottom: space }}
       className={`w-full h-0.5 bg-gray-300 dark:bg-gray-600`}
     ></div>
   );

@@ -143,9 +143,7 @@ export const AppsMenu = () => {
 
   useEffect(() => {
     setIsAnimating(false);
-    Object.assign(appsMenuRef.current, {
-      close: () => setIsAnimating(true),
-    });
+    appsMenuRef.current.close = () => setIsAnimating(true);
   }, [appsMenuRef]);
 
   return (

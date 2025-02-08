@@ -27,7 +27,7 @@ export const SeeMeeItem = ({
   const mediaQuery = useContext(mediaQueryContext);
 
   useEffect(() => {
-    if (isHover) textRotateRef.current?.setAnimAt(0);
+    if (isHover) textRotateRef.current?.setAnimAt?.(0);
   }, [isHover]);
 
 //   useEffect(() => {
@@ -67,8 +67,7 @@ export const SeeMeeItem = ({
             />
           }
           texts={isHover ? texts : [""]}
-          displayDuration={isHover ? duration : 0}
-          nextDelay={0}
+          nextDelay={isHover ? duration : 0}
           animDuration={isHover ? duration : 0}
           rotateBgColor={bgColor}
           ref={textRotateRef}

@@ -20,11 +20,11 @@ export const AboutMe = () => {
             prefix="Hi, I'm"
             texts={["Widi", "Raruu", "ᓀ‸ᓂ"]}
             animFrom="end"
-            displayDuration={500}
+            nextDelay={2500}
             mediaQuery={mediaQuery}
           />
           <div className="h-2"></div>
-          <h1 className="text-sm font-bold">I code, Student</h1>
+          <h1 className="text-sm font-bold">I code, me trying react in early 2025 &gt;w&lt; </h1>
           <div className="h-2"></div>
           <SeeMee />
           <div className="h-2"></div>

@@ -1,21 +1,25 @@
 import { mapMediaQuery, MediaQuery } from "@/hooks/useMediaQuery";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 export type TextRotateRef = {
-  setAnimAt: (at: number) => void;
+  setAnimAt?: (at: number) => void;
+  reCaclSize?: () => void;
 };
 
 interface TextRotateProps {
   ref?: RefObject<TextRotateRef>;
   mediaQuery?: MediaQuery;
-  prefix: React.ReactNode;
+  prefix: React.ReactNode | string;
   texts: string[];
   animFrom?: "start" | "end";
   animDuration?: number;
   nextDelay?: number;
-  displayDuration?: number;
   rotateBgColor?: string;
   rotateTextColor?: string;
+  textSize?: number;
+  textLineHeight?: number;
+  spacing?: number;
+  skip?: boolean;
 }
 
 export const TextRotate = ({
@@ -25,21 +29,67 @@ export const TextRotate = ({
   texts,
   animFrom = "start",
   animDuration = 700,
-  nextDelay = 2000,
-  displayDuration = 1000,
+  nextDelay = 3000,
   rotateBgColor = "var(--foreground)",
   rotateTextColor = "var(--background)",
+  textSize,
+  textLineHeight,
+  spacing,
+  skip = false,
 }: TextRotateProps) => {
   const [currentText, setCurrentText] = useState(texts[0]);
   const [isDisplaying, setIsDisplaying] = useState(true);
   const [isFromStart, setIsFromStart] = useState(false);
   const [totalCharWidth, setTotalCharWidth] = useState(0);
-  const rotatingTextParentRef = useRef<HTMLDivElement>(null);
-  const [requireReCalc, setRequireReCalc] = useState(false);
+  const rotatingTextParentRef = useRef<HTMLDivElement & { paddingLR: number }>(
+    null
+  );
+
+  const sumPaddingLeftRight = () => {
+    if (!rotatingTextParentRef.current) return;
+    const parentPaddingLeft =
+      parseFloat(getComputedStyle(rotatingTextParentRef.current).paddingLeft) ||
+      0;
+    const parentPaddingRight =
+      parseFloat(
+        getComputedStyle(rotatingTextParentRef.current).paddingRight
+      ) || 0;
+    const total = parentPaddingLeft + parentPaddingRight;
+    rotatingTextParentRef.current.paddingLR = total;
+    return total;
+  };
+
+  const calc = useCallback(() => {
+    if ((currentText?.length ?? 0) === 0) {
+      setTotalCharWidth(0);
+      return;
+    }
+    if (!rotatingTextParentRef.current) return;
+    const children = rotatingTextParentRef.current.children;
+    if (!children) return;
+    let totalWidth = rotatingTextParentRef.current.paddingLR;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i] as HTMLElement;
+      totalWidth += child.getBoundingClientRect().width;
+    }
+    setTotalCharWidth(totalWidth);
+    // console.log("totalWidth", totalWidth);
+  }, [currentText]);
 
   useEffect(() => {
-    setRequireReCalc(true);
-  }, [mediaQuery]);
+    if(!skip) return;
+    setTimeout(() => {
+      calc();
+    }, animDuration);
+  }, [animDuration, calc, skip]);
+
+  useEffect(() => {
+    if (totalCharWidth === 0) calc();
+    setTimeout(() => {
+      sumPaddingLeftRight();
+      calc();
+    }, animDuration);
+  }, [animDuration, calc, currentText, mediaQuery, totalCharWidth]);
 
   useEffect(() => {
     if (!ref) return;
@@ -49,28 +99,12 @@ export const TextRotate = ({
         setIsDisplaying(true);
       }, 10);
     };
-    Object.assign(ref.current, { setAnimAt });
-  }, [ref, texts]);
-
-  useEffect(() => {
-    if (!rotatingTextParentRef.current) return;
-    const children = rotatingTextParentRef.current.children;
-    if (!children) return;
-
-    const parentPaddingLeft =
-      parseFloat(getComputedStyle(rotatingTextParentRef.current).paddingLeft) ||
-      0;
-    const parentPaddingRight =
-      parseFloat(
-        getComputedStyle(rotatingTextParentRef.current).paddingRight
-      ) || 0;
-    let totalWidth = parentPaddingLeft + parentPaddingRight;
-    for (let i = 0; i < children.length; i++) {
-      const child = children[i] as HTMLElement;
-      totalWidth += child.getBoundingClientRect().width;
-    }
-    setTotalCharWidth(totalWidth);
-  }, [currentText, mediaQuery]);
+    ref.current.setAnimAt = setAnimAt;
+    ref.current.reCaclSize = () => {
+      sumPaddingLeftRight();
+      calc();
+    };
+  }, [calc, ref, texts]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -83,13 +117,13 @@ export const TextRotate = ({
           setIsDisplaying(true);
         }, animDuration / 2);
       }, animDuration / 2);
-    }, nextDelay + animDuration + displayDuration);
+    }, nextDelay + animDuration);
 
     return () => clearInterval(interval);
-  }, [animDuration, currentText, displayDuration, nextDelay, texts]);
+  }, [animDuration, currentText, nextDelay, texts]);
 
   const animIndex = (index: number) => {
-    const constant = 105;
+    const constant = 175;
     const calcFromLast = (index: number) =>
       (currentText.length - index + 1) * constant;
     const calcFromStart = (index: number) => (index + 1) * constant;
@@ -105,11 +139,19 @@ export const TextRotate = ({
   return (
     <div className="flex flex-row">
       <p
-        className={`text-lg font-bold flex whitespace-pre ${
+        className={`font-bold flex whitespace-pre ${
           mediaQuery
-            ? mapMediaQuery(mediaQuery, { sm: "text-xl", md: "text-2xl" })
-            : "sm:text-xl md:text-2xl"
+            ? mapMediaQuery(mediaQuery, {
+                default: "text-lg",
+                sm: "text-xl",
+                md: "text-2xl",
+              })
+            : "text-lg sm:text-xl md:text-2xl"
         }`}
+        style={{
+          fontSize: textSize,
+          lineHeight: textLineHeight,
+        }}
       >
         <span
           className={
@@ -121,8 +163,9 @@ export const TextRotate = ({
                 })
               : "pt-0.5 sm:pt-1 md:pt-2"
           }
+          style={{ marginRight: spacing }}
         >
-          {prefix}{" "}
+          {typeof prefix === "string" ? <span>{prefix}</span> : prefix}{" "}
         </span>
         <span
           ref={rotatingTextParentRef}
@@ -140,19 +183,19 @@ export const TextRotate = ({
             color: rotateTextColor,
             backgroundColor: rotateBgColor,
             transitionDuration: `${animDuration}ms`,
-            width: totalCharWidth,
-            opacity: (currentText?.length ?? 0) === 0 ? 0 : 1,
-            marginLeft: (currentText?.length ?? 0) === 0 ? -totalCharWidth : "",
-          }}
-          onTransitionEnd={() => {
-            if (requireReCalc) {
-              setRequireReCalc(false);
-              const index = texts.indexOf(currentText);
-              setCurrentText(texts[texts.length - 1]);
-              setTimeout(() => {
-                setCurrentText(texts[index >= texts.length ? 0 : index]);
-              }, 1);
-            }
+            width: skip ? "" : totalCharWidth > 0 ? totalCharWidth : "0px",
+            opacity:
+              totalCharWidth > 0
+                ? (currentText?.length ?? 0) === 0
+                  ? 0
+                  : 1
+                : 0,
+            marginLeft:
+              (currentText?.length ?? 0) === 0
+                ? rotatingTextParentRef.current
+                  ? -rotatingTextParentRef.current.paddingLR
+                  : ""
+                : "",
           }}
         >
           {currentText.length > 0 &&
