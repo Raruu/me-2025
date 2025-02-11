@@ -1,3 +1,5 @@
+"use client";
+
 import { azusaCatImage, patapataLanuBiscuit } from "@/utils/picture-helper";
 import { addCollection } from "@iconify/react";
 

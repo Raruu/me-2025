@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Dispatch, useState, useRef, useEffect } from "react";
 import { WindowAction, WindowState } from "../../Window/WindowManager";
-import { DropDown } from "../../Dropdown/Dropdown";
+import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
 
@@ -51,7 +51,7 @@ export const TaskbarItemWindowLauncher = ({
 }: TaskbarItemWindowLauncherProps) => {
   const [isHovered, setHovered] = useState(false);
   const [isContextOpen, setIsContextOpen] = useState(false);
-  const dropDownRef = useRef<{ handleOpen: () => void }>({
+  const dropDownRef = useRef<DropDownRef>({
     handleOpen: () => {},
   });
 
@@ -211,27 +211,82 @@ export const TaskbarItemWindowLauncher = ({
 interface TaskbarItemProps {
   iconify?: string;
   title?: string;
+  alt?: string;
   size?: number;
   isShowTitle?: boolean;
   onClick?: () => void;
+  taskbarPlacement?: TaskbarPlacement;
+  taskBarRef: React.RefObject<HTMLDivElement>;
 }
 
 export const TaskbarItem = ({
   iconify = "mingcute:terminal-box-line",
   title,
+  alt = title,
   size = 40,
   isShowTitle,
+  taskbarPlacement,
+  taskBarRef,
   onClick,
 }: TaskbarItemProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const dropDownRef = useRef<DropDownRef>({
+    handleOpen: () => {},
+  });
+  const [isContextOpen, setIsContextOpen] = useState(false);
 
   return (
     <div
       className="flex flex-col items-center justify-center cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={onClick}
+      onClick={() => {
+        if (isContextOpen) return;
+        onClick?.();
+      }}
+      onContextMenu={(e) => {
+        if (!taskbarPlacement) return;
+        e.preventDefault();
+        if (dropDownRef.current) {
+          dropDownRef.current.handleOpen();
+        }
+      }}
     >
+      <DropDown
+        ref={dropDownRef}
+        callback={(isOpen: boolean) => {
+          if (!isOpen) {
+            setIsHovered(false);
+          }
+          setIsContextOpen(isOpen);
+        }}
+        placement={taskbarPlacement === "bottom" ? "top" : undefined}
+        align={
+          taskbarPlacement === "left"
+            ? "left"
+            : taskbarPlacement === "right"
+            ? "right"
+            : undefined
+        }
+        triggerGapX={
+          taskbarPlacement !== "bottom"
+            ? taskbarPlacement === "left"
+              ? size
+              : 92
+            : undefined
+        }
+        triggerGapY={
+          taskbarPlacement === "bottom"
+            ? (taskBarRef.current?.clientHeight ?? 80) + 5
+            : undefined
+        }
+      >
+        <DropDownItem
+          text={alt ?? ""}
+          onClick={onClick}
+          iconifyString={iconify}
+        />
+      </DropDown>
       <Icon icon={iconify} width={size} height={size} />
       {title && (
         <p

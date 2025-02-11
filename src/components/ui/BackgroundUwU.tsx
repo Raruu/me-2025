@@ -20,7 +20,7 @@ export const BackgroundUwU = () => {
   const [bgUrl, setBgUrl] = useState(themeTrImage);
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
-  const [resizing, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const changeBackground = useCallback(
     (tmpTheme?: themeType) => {
@@ -95,8 +95,9 @@ export const BackgroundUwU = () => {
 
       <div
         className={`${
-          show ? "fixed" : "hidden"
-        } pointer-events-none w-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center -z-10`}
+          show ? "absolute" : "hidden"
+        } pointer-events-none w-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+          flex items-center justify-center -z-10 overflow-hidden`}
       >
         <svg className="absolute w-0 h-0">
           <filter id={filterId}>
@@ -109,7 +110,7 @@ export const BackgroundUwU = () => {
           src={themeTrImage}
           style={{
             filter: `url(#${filterId})`,
-            width: resizing ? "calc(100vw + 100vh)" : "40vh",
+            width: isAnimating ? "calc(100vw + 100vh)" : "40vh",
             height: "auto",
           }}
           width={0}

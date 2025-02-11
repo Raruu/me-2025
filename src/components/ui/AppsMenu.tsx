@@ -224,8 +224,9 @@ export const AppsMenu = () => {
                         sm: "70px",
                         md: "120px",
                       }),
-                    }}
-                    onClick={() => {
+                    }}                  
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setIsAnimating(true);
                     }}
                     // onTouchStart={handleTouchStart}

@@ -7,10 +7,10 @@ import { LoadRequiredImage } from "@/utils/picture-helper";
 import { useReducer, useEffect } from "react";
 
 export default function Home() {
-  raruuIconify();
-  LoadRequiredImage();
   const [theme, setTheme] = useReducer(reducer, "dark");
+  LoadRequiredImage();
   useEffect(() => {
+    raruuIconify();
     setTheme(initTheme());
   }, []);
 

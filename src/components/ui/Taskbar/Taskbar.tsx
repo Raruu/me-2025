@@ -235,6 +235,8 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
             }
             appsMenuRef.current?.close();
           }}
+          taskbarPlacement={taskbarPlacement}
+          taskBarRef={taskBarRef}
         />
       </div>
     </div>
