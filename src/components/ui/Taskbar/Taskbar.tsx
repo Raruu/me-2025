@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useRef, useState } from "react";
-import { WindowManagerContext, WindowState } from "../../Window/WindowManager";
+import { WindowManagerContext } from "../../Window/WindowManager";
 import {
   TaskbarItem,
   TaskbarItemWindowLauncher,
@@ -13,6 +13,7 @@ import {
   DropDownItemSeparator,
 } from "../../Dropdown/DropdownItem";
 import { TaskBarItems } from "@/configs/TaskBarItems";
+import { MenuAppsList } from "@/configs/AppsList";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
 
@@ -85,20 +86,21 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskBarRef.current?.clientWidth, taskbarPlacement, isExpand]);
 
-  const [combinedWindows, setCombinedWindows] = useState<
-    WindowState[] | WindowLauncherProps[]
-  >([]);
+  const [combinedWindows, setCombinedWindows] = useState<WindowLauncherProps[]>(
+    []
+  );
 
   useEffect(() => {
-    const combinedWindowsIds = new Set(
-      TaskBarItems.flatMap((item) => item).map((window) => window.appId)
+    const taskbarItemsIds = TaskBarItems.flatMap((item) => item).map(
+      (window) => window.appId
     );
-    const combinedWindows = windows
-      .filter((window) => !combinedWindowsIds.has(window.appId))
-      .filter(
-        (window, index, self) =>
-          self.findIndex((w) => w.appId === window.appId) === index
-      );
+    const windowsNotInTaskbarItemsIds = windows
+      .map((window) => window.appId)
+      .filter((appId) => !taskbarItemsIds.includes(appId));
+    const combinedWindows = MenuAppsList.filter((item) => {
+      return windowsNotInTaskbarItemsIds.includes(item.appId);
+    });
+
     setCombinedWindows([
       ...TaskBarItems.flatMap((item) => item),
       ...combinedWindows,

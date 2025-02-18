@@ -309,8 +309,8 @@ export const Window = ({
             ? "transition-all duration-300"
             : ""
         }`}
-      onTransitionEnd={() => {
-        if (animateMinimize) {
+      onTransitionEnd={(e) => {
+        if (animateMinimize && e.propertyName === "opacity") {
           dispatch({ type: "MINIMIZE", id });
         }
       }}

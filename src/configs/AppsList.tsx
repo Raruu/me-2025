@@ -4,7 +4,7 @@ import { TaskBarItems } from "./TaskBarItems";
 import { launcherHinaLovesMidokuni } from "@/components/Apps/HinaLovesMidokuni";
 import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudentInsigh";
 
-const _AppsList: WindowLauncherProps[] = [
+export const MenuAppsList: WindowLauncherProps[] = [
   {
     title: `This`,
     appId: "localhostApp",
@@ -25,10 +25,10 @@ const _AppsList: WindowLauncherProps[] = [
   launcherMidokuniStudentInsigh,
 ];
 
-export const AppsList = () => {
+export const getAllAppsList = () => {
   return [
     ...TaskBarItems,
-    ..._AppsList.filter(
+    ...MenuAppsList.filter(
       (item) => !TaskBarItems.some((i) => i.appId === item.appId)
     ),
   ].sort((a, b) => a.title.localeCompare(b.title));

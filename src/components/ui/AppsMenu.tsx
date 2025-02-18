@@ -5,7 +5,7 @@ import {
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { WindowManagerContext } from "../Window/WindowManager";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
-import { AppsList } from "@/configs/AppsList";
+import { getAllAppsList } from "@/configs/AppsList";
 
 export const AppsMenu = () => {
   const {
@@ -36,7 +36,7 @@ export const AppsMenu = () => {
     // }
     // setAllAppsList(col);
 
-    const appsList = AppsList();
+    const appsList = getAllAppsList();
     const chunkedAppsList = Array.from(
       { length: Math.ceil(appsList.length / CHUNK_SIZE) },
       (_, i) => appsList.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)
