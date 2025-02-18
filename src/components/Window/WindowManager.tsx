@@ -40,6 +40,7 @@ export const WindowManagerContext = createContext<{
 });
 
 export interface WindowState {
+  zIndex: number;
   id: number;
   appId?: string;
   title: string;
@@ -132,6 +133,23 @@ export const WindowManager = () => {
           return window;
         });
       case "CLOSE":
+        const close = () => {
+          const targetIndex = state.findIndex(
+            (window) => window.id === action.id
+          );
+          const targetWindow = state[targetIndex];
+
+          if (targetIndex > -1) {
+            const tmpZIndex = targetWindow.zIndex;
+            for (let i = 0; i < state.length; i++) {
+              if (state[i].zIndex > tmpZIndex) {
+                state[i].zIndex -= 1;
+              }
+            }
+          }
+        };
+        close();
+
         return state.filter((window) => window.id !== action.id);
       case "ADD_WINDOW":
         if (
@@ -157,6 +175,8 @@ export const WindowManager = () => {
           }
         }
 
+        action.window.zIndex = state.length;
+
         return [...state, action.window];
       case "MOVE":
         return state.map((window) => {
@@ -180,28 +200,27 @@ export const WindowManager = () => {
           return window;
         });
       case "FOCUS":
-        const targetIndex = state.findIndex(
-          (window) => window.id === action.id
-        );
-        if (targetIndex > -1) {
+        const focus = (): boolean => {
+          const targetIndex = state.findIndex(
+            (window) => window.id === action.id
+          );
           const targetWindow = state[targetIndex];
           targetWindow.isMinimized = false;
-          const { innerWidth, innerHeight } = window;
-          const { x, y } = targetWindow.position;
-          const { width, height } = targetWindow.size;
-          if (x + width > innerWidth) {
-            targetWindow.position.x = innerWidth - width;
+          if (targetWindow.zIndex === state.length) return false;
+
+          if (targetIndex > -1) {
+            const tmpZIndex = targetWindow.zIndex;
+            for (let i = 0; i < state.length; i++) {
+              if (state[i].zIndex > tmpZIndex) {
+                state[i].zIndex -= 1;
+              }
+            }
+            targetWindow.zIndex = state.length - 1;
           }
-          if (y + height > innerHeight) {
-            targetWindow.position.y = innerHeight - height;
-          }
-          return [
-            ...state.slice(0, targetIndex),
-            ...state.slice(targetIndex + 1),
-            targetWindow,
-          ];
-        }
-        return state;
+          return true;
+        };
+
+        return focus() ? [...state] : state;
       default:
         return state;
     }
@@ -234,7 +253,14 @@ export const WindowManager = () => {
       dispatch,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [taskBarRef, statusBarRef, appsMenuRef, isAppsMenuOpen, borderConstrains, windows.length]
+    [
+      taskBarRef,
+      statusBarRef,
+      appsMenuRef,
+      isAppsMenuOpen,
+      borderConstrains,
+      windows.length,
+    ]
   );
 
   return (
@@ -246,11 +272,11 @@ export const WindowManager = () => {
           className="bg-transparent transition-colors duration-300
         text-background absolute min-h-full min-w-full overflow-hidden z-0"
         >
-          {windows.map((window, index) => (
+          {windows.map((window) => (
             <Window
               key={window.id}
               {...window}
-              isFocused={index == windows.length - 1}             
+              isFocused={window.zIndex >= windows.length - 1}
             />
           ))}
         </div>

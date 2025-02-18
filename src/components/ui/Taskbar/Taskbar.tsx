@@ -222,6 +222,13 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
             windowLauncherProps={item}
             dispatch={dispatch}
             ref={item.launcherRef}
+            contextMenuCallback={() => {
+              if (appsMenuRef.current) {
+                appsMenuRef.current.close();
+                return;
+              }
+              setIsAppsMenuOpen(false);
+            }}
           />
         ))}
         {/* <div className="w-1 h-1"></div> */}

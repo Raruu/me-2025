@@ -1,6 +1,6 @@
 "use client";
 
-import { azusaCatImage, patapataLanuBiscuit } from "@/utils/picture-helper";
+import { azusaCatImage, iconMidokuniLogo512, patapataLanuBiscuit } from "@/utils/picture-helper";
 import { addCollection } from "@iconify/react";
 
 export const raruuIconify = () =>
@@ -14,6 +14,16 @@ export const raruuIconify = () =>
       },
       "patapata-lanubiscuit": {
         body: `<image href="${patapataLanuBiscuit}" height="24" width="24"/>`,
+        height: 24,
+        width: 24,
+      },
+      "ic-midokuni-logo-512": {
+        body: `<image href="${iconMidokuniLogo512}" height="24" width="24"/>`,
+        height: 24,
+        width: 24,
+      },
+      "ic-midokuni-logo-512-document": { // fluent:document-16-filled
+        body: `<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 16 16"><path fill="white" d="M8 1v3.5A1.5 1.5 0 0 0 9.5 6H13v7.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-11A1.5 1.5 0 0 1 4.5 1zm1 .25V4.5a.5.5 0 0 0 .5.5h3.25z"></path> <image href="${iconMidokuniLogo512}" height="20" width="8" x="4" y="0"/> </svg>`,
         height: 24,
         width: 24,
       },

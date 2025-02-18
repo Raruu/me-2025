@@ -3,8 +3,10 @@ import { AzusaBounce } from "../AzusaBounce";
 import { SeeMee } from "../SeeMee";
 import { mediaQueryContext } from "@/hooks/useMediaQuery";
 import { useElementSize } from "@/hooks/useElementSize";
+import { createRef } from "react";
+import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 
-export const AboutMe = () => {
+const AboutMe = () => {
   const { mediaQuery, elementRef } = useElementSize();
 
   return (
@@ -24,7 +26,9 @@ export const AboutMe = () => {
             mediaQuery={mediaQuery}
           />
           <div className="h-2"></div>
-          <h1 className="text-sm font-bold">I code, me trying react in early 2025 &gt;w&lt; </h1>
+          <h1 className="text-sm font-bold">
+            I code, me trying react in early 2025 &gt;w&lt;{" "}
+          </h1>
           <div className="h-2"></div>
           <SeeMee />
           <div className="h-2"></div>
@@ -33,4 +37,21 @@ export const AboutMe = () => {
       </mediaQueryContext.Provider>
     </div>
   );
+};
+
+export const launcherAboutMe: WindowLauncherProps = {
+  title: `Me`,
+  subtitle: "Student",
+  appId: "me",
+  icon: "raruu:azusa-cat",
+  content: <AboutMe />,
+  size: {
+    width: 450,
+    height: 450,
+  },
+  minSize: {
+    width: 0,
+    height: 0,
+  },
+  launcherRef: createRef(),
 };

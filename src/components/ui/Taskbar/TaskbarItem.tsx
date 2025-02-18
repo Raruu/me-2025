@@ -36,8 +36,42 @@ interface TaskbarItemWindowLauncherProps {
   windows: WindowState[];
   size?: number;
   isShowTitle?: boolean;
+  contextMenuCallback?: () => void;
   dispatch: Dispatch<WindowAction>;
 }
+
+const IconTitle = ({
+  title,
+  size,
+  isShowTitle,
+  isParentHovered,
+  istextWrap,
+}: {
+  title: string;
+  size: number;
+  isShowTitle?: boolean;
+  isParentHovered?: boolean;
+  istextWrap?: boolean;
+}) => {
+  return (
+    <p
+      style={{
+        width: size + 10,
+        opacity: isShowTitle || isParentHovered ? 1 : 0,
+        lineHeight: isShowTitle || isParentHovered ? 0.8 : 0,
+      }}
+      className={`transition-all duration-300 select-none text-sm hover:flex items-center justify-around
+        text-ellipsis overflow-hidden hover:overflow-visible text-center hover:justify-center 
+        ${
+          istextWrap && title.length > 14
+            ? "hover:text-wrap text-nowrap"
+            : "text-nowrap"
+        }`}
+    >
+      {title}
+    </p>
+  );
+};
 
 export const TaskbarItemWindowLauncher = ({
   ref,
@@ -47,6 +81,7 @@ export const TaskbarItemWindowLauncher = ({
   windows,
   isShowTitle,
   size = 40,
+  contextMenuCallback,
   dispatch,
 }: TaskbarItemWindowLauncherProps) => {
   const [isHovered, setHovered] = useState(false);
@@ -67,9 +102,11 @@ export const TaskbarItemWindowLauncher = ({
   }, [windows.length]);
 
   const addWindow = () => {
+    contextMenuCallback?.();
     dispatch({
       type: "ADD_WINDOW",
       window: {
+        zIndex: windows.length,
         id: Date.now(),
         title: windowLauncherProps.title,
         appId: windowLauncherProps.appId,
@@ -149,7 +186,10 @@ export const TaskbarItemWindowLauncher = ({
             key={window.id}
             text={window.title}
             iconifyString={window.icon}
-            onClick={() => dispatch({ type: "FOCUS", id: window.id })}
+            onClick={() => {
+              dispatch({ type: "FOCUS", id: window.id });
+              contextMenuCallback?.();
+            }}
             rightIcon="mingcute:close-line"
             rightIconClick={() => dispatch({ type: "CLOSE", id: window.id })}
           />
@@ -165,17 +205,13 @@ export const TaskbarItemWindowLauncher = ({
         width={size}
         height={size}
       />
-      <p
-        style={{
-          width: size + 10,
-          opacity: isShowTitle || isHovered ? 1 : 0,
-          lineHeight: isShowTitle || isHovered ? 0.8 : 0,
-        }}
-        className={`transition-all duration-300 select-none flex 
-          text-ellipsis text-nowrap  text-center items-center justify-center  `}
-      >
-        {windowLauncherProps.title}
-      </p>
+      <IconTitle
+        title={windowLauncherProps.title}
+        size={size}
+        isShowTitle={isShowTitle}
+        isParentHovered={isHovered}
+        istextWrap
+      />
       {taskbarPlacement && (
         <div className="flex flex-row items-center justify-center gap-1">
           {windowsAppId.length === 0 && (
@@ -289,19 +325,12 @@ export const TaskbarItem = ({
       </DropDown>
       <Icon icon={iconify} width={size} height={size} />
       {title && (
-        <p
-          style={{
-            width: size + 10,
-            opacity: isShowTitle ? 1 : "",
-            lineHeight: isShowTitle ? 0.8 : "",
-          }}
-          className={`transition-all duration-300 select-none 
-          text-ellipsis text-nowrap overflow-hidden text-center ${
-            isHovered ? "opacity-100 leading-[0.8]" : "opacity-0 leading-[0]"
-          } `}
-        >
-          {title}
-        </p>
+        <IconTitle
+          title={title}
+          size={size}
+          isShowTitle={isShowTitle}
+          isParentHovered={isHovered}
+        />
       )}
     </div>
   );

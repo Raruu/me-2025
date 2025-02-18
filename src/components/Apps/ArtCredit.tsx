@@ -1,10 +1,11 @@
 import { useElementSize } from "@/hooks/useElementSize";
 import { TextRotate } from "../TextRotate";
 import { mapMediaQuery, MediaQuery } from "@/hooks/useMediaQuery";
-import { useEffect, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import NextImage from "next/image";
 import { artCredits } from "@/configs/ArtCredits";
 import { Icon } from "@iconify/react";
+import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 
 const HastagSection = ({
   mediaQuery,
@@ -53,7 +54,7 @@ const HastagSection = ({
   return (
     <div
       className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full transition-all duration-700
-        flex flex-col items-center justify-center bg-background gap-1 overflow-hidden pb-3"
+        flex flex-col items-center justify-center bg-background gap-1 overflow-hidden pb-3 select-none"
       style={{
         height: animSeq < 1 ? "100%" : `${height}px`,
       }}
@@ -127,7 +128,7 @@ const HastagSection = ({
   );
 };
 
-export const ArtCredit = () => {
+const ArtCredit = () => {
   const { mediaQuery, elementRef } = useElementSize();
   const [animSequence, setAnimSequence] = useState(0);
   const hashtagSectionHeight = 48;
@@ -154,7 +155,7 @@ export const ArtCredit = () => {
       style={{ paddingBottom: hashtagSectionHeight + 10 }}
     >
       <div
-        className="flex flex-col items-center w-full overflow-auto gap-6"
+        className="flex flex-col items-center w-full overflow-auto gap-6 select-none"
         style={{ scrollbarWidth: "none" }}
       >
         {artCredits.map((artist) => (
@@ -278,4 +279,21 @@ export const ArtCredit = () => {
       />
     </div>
   );
+};
+
+export const launcherArtCredit: WindowLauncherProps = {
+  title: `Art Credits`,
+  subtitle: "Somethings wrong?",
+  appId: "art-credits",
+  icon: "raruu:patapata-lanubiscuit",
+  content: <ArtCredit />,
+  size: {
+    width: 750,
+    height: 550,
+  },
+  minSize: {
+    width: 400,
+    height: 0,
+  },
+  launcherRef: createRef(),
 };

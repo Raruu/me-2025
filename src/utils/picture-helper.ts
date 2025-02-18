@@ -10,6 +10,7 @@ export const bgVerDarkImage = "/ver-background-dark.webp";
 export const azusaCatImage = "/me-azusa.webp";
 export const noticeAzusaCatImage = "/notice-1.webp";
 export const patapataLanuBiscuit = "/patapata-lanubiscuit.webp";
+export const iconMidokuniLogo512 = "/icon/midokuni_logo_512.webp";
 
 export const LoadRequiredImage = () => {
   useEffect(() => {

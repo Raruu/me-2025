@@ -7,6 +7,7 @@ import {
   useCallback,
   useRef,
   useContext,
+  createContext,
 } from "react";
 
 interface WindowActionButtonProps {
@@ -26,7 +27,7 @@ type ResizeDirection =
   | "bottom-right"
   | null;
 
-const WindowActionButton = ({
+export const WindowActionButton = ({
   icon,
   useRightMargin,
   onClick,
@@ -50,7 +51,13 @@ interface WindowProps extends WindowState {
   isFocused: boolean;
 }
 
+export const WindowContext = createContext<{
+  freeSlot?: React.ReactNode;
+  setFreeSlot: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+}>({ setFreeSlot: () => {} });
+
 export const Window = ({
+  zIndex,
   id,
   title,
   subtitle,
@@ -70,6 +77,7 @@ export const Window = ({
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const headerRef = useRef<HTMLDivElement>(null);
+  const [freeSlot, setFreeSlot] = useState<React.ReactNode>(undefined);
 
   const maximize = () => {
     dispatch({ type: "FOCUS", id });
@@ -285,8 +293,6 @@ export const Window = ({
     setAnimateMinimize(false);
   }, [isMinimized]);
 
-  if (isMinimized) return null;
-
   const launcherPosX = launcherRef?.current
     ? isMaximized
       ? 0
@@ -330,6 +336,8 @@ export const Window = ({
         borderRadius: isMaximized ? 0 : "",
         opacity: animateMinimize ? 0 : 1,
         scale: animateMinimize ? 0.75 : 1,
+        zIndex: zIndex,
+        display: isMinimized ? "none" : "",
       }}
     >
       <div
@@ -369,6 +377,7 @@ export const Window = ({
           onDoubleClick={maximize}
         ></div>
         <div id="window-actions" className="flex flex-row items-center">
+          {freeSlot}
           <WindowActionButton
             icon="mingcute:minimize-fill"
             useRightMargin
@@ -393,7 +402,11 @@ export const Window = ({
             : ""
         }`}
       >
-        {content}
+        <WindowContext.Provider
+          value={{ freeSlot: freeSlot, setFreeSlot: setFreeSlot }}
+        >
+          {content}
+        </WindowContext.Provider>
       </div>
       <div>
         <div

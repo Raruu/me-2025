@@ -1,6 +1,8 @@
 import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
 import { createRef } from "react";
 import { TaskBarItems } from "./TaskBarItems";
+import { launcherHinaLovesMidokuni } from "@/components/Apps/HinaLovesMidokuni";
+import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudentInsigh";
 
 const _AppsList: WindowLauncherProps[] = [
   {
@@ -19,6 +21,8 @@ const _AppsList: WindowLauncherProps[] = [
     },
     launcherRef: createRef(),
   },
+  launcherHinaLovesMidokuni,
+  launcherMidokuniStudentInsigh,
 ];
 
 export const AppsList = () => {
@@ -27,5 +31,5 @@ export const AppsList = () => {
     ..._AppsList.filter(
       (item) => !TaskBarItems.some((i) => i.appId === item.appId)
     ),
-  ];
+  ].sort((a, b) => a.title.localeCompare(b.title));
 };
