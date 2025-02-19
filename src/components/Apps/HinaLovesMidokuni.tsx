@@ -1,24 +1,21 @@
-import { createRef, useContext, useEffect } from "react";
+import { createRef } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
-import { WindowActionButton, WindowContext } from "../Window/Window";
+import { WindowActionButton } from "../Window/Window";
+import { WebView } from "./Template/WebView";
 
 const HinaLovesMidokuni = () => {
   const url = "https://hina.loves.midokuni.com/";
-  const { setFreeSlot } = useContext(WindowContext);
-  useEffect(() => {
-    setFreeSlot(
-      <WindowActionButton
-        icon="ic:round-open-in-new"
-        onClick={() => window.open(url, "_blank")}
-        useRightMargin
-      />
-    );
-  }, [setFreeSlot]);
-
   return (
-    <div className="w-full h-full flex bg-background">
-      <iframe className="w-full h-full" src={url} allowFullScreen></iframe>
-    </div>
+    <WebView
+      url={url}
+      freeSlot={
+        <WindowActionButton
+          icon="ic:round-open-in-new"
+          onClick={() => window.open(url, "_blank")}
+          useRightMargin
+        />
+      }
+    />
   );
 };
 

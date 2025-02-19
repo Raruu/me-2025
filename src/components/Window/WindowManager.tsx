@@ -11,7 +11,7 @@ import {
 import { Window } from "./Window";
 import { StatusBar } from "../ui/Statusbar/Statusbar";
 import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
-import { BackgroundUwU } from "../ui/BackgroundUwU";
+import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
 
 type TaskBarRef = HTMLDivElement &
@@ -152,6 +152,20 @@ export const WindowManager = () => {
 
         return state.filter((window) => window.id !== action.id);
       case "ADD_WINDOW":
+        const { width: screenWidth, height: screenHeight } = window.screen;
+        if (screenWidth < action.window.size.width) {
+          action.window.size.width = screenWidth;
+          if (screenWidth < action.window.minSize.width) {
+            action.window.minSize.width = screenWidth;
+          }
+        }
+        if (screenHeight < action.window.size.height) {
+          action.window.size.height = screenHeight;
+          if (screenHeight < action.window.minSize.height) {
+            action.window.minSize.height = screenHeight;
+          }
+        }
+
         if (
           action.window.position?.x === 0 &&
           action.window.position?.y === 0

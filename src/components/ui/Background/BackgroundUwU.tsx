@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useEffect, useContext, useState, useCallback } from "react";
+import { useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
 import { themeContext, themeType } from "@/styles/theme";
 import {
@@ -11,12 +11,12 @@ import {
   bgVerDarkImage,
 } from "@/utils/picture-helper";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
-import { WindowManagerContext } from "../Window/WindowManager";
+import { WindowManagerContext } from "../../Window/WindowManager";
+import { SilhouetteBackground } from "./SilhouetteBackground";
 
 export const BackgroundUwU = () => {
   const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);
   const mediaQuery = useMediaQuery();
-  const filterId = useId();
   const [bgUrl, setBgUrl] = useState(themeTrImage);
   const { theme, setTheme } = useContext(themeContext);
   const [show, setShow] = useState(false);
@@ -81,6 +81,8 @@ export const BackgroundUwU = () => {
             height: statusBarRef.current?.clientHeight || 0,
           }}
         ></div>
+
+        {/* Wallpaper */}
         <NextImage
           src={bgUrl}
           className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10"
@@ -93,33 +95,12 @@ export const BackgroundUwU = () => {
         />
       </div>
 
-      <div
-        className={`${
-          show ? "absolute" : "hidden"
-        } pointer-events-none w-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-          flex items-center justify-center -z-10 overflow-hidden`}
-      >
-        <svg className="absolute w-0 h-0">
-          <filter id={filterId}>
-            <feFlood floodColor="var(--foreground)" result="flood" />
-            <feComposite in="flood" in2="SourceAlpha" operator="in" />
-          </filter>
-        </svg>
-        <NextImage
-          className="transition-all duration-300 w-1/3 h-auto"
-          src={themeTrImage}
-          style={{
-            filter: `url(#${filterId})`,
-            width: isAnimating ? "calc(100vw + 100vh)" : "40vh",
-            height: "auto",
-          }}
-          width={0}
-          height={0}
-          priority={true}
-          alt="Colorized animated"
-          unoptimized
-        />
-      </div>
+      <SilhouetteBackground
+        show={show}
+        imgUrl={themeTrImage}
+        style={{ width: isAnimating ? "calc(100vw + 100vh)" : "40vh" }}
+        minusZIndex
+      />
     </div>
   );
 };

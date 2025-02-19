@@ -94,7 +94,7 @@ export const TaskbarItemWindowLauncher = ({
 
   useEffect(() => {
     if (!taskbarPlacement) return;
-    console.log("windowsAppId Changed");
+    // console.log("windowsAppId Changed");
     setwindowsAppId(
       windows.filter((window) => window.appId === windowLauncherProps.appId)
     );
