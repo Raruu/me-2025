@@ -10,7 +10,7 @@ import { TaskbarPlacement } from "./Taskbar";
 export interface WindowLauncherProps
   extends Pick<
     WindowState,
-    "title" | "appId" | "icon" | "subtitle" | "content" | "launcherRef"
+    "title" | "appId" | "icon" | "initialSubtitle" | "content" | "launcherRef"
   > {
   isMinimized?: boolean;
   isMaximized?: boolean;
@@ -58,15 +58,15 @@ const IconTitle = ({
       style={{
         width: size + 10,
         opacity: isShowTitle || isParentHovered ? 1 : 0,
-        lineHeight: isShowTitle || isParentHovered ? 0.8 : 0,
+        lineHeight: isShowTitle || isParentHovered ? 0.8 : 0,        
       }}
       className={`transition-all duration-300 select-none text-sm hover:flex items-center justify-around
-        text-ellipsis overflow-hidden hover:overflow-visible text-center hover:justify-center 
+        text-ellipsis overflow-hidden hover:overflow-visible text-center hover:justify-center
         ${
           istextWrap && title.length > 14
             ? "hover:text-wrap text-nowrap"
             : "text-nowrap"
-        }`}
+        } ${isShowTitle || isParentHovered ? "hover:h-auto hover:mb-0 -mb-[4.5px] h-4 hover:duration-0" : "h-0"}`}
     >
       {title}
     </p>
@@ -110,7 +110,7 @@ export const TaskbarItemWindowLauncher = ({
         id: Date.now(),
         title: windowLauncherProps.title,
         appId: windowLauncherProps.appId,
-        subtitle: windowLauncherProps.subtitle,
+        initialSubtitle: windowLauncherProps.initialSubtitle,
         icon: windowLauncherProps.icon ?? "mingcute:terminal-box-line",
         content: windowLauncherProps.content,
         isMaximized: windowLauncherProps.isMaximized ?? false,

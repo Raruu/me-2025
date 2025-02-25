@@ -21,7 +21,7 @@ const HinaLovesMidokuni = () => {
 
 export const launcherHinaLovesMidokuni: WindowLauncherProps = {
   title: "Hina Loves Midokuni",
-  subtitle: "credits to Midokuni",
+  initialSubtitle: "credits to Midokuni",
   appId: "hina-loves-midokuni",
   icon: "raruu:ic-midokuni-logo-512",
   content: <HinaLovesMidokuni />,

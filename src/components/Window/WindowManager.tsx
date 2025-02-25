@@ -45,7 +45,7 @@ export interface WindowState {
   appId?: string;
   title: string;
   icon?: string;
-  subtitle?: string;
+  initialSubtitle?: string;
   content: React.ReactNode;
   isMinimized: boolean;
   isMaximized: boolean;
@@ -62,6 +62,7 @@ export interface WindowState {
     height: number;
   };
   launcherRef?: React.RefObject<HTMLDivElement | null>;
+  initialWindowColor?: string;
 }
 
 export type WindowAction =
@@ -151,8 +152,9 @@ export const WindowManager = () => {
         close();
 
         return state.filter((window) => window.id !== action.id);
-      case "ADD_WINDOW":
-        const { width: screenWidth, height: screenHeight } = window.screen;
+      case "ADD_WINDOW":        
+        const screenWidth = borderConstrains.right - borderConstrains.left;
+        const screenHeight = borderConstrains.bottom - borderConstrains.top;
         if (screenWidth < action.window.size.width) {
           action.window.size.width = screenWidth;
           if (screenWidth < action.window.minSize.width) {
@@ -218,11 +220,21 @@ export const WindowManager = () => {
           const targetIndex = state.findIndex(
             (window) => window.id === action.id
           );
-          const targetWindow = state[targetIndex];
-          targetWindow.isMinimized = false;
-          if (targetWindow.zIndex === state.length) return false;
-
           if (targetIndex > -1) {
+            const targetWindow = state[targetIndex];
+            targetWindow.isMinimized = false;
+            const { innerWidth, innerHeight } = window;
+            const { x, y } = targetWindow.position;
+            const { width, height } = targetWindow.size;
+            if (x + width > innerWidth) {
+              targetWindow.position.x = (innerWidth - width) / 2;
+            }
+            if (y + height > innerHeight) {
+              targetWindow.position.y = (innerHeight - height) / 2;
+            }
+
+            if (targetWindow.zIndex === state.length) return false;
+
             const tmpZIndex = targetWindow.zIndex;
             for (let i = 0; i < state.length; i++) {
               if (state[i].zIndex > tmpZIndex) {

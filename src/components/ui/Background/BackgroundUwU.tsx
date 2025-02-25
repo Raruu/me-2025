@@ -76,7 +76,7 @@ export const BackgroundUwU = () => {
       >
         {/* Statubar Bg */}
         <div
-          className="w-full bg-[var(--background-tr)] backdrop-blur -z-10 transition-colors"
+          className="w-full bg-background-tr backdrop-blur -z-10 transition-colors"
           style={{
             height: statusBarRef.current?.clientHeight || 0,
           }}

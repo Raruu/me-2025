@@ -26,7 +26,7 @@ const MidokuniStudentInsigh = () => {
 export const launcherMidokuniStudentInsigh: WindowLauncherProps = {
   title: "Midokuni's Student Insight",
   appId: "midokuni-student-insight",
-  subtitle: "credits to Midokuni",
+  initialSubtitle: "credits to Midokuni",
   icon: "raruu:ic-midokuni-logo-512-document",
   content: <MidokuniStudentInsigh />,
   size: {

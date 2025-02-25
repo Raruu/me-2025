@@ -283,7 +283,7 @@ const ArtCredit = () => {
 
 export const launcherArtCredit: WindowLauncherProps = {
   title: `Art Credits`,
-  subtitle: "Somethings wrong?",
+  initialSubtitle: "Somethings wrong?",
   appId: "art-credits",
   icon: "raruu:patapata-lanubiscuit",
   content: <ArtCredit />,

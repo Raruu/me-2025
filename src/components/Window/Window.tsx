@@ -32,15 +32,21 @@ export const WindowActionButton = ({
   useRightMargin,
   onClick,
 }: WindowActionButtonProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <button
       className={`flex items-center justify-center bg-gray-200 hover:bg-gray-300 
         dark:bg-slate-50 dark:hover:bg-slate-300 dark:bg-opacity-25 dark:hover:bg-opacity-25 
         w-6 h-6 rounded-full ${useRightMargin ? "mr-2" : ""}`}
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Icon
-        className="opacity-65 hover:opacity-100 transition-all duration-150 w-1/2 h-full"
+        className={`transition-all duration-150 w-1/2 h-full ${
+          isHovered ? "opacity-100" : "opacity-65"
+        }`}
         icon={icon}
       />
     </button>
@@ -52,15 +58,16 @@ interface WindowProps extends WindowState {
 }
 
 export const WindowContext = createContext<{
-  freeSlot?: React.ReactNode;
   setFreeSlot: React.Dispatch<React.SetStateAction<React.ReactNode>>;
-}>({ setFreeSlot: () => {} });
+  setSubtitle: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setWindowColor: React.Dispatch<React.SetStateAction<string | undefined>>;
+}>({ setFreeSlot: () => {}, setSubtitle: () => {}, setWindowColor: () => {} });
 
 export const Window = ({
   zIndex,
   id,
   title,
-  subtitle,
+  initialSubtitle,
   icon,
   content,
   isMinimized,
@@ -70,6 +77,7 @@ export const Window = ({
   isFocused,
   minSize,
   launcherRef,
+  initialWindowColor,
 }: WindowProps) => {
   const { borderConstrains, dispatch } = useContext(WindowManagerContext);
   const [isDraggingMove, setIsDraggingMove] = useState(false);
@@ -78,6 +86,8 @@ export const Window = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const headerRef = useRef<HTMLDivElement>(null);
   const [freeSlot, setFreeSlot] = useState<React.ReactNode>(undefined);
+  const [subtitle, setSubtitle] = useState<string | undefined>(initialSubtitle);
+  const [windowColor, setWindowColor] = useState(initialWindowColor);
 
   const maximize = () => {
     dispatch({ type: "FOCUS", id });
@@ -342,8 +352,12 @@ export const Window = ({
     >
       <div
         ref={headerRef}
-        style={{ borderRadius: isMaximized ? 0 : "", minWidth: "130px" }}
-        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-[--background-tr] backdrop-blur"
+        style={{
+          borderRadius: isMaximized ? 0 : "",
+          minWidth: "130px",
+          backgroundColor: windowColor,
+        }}
+        className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-background-tr backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
           if (e.target === e.currentTarget) {
             handleDownMove(e);
@@ -403,7 +417,11 @@ export const Window = ({
         }`}
       >
         <WindowContext.Provider
-          value={{ freeSlot: freeSlot, setFreeSlot: setFreeSlot }}
+          value={{
+            setFreeSlot: setFreeSlot,
+            setSubtitle: setSubtitle,
+            setWindowColor: setWindowColor,
+          }}
         >
           {content}
         </WindowContext.Provider>
@@ -417,6 +435,7 @@ export const Window = ({
             left: "0px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "ns-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom")}
           onTouchStart={(e) => handleDownResize(e, "bottom")}
@@ -429,6 +448,7 @@ export const Window = ({
             top: "0px",
             left: "-3px",
             cursor: isDraggingResize ? "" : "ew-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "left")}
           onTouchStart={(e) => handleDownResize(e, "left")}
@@ -441,6 +461,7 @@ export const Window = ({
             top: "0px",
             right: "-3px",
             cursor: isDraggingResize ? "" : "ew-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "right")}
           onTouchStart={(e) => handleDownResize(e, "right")}
@@ -453,6 +474,7 @@ export const Window = ({
             top: "-3px",
             left: "0px",
             cursor: isDraggingResize ? "" : "ns-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top")}
           onTouchStart={(e) => handleDownResize(e, "top")}
@@ -465,6 +487,7 @@ export const Window = ({
             left: "-3px",
             top: "-3px",
             cursor: isDraggingResize ? "" : "nwse-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top-left")}
           onTouchStart={(e) => handleDownResize(e, "top-left")}
@@ -477,6 +500,7 @@ export const Window = ({
             right: "-3px",
             top: "-3px",
             cursor: isDraggingResize ? "" : "nesw-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top-right")}
           onTouchStart={(e) => handleDownResize(e, "top-right")}
@@ -489,6 +513,7 @@ export const Window = ({
             left: "-3px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "nesw-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom-left")}
           onTouchStart={(e) => handleDownResize(e, "bottom-left")}
@@ -501,6 +526,7 @@ export const Window = ({
             right: "-3px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "nwse-resize",
+            display: isMaximized ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom-right")}
           onTouchStart={(e) => handleDownResize(e, "bottom-right")}

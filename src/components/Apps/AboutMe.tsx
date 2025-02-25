@@ -41,7 +41,7 @@ const AboutMe = () => {
 
 export const launcherAboutMe: WindowLauncherProps = {
   title: `Me`,
-  subtitle: "Student",
+  initialSubtitle: "Student",
   appId: "me",
   icon: "raruu:azusa-cat",
   content: <AboutMe />,

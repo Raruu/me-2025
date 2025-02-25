@@ -3,6 +3,7 @@ import { createRef } from "react";
 import { TaskBarItems } from "./TaskBarItems";
 import { launcherHinaLovesMidokuni } from "@/components/Apps/HinaLovesMidokuni";
 import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudentInsigh";
+import { launcherSetting } from "@/components/Apps/Setting/Setting";
 
 export const MenuAppsList: WindowLauncherProps[] = [
   {
@@ -23,6 +24,7 @@ export const MenuAppsList: WindowLauncherProps[] = [
   },
   launcherHinaLovesMidokuni,
   launcherMidokuniStudentInsigh,
+  launcherSetting,
 ];
 
 export const getAllAppsList = () => {
