@@ -4,6 +4,7 @@ import { TaskBarItems } from "./TaskBarItems";
 import { launcherHinaLovesMidokuni } from "@/components/Apps/HinaLovesMidokuni";
 import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudentInsigh";
 import { launcherSetting } from "@/components/Apps/Setting/Setting";
+import { collegeLauncherSPKJS2 } from "@/components/Apps/College/SPK-JS2";
 
 export const MenuAppsList: WindowLauncherProps[] = [
   {
@@ -25,6 +26,7 @@ export const MenuAppsList: WindowLauncherProps[] = [
   launcherHinaLovesMidokuni,
   launcherMidokuniStudentInsigh,
   launcherSetting,
+  collegeLauncherSPKJS2,
 ];
 
 export const getAllAppsList = () => {
