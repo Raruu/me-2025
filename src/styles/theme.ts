@@ -1,16 +1,13 @@
 "use client";
 
-import { ActionDispatch, createContext } from "react";
+import { ActionDispatch } from "react";
 
 export type themeType = "light" | "dark" | "tr-light" | "tr-dark";
 
-export const themeContext = createContext<{
+export interface EtcThemeSettings {
   theme: themeType;
   setTheme: ActionDispatch<[action: themeType | undefined]>;
-}>({
-  theme: "dark",
-  setTheme: () => {},
-});
+}
 
 export const getSystemTheme = (): themeType => {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -22,7 +19,9 @@ export const getSystemTheme = (): themeType => {
 export const getTheme = (): themeType => {
   const theme = localStorage.getItem("theme");
   return `tr-${
-    theme === "light" || theme === "dark" ? theme : (getSystemTheme().replace("tr-", "") as string)
+    theme === "light" || theme === "dark"
+      ? theme
+      : (getSystemTheme().replace("tr-", "") as string)
   }` as themeType;
 };
 

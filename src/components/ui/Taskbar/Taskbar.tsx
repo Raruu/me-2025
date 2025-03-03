@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { ActionDispatch, useContext, useEffect, useRef, useState } from "react";
 import { WindowManagerContext } from "../../Window/WindowManager";
 import {
   TaskbarItem,
@@ -14,8 +14,16 @@ import {
 } from "../../Dropdown/DropdownItem";
 import { TaskBarItems } from "@/configs/TaskBarItems";
 import { MenuAppsList } from "@/configs/AppsList";
+import { EtcContext } from "@/lib/Etc";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
+
+export interface EtcTaskbarSettings {
+  taskbarPlacement: TaskbarPlacement;
+  setTaskbarPlacement: ActionDispatch<[action: TaskbarPlacement]>;
+  isExpanded: boolean;
+  setIsExpanded: ActionDispatch<[action: boolean]>;
+}
 
 interface TaskbarProps {
   reTriggerConstrains: () => void;
@@ -35,8 +43,9 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
   const dropDownRef = useRef<DropDownRef>({
     handleOpen: () => {},
   });
-  const [taskbarPlacement, setTaskbarPlacement] =
-    useState<TaskbarPlacement>("bottom");
+
+  const { taskbarPlacement, setTaskbarPlacement, isExpanded, setIsExpanded } =
+    useContext(EtcContext).taskbarSettings;
 
   const [xContextGap, setXContextGap] = useState(0);
   const [yContextGap, setYContextGap] = useState<number | undefined>(undefined);
@@ -46,7 +55,6 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
   const [heightNotExpanded, setHeightNotExpanded] = useState<
     number | undefined
   >(undefined);
-  const [isExpand, setIsExpand] = useState(false);
 
   useEffect(() => {
     const assignConstrains = () => {
@@ -84,7 +92,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
     }, 50);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskBarRef.current?.clientWidth, taskbarPlacement, isExpand]);
+  }, [taskBarRef.current?.clientWidth, taskbarPlacement, isExpanded]);
 
   const [combinedWindows, setCombinedWindows] = useState<WindowLauncherProps[]>(
     []
@@ -156,9 +164,9 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
           <DropDownItem
             text="Expand"
             iconifyString="material-symbols:width-wide"
-            checked={isExpand}
+            checked={isExpanded}
             onClick={() => {
-              if (!isExpand) {
+              if (!isExpanded) {
                 setWidthNotExpanded(
                   taskbarPlacement === "bottom"
                     ? taskBarRef.current.clientWidth
@@ -171,7 +179,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
                 );
               }
               setTimeout(() => {
-                setIsExpand(!isExpand);
+                setIsExpanded(!isExpanded);
               }, 50);
             }}
           />
@@ -183,7 +191,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
         className={`z-[1] flex items-center gap-2 pointer-events-auto relative ${
           taskbarPlacement === "bottom" ? "flex-row px-8" : "flex-col py-6 px-4"
         } ${
-          isExpand
+          isExpanded
             ? taskbarPlacement === "bottom"
               ? "justify-center"
               : "h-full"
@@ -191,12 +199,12 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
         }
         min-h-20 transition-all duration-300`}
         style={{
-          width: isExpand
+          width: isExpanded
             ? "100%"
             : taskbarPlacement === "bottom"
             ? widthNotExpanded ?? ""
             : "",
-          height: isExpand
+          height: isExpanded
             ? "100%"
             : taskbarPlacement !== "bottom"
             ? heightNotExpanded ?? ""
@@ -212,7 +220,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
           id="background-tr"
           className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-300
             bg-[var(--background-tr)] backdrop-blur -z-10 ${
-              isExpand ? "" : "rounded-3xl"
+              isExpanded ? "" : "rounded-3xl"
             }`}
         />
         {combinedWindows.map((item, index) => (

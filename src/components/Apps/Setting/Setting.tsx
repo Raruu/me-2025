@@ -2,6 +2,7 @@ import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
 import { createRef, useId, useState } from "react";
 import { Icon } from "@iconify/react";
 import { settingItemTaskBar } from "./Items/STaskBar";
+import { settingItemTheme } from "./Items/STheme";
 
 export const SettingGroup = ({
   title,
@@ -48,13 +49,12 @@ export const SettingGroup = ({
 export const SettingBool = ({
   title,
   value,
-  onChange,
+  setValue,
 }: {
   title: string;
   value?: boolean;
-  onChange?: (value: boolean) => void;
+  setValue?: (value: boolean) => void;
 }) => {
-  const [checked, setChecked] = useState(value ?? false);
   const id = useId();
 
   return (
@@ -65,25 +65,22 @@ export const SettingBool = ({
           type="checkbox"
           className="hidden"
           id={id}
-          checked={checked}
+          checked={value}
           onChange={() => {
-            setChecked((prev) => {
-              onChange?.(!prev);
-              return !prev;
-            });
+            setValue?.(!value);
           }}
         />
         <label
           htmlFor={id}
           className="block overflow-hidden h-5 rounded-full cursor-pointer bg-gray-300 shadow-sm"
           style={{
-            backgroundColor: checked ? "var(--tertiary)" : "",
+            backgroundColor: value ? "var(--tertiary)" : "",
           }}
         >
           <span
             className="block overflow-hidden h-5 w-5 rounded-full bg-white transition"
             style={{
-              transform: checked ? "translateX(100%)" : "translateX(0)",
+              transform: value ? "translateX(100%)" : "translateX(0)",
             }}
           ></span>
         </label>
@@ -126,22 +123,8 @@ export interface SettingNavItemProps {
 
 const Settings = () => {
   const settingNavItems: SettingNavItemProps[] = [
+    settingItemTheme,
     settingItemTaskBar,
-    {
-      title: "Test1",
-      content: (
-        <div>
-          <SettingGroup title="Test" subtitle="test">
-            <SettingBool title="test" />
-            <SettingBool title="test2" />
-          </SettingGroup>
-        </div>
-      ),
-    },
-    {
-      title: "Test2",
-      content: <div></div>,
-    },
   ];
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
 
@@ -166,7 +149,7 @@ const Settings = () => {
 };
 
 export const launcherSetting: WindowLauncherProps = {
-  title: `Settings (UI only)`,
+  title: `Settings`,
   appId: "settings",
   icon: "f7:gear",
   content: <Settings />,

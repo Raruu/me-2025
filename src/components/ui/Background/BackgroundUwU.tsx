@@ -2,7 +2,7 @@
 
 import { useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
-import { themeContext, themeType } from "@/styles/theme";
+import {  themeType } from "@/styles/theme";
 import {
   themeTrImage,
   bgHzLightImage,
@@ -13,12 +13,13 @@ import {
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 import { WindowManagerContext } from "../../Window/WindowManager";
 import { SilhouetteBackground } from "./SilhouetteBackground";
+import { EtcContext } from "@/lib/Etc";
 
 export const BackgroundUwU = () => {
   const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);
   const mediaQuery = useMediaQuery();
   const [bgUrl, setBgUrl] = useState(themeTrImage);
-  const { theme, setTheme } = useContext(themeContext);
+  const { theme, setTheme } = useContext(EtcContext).themeSettings;
   const [show, setShow] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 

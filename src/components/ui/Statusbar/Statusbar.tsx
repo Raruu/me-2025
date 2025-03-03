@@ -5,9 +5,10 @@ import { Icon } from "@iconify/react";
 import { useContext, useState } from "react";
 import { DropDown } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
-import { themeContext, getSystemTheme } from "@/styles/theme";
+import { getSystemTheme } from "@/styles/theme";
 import { Calendar } from "./Calendar";
 import { WindowManagerContext } from "@/components/Window/WindowManager";
+import { EtcContext } from "@/lib/Etc";
 
 interface StatusBarProps {
   children: React.ReactNode;
@@ -41,7 +42,7 @@ const StatusBarItem = ({
 
 export const StatusBar = () => {
   const { statusBarRef: ref } = useContext(WindowManagerContext);
-  const { theme, setTheme } = useContext(themeContext);
+  const { theme, setTheme } = useContext(EtcContext).themeSettings;
   const [dropDownThemeIsOpen, setdropDownThemeIsOpen] = useState(false);
   const [dropDownClockIsOpen, setDropDownClockIsOpen] = useState(false);
 

@@ -1,22 +1,24 @@
 "use client";
 
 import { WindowManager } from "@/components/Window/WindowManager";
+import { useEtc } from "@/hooks/useEtc";
+import { initFileSystem } from "@/lib/db";
+import { EtcContext } from "@/lib/Etc";
 import { raruuIconify } from "@/styles/raruu-iconify";
-import { themeContext, initTheme, reducer } from "@/styles/theme";
 import { LoadRequiredImage } from "@/utils/picture-helper";
-import { useReducer, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function Home() {
-  const [theme, setTheme] = useReducer(reducer, "dark");
+  const etcContext = useEtc();
   LoadRequiredImage();
   useEffect(() => {
+    initFileSystem();
     raruuIconify();
-    setTheme(initTheme());
   }, []);
 
   return (
-    <themeContext.Provider value={{ theme, setTheme }}>
+    <EtcContext.Provider value={etcContext}>
       <WindowManager />
-    </themeContext.Provider>
+    </EtcContext.Provider>
   );
 }
