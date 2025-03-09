@@ -7,6 +7,11 @@ export type themeType = "light" | "dark" | "tr-light" | "tr-dark";
 export interface EtcThemeSettings {
   theme: themeType;
   setTheme: ActionDispatch<[action: themeType | undefined]>;
+  bgHzUrlLight: string;
+  bgHzUrlDark: string;
+  bgVerUrlLight: string;
+  bgVerUrlDark: string;
+  applyBg: (name: string, file: File | null) => void;
 }
 
 export const getSystemTheme = (): themeType => {

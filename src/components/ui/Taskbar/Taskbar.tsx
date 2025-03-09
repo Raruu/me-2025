@@ -14,7 +14,7 @@ import {
 } from "../../Dropdown/DropdownItem";
 import { TaskBarItems } from "@/configs/TaskBarItems";
 import { MenuAppsList } from "@/configs/AppsList";
-import { EtcContext } from "@/lib/Etc";
+import { EtcContext } from "@/lib/Etc/Etc";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
 

@@ -17,5 +17,10 @@ export const EtcContext = createContext<EtcContextType>({
   themeSettings: {
     theme: "dark",
     setTheme: () => {},
+    bgHzUrlLight: "",
+    bgHzUrlDark: "",
+    bgVerUrlLight: "",
+    bgVerUrlDark: "",
+    applyBg: () => {},
   },
 });

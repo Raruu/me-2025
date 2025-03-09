@@ -2,18 +2,12 @@
 
 import { useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
-import {  themeType } from "@/styles/theme";
-import {
-  themeTrImage,
-  bgHzLightImage,
-  bgHzDarkImage,
-  bgVerLightImage,
-  bgVerDarkImage,
-} from "@/utils/picture-helper";
+import { themeType } from "@/styles/theme";
+import { themeTrImage } from "@/utils/picture-helper";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 import { WindowManagerContext } from "../../Window/WindowManager";
 import { SilhouetteBackground } from "./SilhouetteBackground";
-import { EtcContext } from "@/lib/Etc";
+import { EtcContext } from "@/lib/Etc/Etc";
 
 export const BackgroundUwU = () => {
   const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);
@@ -22,6 +16,12 @@ export const BackgroundUwU = () => {
   const { theme, setTheme } = useContext(EtcContext).themeSettings;
   const [show, setShow] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const {
+    bgHzUrlLight: bgHzLightImage,
+    bgHzUrlDark: bgHzDarkImage,
+    bgVerUrlLight: bgVerLightImage,
+    bgVerUrlDark: bgVerDarkImage,
+  } = useContext(EtcContext).themeSettings;
 
   const changeBackground = useCallback(
     (tmpTheme?: themeType) => {
@@ -39,35 +39,48 @@ export const BackgroundUwU = () => {
             })
       );
     },
-    [mediaQuery, theme]
+    [
+      bgHzDarkImage,
+      bgHzLightImage,
+      bgVerDarkImage,
+      bgVerLightImage,
+      mediaQuery,
+      theme,
+    ]
   );
 
   useEffect(() => {
     if (bgUrl === themeTrImage) return;
     changeBackground();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mediaQuery]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changeBackground, mediaQuery]);
 
   useEffect(() => {
     if (!theme.includes("tr-")) return;
-    setShow(true);
-    const taskbarBg = Array.from(taskBarRef.current?.children || []).filter(
-      (child) => (child as HTMLElement).id === "background-tr"
-    )[0] as HTMLElement;
-    taskbarBg.style.opacity = "0";
-    setTimeout(() => {
-      setTimeout(() => {
-        const tmpTheme = theme.replace("tr-", "") as themeType;
-        setTheme(tmpTheme);
-        changeBackground(tmpTheme);
-        taskbarBg.style.opacity = "";
-        setShow(false);
-        setIsAnimating(false);
-      }, 150);
+    const sleep = (ms: number) => {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    };
+
+    const doAnimation = async () => {
+      setShow(true);
+      const taskbarBg = Array.from(taskBarRef.current?.children || []).filter(
+        (child) => (child as HTMLElement).id === "background-tr"
+      )[0] as HTMLElement;
+      taskbarBg.style.opacity = "0";
+
+      await sleep(700);
       setIsAnimating(true);
-    }, 700);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setTheme, theme]);
+      await sleep(150);
+      const tmpTheme = theme.replace("tr-", "") as themeType;
+      setTheme(tmpTheme);
+      changeBackground(tmpTheme);
+      taskbarBg.style.opacity = "";
+      setShow(false);
+      setIsAnimating(false);
+    };
+
+    doAnimation();
+  }, [changeBackground, setTheme, taskBarRef, theme]);
 
   return (
     <div className="bg-background fixed top-0 left-0 right-0 bottom-0 -z-10">

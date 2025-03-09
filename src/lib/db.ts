@@ -64,6 +64,40 @@ export const initFileSystem = async () => {
   if (!etc) {
     db.put("folders", { id: "etc", name: "etc", parentId: "root" });
   }
+  const home = await db.get("folders", "home");
+  if (!home) {
+    db.put("folders", { id: "home", name: "home", parentId: "root" });
+  }
+  const azoosaHome = await db.get("folders", "homeAzusa");
+  if (!azoosaHome) {
+    db.put("folders", { id: "homeAzusa", name: "Azusa", parentId: "home" });
+  }
+  const azusaLocal = await db.get("folders", "azusaLocal");
+  if (!azusaLocal) {
+    db.put("folders", {
+      id: "azusaLocal",
+      name: ".local",
+      parentId: "homeAzusa",
+    });
+  }
+  const azusaLocalShare = await db.get("folders", "azusaLocalShare");
+  if (!azusaLocalShare) {
+    db.put("folders", {
+      id: "azusaLocalShare",
+      name: "share",
+      parentId: "azusaLocal",
+    });
+  }
+  const azusaEnvironment = await db.get("folders", "azusaEnvironment");
+  if (!azusaEnvironment) {
+    db.put("folders", {
+      id: "azusaEnvironment",
+      name: "azusaEnvironment",
+      parentId: "azusaLocalShare",
+    });
+  }
+
+  return true;
 };
 
 export const db = {

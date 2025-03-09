@@ -3,22 +3,26 @@
 import { WindowManager } from "@/components/Window/WindowManager";
 import { useEtc } from "@/hooks/useEtc";
 import { initFileSystem } from "@/lib/db";
-import { EtcContext } from "@/lib/Etc";
+import { EtcContext } from "@/lib/Etc/Etc";
 import { raruuIconify } from "@/styles/raruu-iconify";
-import { LoadRequiredImage } from "@/utils/picture-helper";
-import { useEffect } from "react";
+// import { LoadRequiredImage } from "@/utils/picture-helper";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const etcContext = useEtc();
-  LoadRequiredImage();
+  const [isReady, setIsReady] = useState(false);
+
+  // LoadRequiredImage();
   useEffect(() => {
-    initFileSystem();
+    initFileSystem().then((value) => {
+      setIsReady(value);
+    });
     raruuIconify();
   }, []);
 
   return (
     <EtcContext.Provider value={etcContext}>
-      <WindowManager />
+      {isReady && <WindowManager />}
     </EtcContext.Provider>
   );
 }

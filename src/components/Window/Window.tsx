@@ -58,10 +58,18 @@ interface WindowProps extends WindowState {
 }
 
 export const WindowContext = createContext<{
+  setModal: React.Dispatch<React.SetStateAction<React.ReactNode>>;
   setFreeSlot: React.Dispatch<React.SetStateAction<React.ReactNode>>;
   setSubtitle: React.Dispatch<React.SetStateAction<string | undefined>>;
   setWindowColor: React.Dispatch<React.SetStateAction<string | undefined>>;
-}>({ setFreeSlot: () => {}, setSubtitle: () => {}, setWindowColor: () => {} });
+  windowRef: React.RefObject<HTMLDivElement | null>;
+}>({
+  setModal: () => {},
+  setFreeSlot: () => {},
+  setSubtitle: () => {},
+  setWindowColor: () => {},
+  windowRef: { current: null },
+});
 
 export const Window = ({
   zIndex,
@@ -85,6 +93,8 @@ export const Window = ({
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const headerRef = useRef<HTMLDivElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
+  const [modal, setModal] = useState<React.ReactNode>(undefined);
   const [freeSlot, setFreeSlot] = useState<React.ReactNode>(undefined);
   const [subtitle, setSubtitle] = useState<string | undefined>(initialSubtitle);
   const [windowColor, setWindowColor] = useState(initialWindowColor);
@@ -312,7 +322,7 @@ export const Window = ({
   const launcherPosY = launcherRef?.current?.getBoundingClientRect().y ?? 0;
 
   return (
-    <div
+    <div ref={windowRef}
       className={`absolute flex flex-col w-96 h-96 bg-transparent rounded-lg 
         shadow-lg select-none text-foreground overflow-hidden max-w-full max-h-full ${
           !isDraggingResize && !isDraggingMove
@@ -410,7 +420,7 @@ export const Window = ({
       </div>
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all will-change-auto ${
+        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all will-change-auto relative flex ${
           isDraggingResize || isDraggingMove || !isFocused
             ? "pointer-events-none"
             : ""
@@ -418,12 +428,15 @@ export const Window = ({
       >
         <WindowContext.Provider
           value={{
+            setModal: setModal,
             setFreeSlot: setFreeSlot,
             setSubtitle: setSubtitle,
             setWindowColor: setWindowColor,
+            windowRef: windowRef,
           }}
         >
           {content}
+          {modal}
         </WindowContext.Provider>
       </div>
       <div>

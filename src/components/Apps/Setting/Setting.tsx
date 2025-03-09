@@ -129,7 +129,7 @@ const Settings = () => {
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
 
   return (
-    <div className="bg-background w-full h-full flex flex-row select-none">
+    <div className="bg-background w-full h-full flex flex-row select-none overflow-auto">
       <div className="flex flex-col min-w-48 px-0">
         {settingNavItems.map((item, index) => (
           <SettingNavItem

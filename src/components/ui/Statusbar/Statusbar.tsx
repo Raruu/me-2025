@@ -8,7 +8,7 @@ import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { getSystemTheme } from "@/styles/theme";
 import { Calendar } from "./Calendar";
 import { WindowManagerContext } from "@/components/Window/WindowManager";
-import { EtcContext } from "@/lib/Etc";
+import { EtcContext } from "@/lib/Etc/Etc";
 
 interface StatusBarProps {
   children: React.ReactNode;
