@@ -1,7 +1,9 @@
 import { useContext } from "react";
-import { SettingBool, SettingGroup, SettingNavItemProps } from "../Setting";
+import {  SettingNavItemProps } from "../Setting";
 import { EtcContext } from "@/lib/Etc/Etc";
 import { TaskbarPlacement } from "@/components/ui/Taskbar/Taskbar";
+import { SettingGroup } from "../SettingGroup";
+import { SettingBool } from "../SettingBool";
 
 const TaskBarPosition = () => {
   const { taskbarPlacement, setTaskbarPlacement } =

@@ -12,6 +12,10 @@ export interface EtcThemeSettings {
   bgVerUrlLight: string;
   bgVerUrlDark: string;
   applyBg: (name: string, file: File | null) => void;
+  silhouetteTr: string;
+  applySilhouette: (file: File | null) => void;
+  silhouetteDuration: number;
+  setSilhouetteDuration: (duration: number) => void;
 }
 
 export const getSystemTheme = (): themeType => {

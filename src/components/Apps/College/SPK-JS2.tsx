@@ -120,178 +120,188 @@ const CollegeSPKJS2 = () => {
   );
 
   return (
-    <div className="mx-auto p-6 bg-background text-foreground w-full h-full overflow-auto">
-      <h1 className="text-3xl font-bold mb-6">
-        Sistem Pendukung Keputusan - Studi Kasus Apartemen
-      </h1>
+    <div className="bg-background text-foreground w-full h-full">
+      <div className="overflow-y-auto w-full h-full mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">
+          Sistem Pendukung Keputusan - Studi Kasus Apartemen
+        </h1>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Input Data Kriteria</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full  border border-gray-200">
-            <thead>
-              <tr className="bg-primary">
-                <th className="py-2 px-4 border-b">Kriteria</th>
-                <th className="py-2 px-4 border-b">Tipe</th>
-                <th className="py-2 px-4 border-b">Min Skor</th>
-                <th className="py-2 px-4 border-b">Max Skor</th>
-                <th className="py-2 px-4 border-b">Bobot (desimal)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {criteria.map((criterion) => (
-                <tr key={criterion.id} className="text-center">
-                  <td className="py-2 px-4 border-b">{criterion.name}</td>
-                  <td className="py-2 px-4 border-b">{criterion.type}</td>
-                  <td className="py-2 px-4 border-b">
-                    <input
-                      type="number"
-                      value={scores[criterion.id][0]}
-                      onChange={(e) => {
-                        handleScoresChange(criterion.id, e.target.value, false);
-                      }}
-                      className="w-20 border rounded px-2 py-1 text-center bg-background"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <input
-                      type="number"
-                      value={scores[criterion.id][1]}
-                      onChange={(e) => {
-                        handleScoresChange(criterion.id, e.target.value, true);
-                      }}
-                      className="w-20 border rounded px-2 py-1 text-center bg-background"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={criterion.weight}
-                      onChange={(e) =>
-                        handleCriterionWeightChange(
-                          criterion.id,
-                          e.target.value
-                        )
-                      }
-                      className="w-20 border rounded px-2 py-1 text-center bg-background"
-                    />
-                  </td>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Input Data Kriteria</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full  border border-gray-200">
+              <thead>
+                <tr className="bg-primary">
+                  <th className="py-2 px-4 border-b">Kriteria</th>
+                  <th className="py-2 px-4 border-b">Tipe</th>
+                  <th className="py-2 px-4 border-b">Min Skor</th>
+                  <th className="py-2 px-4 border-b">Max Skor</th>
+                  <th className="py-2 px-4 border-b">Bobot (desimal)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Input Data Alternatif</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full  border border-gray-200">
-            <thead>
-              <tr className="bg-primary">
-                <th className="py-2 px-4 border-b">Alternatif</th>
+              </thead>
+              <tbody>
                 {criteria.map((criterion) => (
-                  <th key={criterion.id} className="py-2 px-4 border-b">
-                    {criterion.name}{" "}
-                    <span className="text-sm text-gray-600">
-                      ({criterion.type})
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {alternatives.map((alt, altIndex) => (
-                <tr key={altIndex} className="text-center">
-                  <td className="py-2 px-4 border-b">{alt.name}</td>
-                  {criteria.map((criterion) => (
-                    <td key={criterion.id} className="py-2 px-4 border-b">
+                  <tr key={criterion.id} className="text-center">
+                    <td className="py-2 px-4 border-b">{criterion.name}</td>
+                    <td className="py-2 px-4 border-b">{criterion.type}</td>
+                    <td className="py-2 px-4 border-b">
                       <input
                         type="number"
-                        value={alt.scores[criterion.id]}
+                        value={scores[criterion.id][0]}
                         onChange={(e) => {
-                          const max = Math.max(...scores[criterion.id]);
-                          const min = Math.min(...scores[criterion.id]);
-                          if (parseFloat(e.target.value) > max) {
-                            e.target.value = max.toString();
-                          }
-                          if (parseFloat(e.target.value) < min) {
-                            e.target.value = min.toString();
-                          }
-
-                          handleAlternativeScoreChange(
-                            altIndex,
+                          handleScoresChange(
                             criterion.id,
-                            e.target.value
+                            e.target.value,
+                            false
                           );
                         }}
                         className="w-20 border rounded px-2 py-1 text-center bg-background"
                       />
                     </td>
+                    <td className="py-2 px-4 border-b">
+                      <input
+                        type="number"
+                        value={scores[criterion.id][1]}
+                        onChange={(e) => {
+                          handleScoresChange(
+                            criterion.id,
+                            e.target.value,
+                            true
+                          );
+                        }}
+                        className="w-20 border rounded px-2 py-1 text-center bg-background"
+                      />
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={criterion.weight}
+                        onChange={(e) =>
+                          handleCriterionWeightChange(
+                            criterion.id,
+                            e.target.value
+                          )
+                        }
+                        className="w-20 border rounded px-2 py-1 text-center bg-background"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Input Data Alternatif</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full  border border-gray-200">
+              <thead>
+                <tr className="bg-primary">
+                  <th className="py-2 px-4 border-b">Alternatif</th>
+                  {criteria.map((criterion) => (
+                    <th key={criterion.id} className="py-2 px-4 border-b">
+                      {criterion.name}{" "}
+                      <span className="text-sm text-gray-600">
+                        ({criterion.type})
+                      </span>
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {alternatives.map((alt, altIndex) => (
+                  <tr key={altIndex} className="text-center">
+                    <td className="py-2 px-4 border-b">{alt.name}</td>
+                    {criteria.map((criterion) => (
+                      <td key={criterion.id} className="py-2 px-4 border-b">
+                        <input
+                          type="number"
+                          value={alt.scores[criterion.id]}
+                          onChange={(e) => {
+                            const max = Math.max(...scores[criterion.id]);
+                            const min = Math.min(...scores[criterion.id]);
+                            if (parseFloat(e.target.value) > max) {
+                              e.target.value = max.toString();
+                            }
+                            if (parseFloat(e.target.value) < min) {
+                              e.target.value = min.toString();
+                            }
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Hasil Perhitungan WSM</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full  border border-gray-200">
-            <thead>
-              <tr className="bg-primary">
-                <th className="py-2 px-4 border-b">Alternatif</th>
-                <th className="py-2 px-4 border-b">Skor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wsmResults.map((result, index) => (
-                <tr key={index} className="text-center">
-                  <td className="py-2 px-4 border-b">{result.name}</td>
-                  <td className="py-2 px-4 border-b">
-                    {result.score.toFixed(3)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-4 text-lg">
-          <strong>Alternatif Terbaik (WSM):</strong> {bestWSM.name} dengan skor{" "}
-          {bestWSM.score.toFixed(3)}
-        </p>
-      </section>
+                            handleAlternativeScoreChange(
+                              altIndex,
+                              criterion.id,
+                              e.target.value
+                            );
+                          }}
+                          className="w-20 border rounded px-2 py-1 text-center bg-background"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Hasil Perhitungan WPM</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full  border border-gray-200">
-            <thead>
-              <tr className="bg-primary">
-                <th className="py-2 px-4 border-b">Alternatif</th>
-                <th className="py-2 px-4 border-b">Skor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wpmResults.map((result, index) => (
-                <tr key={index} className="text-center">
-                  <td className="py-2 px-4 border-b">{result.name}</td>
-                  <td className="py-2 px-4 border-b">
-                    {result.score.toFixed(3)}
-                  </td>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Hasil Perhitungan WSM</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full  border border-gray-200">
+              <thead>
+                <tr className="bg-primary">
+                  <th className="py-2 px-4 border-b">Alternatif</th>
+                  <th className="py-2 px-4 border-b">Skor</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-4 text-lg">
-          <strong>Alternatif Terbaik (WPM):</strong> {bestWPM.name} dengan skor{" "}
-          {bestWPM.score.toFixed(3)}
-        </p>
-      </section>
+              </thead>
+              <tbody>
+                {wsmResults.map((result, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="py-2 px-4 border-b">{result.name}</td>
+                    <td className="py-2 px-4 border-b">
+                      {result.score.toFixed(3)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-lg">
+            <strong>Alternatif Terbaik (WSM):</strong> {bestWSM.name} dengan
+            skor {bestWSM.score.toFixed(3)}
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Hasil Perhitungan WPM</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full  border border-gray-200">
+              <thead>
+                <tr className="bg-primary">
+                  <th className="py-2 px-4 border-b">Alternatif</th>
+                  <th className="py-2 px-4 border-b">Skor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wpmResults.map((result, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="py-2 px-4 border-b">{result.name}</td>
+                    <td className="py-2 px-4 border-b">
+                      {result.score.toFixed(3)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-lg">
+            <strong>Alternatif Terbaik (WPM):</strong> {bestWPM.name} dengan
+            skor {bestWPM.score.toFixed(3)}
+          </p>
+        </section>
+      </div>
     </div>
   );
 };

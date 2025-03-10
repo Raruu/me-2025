@@ -1,13 +1,16 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { SettingBool, SettingGroup, SettingNavItemProps } from "../Setting";
+import { SettingNavItemProps } from "../Setting";
 import { EtcContext } from "@/lib/Etc/Etc";
 import Image from "next/image";
 import { WindowContext } from "@/components/Window/Window";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
 import { ButtonNetral } from "@/components/ButtonNetral";
-import { bgNames } from "@/lib/Etc/EtcTheme";
+import { imageNames } from "@/lib/Etc/EtcTheme";
 import { db } from "@/lib/db";
+import { SettingGroup } from "../SettingGroup";
+import { SettingBool } from "../SettingBool";
+import { SettingTextField } from "../SettingTextField";
 
 const ModalWallpaper = ({
   title,
@@ -75,7 +78,7 @@ const ModalWallpaper = ({
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
             <ButtonNetral
-              text="Change Wallpaper"
+              text="Change Image"
               onClick={() => fileInputRef.current?.click()}
             />
           </div>
@@ -177,6 +180,10 @@ const SettingThemeContent = () => {
     bgHzUrlDark,
     bgVerUrlLight,
     bgVerUrlDark,
+    silhouetteTr,
+    applySilhouette,
+    silhouetteDuration,
+    setSilhouetteDuration,
   } = useContext(EtcContext).themeSettings;
 
   return (
@@ -186,12 +193,12 @@ const SettingThemeContent = () => {
           <Wallpaper
             title="Horizontal Light"
             bgUrl={bgHzUrlLight}
-            name={bgNames.bgHzLightImage}
+            name={imageNames.bgHzLightImage}
           />
           <Wallpaper
             title="Horizontal Dark"
             bgUrl={bgHzUrlDark}
-            name={bgNames.bgHzDarkImage}
+            name={imageNames.bgHzDarkImage}
           />
         </div>
         <div className="flex flex-wrap justify-center gap-4">
@@ -199,19 +206,58 @@ const SettingThemeContent = () => {
             title="Vertical Light"
             bgUrl={bgVerUrlLight}
             isVertical
-            name={bgNames.bgVerLightImage}
+            name={imageNames.bgVerLightImage}
           />
           <Wallpaper
             title="Vertical Dark"
             bgUrl={bgVerUrlDark}
             isVertical
-            name={bgNames.bgVerDarkImage}
+            name={imageNames.bgVerDarkImage}
           />
         </div>
       </SettingGroup>
-      {/* <SettingGroup title="Silhouette Transition">
-
-      </SettingGroup> */}
+      <SettingGroup title="Silhouette Transition">
+        <div className="relative w-full h-48">
+          <Image
+            src={silhouetteTr}
+            alt="Silhouette Transition"
+            style={{ objectFit: "contain" }}
+            fill
+          />
+          <div
+            className="w-full h-full bg-secondary opacity-0 hover:opacity-50 absolute rounded-xl transition-opacity"
+            onClick={() => {
+              setModal(
+                <ModalWallpaper
+                  title="Silhouette Image"
+                  bgUrl={silhouetteTr}
+                  onCancel={() => setModal(undefined)}
+                  onReset={async () => {
+                    await db.deleteFile(imageNames.silhouetteTr);
+                    setModal(undefined);
+                    applySilhouette(null);
+                  }}
+                  onConfirm={(value) => {
+                    setModal(undefined);
+                    if (value) {
+                      applySilhouette(value);
+                    }
+                  }}
+                ></ModalWallpaper>
+              );
+            }}
+          ></div>
+        </div>
+        <SettingTextField
+          title="Duration"
+          subtitle="in ms"
+          value={silhouetteDuration.toString()}
+          onChange={(value) => {
+            if (isNaN(parseInt(value))) return;
+            setSilhouetteDuration(parseInt(value));
+          }}
+        />
+      </SettingGroup>
       <SettingGroup title="Theme Setting">
         <SettingBool
           title="Dark Mode"

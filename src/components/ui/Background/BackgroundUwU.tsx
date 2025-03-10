@@ -3,7 +3,6 @@
 import { useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
 import { themeType } from "@/styles/theme";
-import { themeTrImage } from "@/utils/picture-helper";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 import { WindowManagerContext } from "../../Window/WindowManager";
 import { SilhouetteBackground } from "./SilhouetteBackground";
@@ -12,7 +11,6 @@ import { EtcContext } from "@/lib/Etc/Etc";
 export const BackgroundUwU = () => {
   const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);
   const mediaQuery = useMediaQuery();
-  const [bgUrl, setBgUrl] = useState(themeTrImage);
   const { theme, setTheme } = useContext(EtcContext).themeSettings;
   const [show, setShow] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -21,8 +19,10 @@ export const BackgroundUwU = () => {
     bgHzUrlDark: bgHzDarkImage,
     bgVerUrlLight: bgVerLightImage,
     bgVerUrlDark: bgVerDarkImage,
+    silhouetteDuration, silhouetteTr
   } = useContext(EtcContext).themeSettings;
-
+  const [bgUrl, setBgUrl] = useState(silhouetteTr);
+  
   const changeBackground = useCallback(
     (tmpTheme?: themeType) => {
       tmpTheme = tmpTheme ?? theme;
@@ -50,9 +50,9 @@ export const BackgroundUwU = () => {
   );
 
   useEffect(() => {
-    if (bgUrl === themeTrImage) return;
+    if (bgUrl === silhouetteTr) return;
     changeBackground();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [changeBackground, mediaQuery]);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const BackgroundUwU = () => {
       )[0] as HTMLElement;
       taskbarBg.style.opacity = "0";
 
-      await sleep(700);
+      await sleep(silhouetteDuration);
       setIsAnimating(true);
       await sleep(150);
       const tmpTheme = theme.replace("tr-", "") as themeType;
@@ -80,6 +80,7 @@ export const BackgroundUwU = () => {
     };
 
     doAnimation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [changeBackground, setTheme, taskBarRef, theme]);
 
   return (
@@ -111,7 +112,7 @@ export const BackgroundUwU = () => {
 
       <SilhouetteBackground
         show={show}
-        imgUrl={themeTrImage}
+        imgUrl={silhouetteTr}
         style={{ width: isAnimating ? "calc(100vw + 100vh)" : "40vh" }}
         minusZIndex
       />
