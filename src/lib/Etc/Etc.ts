@@ -22,5 +22,9 @@ export const EtcContext = createContext<EtcContextType>({
     bgVerUrlLight: "",
     bgVerUrlDark: "",
     applyBg: () => {},
+    silhouetteTr: "",
+    applySilhouette: () => {},
+    silhouetteDuration: 0,
+    setSilhouetteDuration: () => {},
   },
 });
