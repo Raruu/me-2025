@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { WindowContext } from "@/components/Window/Window";
 import { SilhouetteBackground } from "@/components/ui/Background/SilhouetteBackground";
-import { themeTrImage } from "@/utils/picture-helper";
+import { EtcContext } from "@/lib/Etc/Etc";
 
 interface WebViewProps {
   url: string;
@@ -10,6 +10,7 @@ interface WebViewProps {
 
 export const WebView = ({ url, freeSlot }: WebViewProps) => {
   const { setFreeSlot } = useContext(WindowContext);
+  const { silhouetteTr } = useContext(EtcContext).themeSettings;
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
     setFreeSlot(freeSlot);
@@ -17,7 +18,7 @@ export const WebView = ({ url, freeSlot }: WebViewProps) => {
 
   return (
     <div className="w-full h-full flex bg-background">
-      {!isLoaded && <SilhouetteBackground show={true} imgUrl={themeTrImage} />}
+      {!isLoaded && <SilhouetteBackground show={true} imgUrl={silhouetteTr} />}
       <iframe
         className="w-full h-full"
         src={url}

@@ -70,10 +70,10 @@ export const BackgroundUwU = () => {
 
       await sleep(silhouetteDuration);
       setIsAnimating(true);
-      await sleep(150);
       const tmpTheme = theme.replace("tr-", "") as themeType;
-      setTheme(tmpTheme);
       changeBackground(tmpTheme);
+      await sleep(150);
+      setTheme(tmpTheme);
       taskbarBg.style.opacity = "";
       setShow(false);
       setIsAnimating(false);
