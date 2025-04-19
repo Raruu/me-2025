@@ -5,17 +5,18 @@ import { useEtc } from "@/hooks/useEtc";
 import { initFileSystem } from "@/lib/db";
 import { EtcContext } from "@/lib/Etc/Etc";
 import { raruuIconify } from "@/styles/raruu-iconify";
-// import { LoadRequiredImage } from "@/utils/picture-helper";
+import { LoadRequiredImage } from "@/utils/picture-helper";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   const etcContext = useEtc();
   const [isReady, setIsReady] = useState(false);
 
-  // LoadRequiredImage();
   useEffect(() => {
-    initFileSystem().then((value) => {
-      setIsReady(value);
+    LoadRequiredImage().then(() => {
+      initFileSystem().then((value) => {
+        setIsReady(value);
+      });
     });
     raruuIconify();
   }, []);
