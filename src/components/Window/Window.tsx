@@ -63,12 +63,14 @@ export const WindowContext = createContext<{
   setSubtitle: React.Dispatch<React.SetStateAction<string | undefined>>;
   setWindowColor: React.Dispatch<React.SetStateAction<string | undefined>>;
   windowRef: React.RefObject<HTMLDivElement | null>;
+  position: { x: number; y: number };
 }>({
   setModal: () => {},
   setFreeSlot: () => {},
   setSubtitle: () => {},
   setWindowColor: () => {},
   windowRef: { current: null },
+  position: { x: 0, y: 0 },
 });
 
 export const Window = ({
@@ -433,6 +435,7 @@ export const Window = ({
             setSubtitle: setSubtitle,
             setWindowColor: setWindowColor,
             windowRef: windowRef,
+            position: position,
           }}
         >
           {content}

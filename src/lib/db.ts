@@ -1,6 +1,6 @@
 import { DBSchema, openDB } from "idb";
 
-interface FileSystemDB extends DBSchema {
+export interface FileSystemDB extends DBSchema {
   files: {
     key: string;
     value: {
@@ -104,38 +104,54 @@ export const db = {
   async createFolder(name: string, parentId?: string) {
     parentId = parentId ?? "root";
     const db = await dbPromise;
-    if (!db) return;
+    if (!db) throw new Error("DB is not ready");
     const id = Date.now().toString();
     db.put("folders", { id, name, parentId });
   },
 
-  async loadFolderChildren(parentId: string = "root") {
+  async loadFolder(id: string) {
     const db = await dbPromise;
-    if (!db) return;
-    return db.getAllFromIndex("folders", "byParentId", parentId);
+    if (!db) throw new Error("DB is not ready");
+    return db.get("folders", id);
+  },
+
+  async loadChildren(
+    parentId: string = "root",
+    type: "ALL" | "FOLDER" | "FILE" = "ALL"
+  ) {
+    const db = await dbPromise;
+    if (!db) throw new Error("DB is not ready");
+    return [
+      ...(type === "ALL" || type === "FOLDER"
+        ? await db.getAllFromIndex("folders", "byParentId", parentId)
+        : []),
+      ...(type === "ALL" || type === "FILE"
+        ? await db.getAllFromIndex("files", "byFolderId", parentId)
+        : []),
+    ];
   },
 
   async deleteFolder(id: string) {
     const db = await dbPromise;
-    if (!db) return;
+    if (!db) throw new Error("DB is not ready");
     db.delete("folders", id);
   },
 
   async loadFile(id: string) {
     const db = await dbPromise;
-    if (!db) return;
+    if (!db) throw new Error("DB is not ready");
     return db.get("files", id);
   },
 
   async saveFile(id: string, name: string, folderId: string, blob: Blob) {
     const db = await dbPromise;
-    if (!db) return;
+    if (!db) throw new Error("DB is not ready");
     db.put("files", { id, name, folderId, blob });
   },
 
   async deleteFile(id: string) {
     const db = await dbPromise;
-    if (!db) return;
+    if (!db) throw new Error("DB is not ready");
     db.delete("files", id);
   },
 };

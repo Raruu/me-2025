@@ -5,6 +5,7 @@ import { launcherHinaLovesMidokuni } from "@/components/Apps/HinaLovesMidokuni";
 import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudentInsigh";
 import { launcherSetting } from "@/components/Apps/Setting/Setting";
 import { collegeLauncherSPKJS2 } from "@/components/Apps/College/SPK-JS2";
+import { launcherFileExplorer } from "@/components/Apps/FileExplorer";
 
 export const MenuAppsList: WindowLauncherProps[] = [
   {
@@ -27,6 +28,7 @@ export const MenuAppsList: WindowLauncherProps[] = [
   launcherMidokuniStudentInsigh,
   launcherSetting,
   collegeLauncherSPKJS2,
+  launcherFileExplorer,
 ];
 
 export const getAllAppsList = () => {

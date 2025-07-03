@@ -1,6 +1,8 @@
 import React from "react";
 
-export type DropDownRef = { handleOpen: () => void };
+export type DropDownRef =
+  | { handleOpen: () => void }
+  | { handleOpen: () => void; close: () => void };
 
 interface DropDownProps {
   ref?: React.RefObject<DropDownRef>;
@@ -12,6 +14,7 @@ interface DropDownProps {
   triggerGapY?: number;
   backgroundColor?: string;
   backgroundColorHover?: string;
+  calcPosition?: boolean;
   callback?: (isOpen: boolean) => void;
 }
 
@@ -31,11 +34,17 @@ export const DropDown = ({
   triggerGapY,
   backgroundColor = "var(--background-tr)",
   backgroundColorHover = "var(--background)",
+  calcPosition = true,
   callback,
 }: DropDownProps) => {
   React.useEffect(() => {
     if (ref) {
-      ref.current.handleOpen = handleOpen;
+      if (ref.current && "handleOpen" in ref.current) {
+        ref.current.handleOpen = handleOpen;
+      }
+      if (ref.current && "close" in ref.current) {
+        ref.current.close = () => setIsOpen(false);
+      }
     }
   });
 
@@ -107,12 +116,10 @@ export const DropDown = ({
       return { x: 0, y: 0 };
     };
 
-    if (contentRef.current) {
+    if (contentRef.current && calcPosition) {
       contentRef.current.style.left = ``;
       contentRef.current.style.top = ``;
-    }
-    const position = calculatePosition();
-    if (contentRef.current) {
+      const position = calculatePosition();
       contentRef.current.style.left = `${position.x}px`;
       contentRef.current.style.top = `${position.y}px`;
     }
@@ -124,7 +131,7 @@ export const DropDown = ({
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [isOpen, align, placement, triggerGapY, triggerGapX]);
+  }, [isOpen, align, placement, triggerGapY, triggerGapX, calcPosition]);
 
   return (
     <div>

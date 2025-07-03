@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 interface DropDownItemProps {
   text: string;
   checked?: boolean;
+  disabled?: boolean;
   iconifyString?: string;
   onClick?: () => void;
   hoverColor?: string;
@@ -17,6 +18,7 @@ interface DropDownItemProps {
 export const DropDownItem = ({
   text,
   checked,
+  disabled,
   iconifyString,
   onClick,
   hoverColor = "var(--primary)",
@@ -31,11 +33,13 @@ export const DropDownItem = ({
 
   return (
     <div
-      className="flex flex-row rounded-3xl cursor-pointer select-none transition-colors duration-150 min-w-32 px-2 py-1 gap-2"
+      className="flex flex-row rounded-3xl select-none transition-colors duration-150 min-w-32 px-2 py-1 gap-2"
       style={{
         backgroundColor: isHover ? hoverColor : "",
+        opacity: disabled ? "0.5" : "",
+        cursor: disabled ? "" : "pointer",
       }}
-      onMouseEnter={() => setIsHover(true)}
+      onMouseEnter={() => setIsHover(true && !disabled)}
       onMouseLeave={() => setIsHover(false)}
       onClick={() => {
         onClick?.();

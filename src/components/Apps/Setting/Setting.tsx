@@ -1,34 +1,8 @@
 import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
 import { createRef, useState } from "react";
-import { Icon } from "@iconify/react";
 import { settingItemTaskBar } from "./Items/STaskBar";
 import { settingItemTheme } from "./Items/STheme";
-
-const SettingNavItem = ({
-  title,
-  icon = "f7:gear",
-  isSelected,
-  onClick,
-}: {
-  title: string;
-  icon?: string;
-  isSelected?: boolean;
-  onClick?: () => void;
-}) => {
-  return (
-    <div
-      className="flex flex-row items-center gap-2 h-9 w-full pl-2 rounded-md cursor-pointer
-      transition-colors duration-150 dark:hover:text-background hover:bg-secondary"
-      style={{
-        backgroundColor: isSelected ? "var(--primary)" : "",
-      }}
-      onClick={onClick}
-    >
-      <Icon icon={icon} width={24} height={24} />
-      <h1 className="text-sm font-bold">{title}</h1>
-    </div>
-  );
-};
+import { UILocationItem } from "@/components/ui/components/UILocationItem";
 
 export interface SettingNavItemProps {
   title: string;
@@ -45,9 +19,9 @@ const Settings = () => {
 
   return (
     <div className="bg-background w-full h-full flex flex-row select-none overflow-hidden">
-      <div className="flex flex-col min-w-48 px-0">
+      <div className="flex flex-col min-w-48 px-1 bg-background-tr">
         {settingNavItems.map((item, index) => (
-          <SettingNavItem
+          <UILocationItem
             key={index}
             title={item.title}
             icon={item.icon}
@@ -57,7 +31,9 @@ const Settings = () => {
         ))}
       </div>
       <div className="w-full flex justify-center">
-        <div className="max-w-4xl flex-1 p-4 overflow-auto">{selectedNavItem.content}</div>
+        <div className="max-w-4xl flex-1 p-4 overflow-auto">
+          {selectedNavItem.content}
+        </div>
       </div>
     </div>
   );
