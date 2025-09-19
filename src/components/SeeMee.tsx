@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { TextRotate, TextRotateRef } from "./TextRotate";
 import { Icon } from "@iconify/react";
 import { mediaQueryContext } from "@/hooks/useMediaQuery";
-import { seeMeeItems } from "@/configs/SeeMeeItems";
+import { seeMeeItems } from "@/constants/SeeMeeItems";
 
 export interface SeeMeeItemProps {
   iconify: string;

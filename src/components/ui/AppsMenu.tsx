@@ -5,7 +5,7 @@ import {
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { WindowManagerContext } from "../Window/WindowManager";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
-import { getAllAppsList } from "@/configs/AppsList";
+import { getAllAppsList } from "@/constants/AppsList";
 
 export const AppsMenu = () => {
   const {

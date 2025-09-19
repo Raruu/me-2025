@@ -3,7 +3,7 @@ import { TextRotate } from "../TextRotate";
 import { mapMediaQuery, MediaQuery } from "@/hooks/useMediaQuery";
 import { createRef, useEffect, useState } from "react";
 import NextImage from "next/image";
-import { artCredits } from "@/configs/ArtCredits";
+import { artCredits } from "@/constants/ArtCredits";
 import { Icon } from "@iconify/react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 
