@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: oklch(100% 0 0);
-  --foreground: oklch(20.46% 0 0);
+  --background: 100% 0 0;
+  --foreground: 20.46% 0 0;
   --background-tr: oklch(86.07% 0 0 / 50%);
-  --primary: oklch(78.55% 0.1358 304.72);
-  --secondary: oklch(93.09% 0.0269 285.86);
-  --tertiary: oklch(89.59% 0.13927602087861937 91.07048796015461);
+  --primary: 78.55% 0.1358 304.72;
+  --secondary: 93.09% 0.0269 285.86;
+  --tertiary: 89.59% 0.13927602087861937 91.07048796015461;
 }
 
 :root.no-tr {
@@ -16,8 +16,8 @@
 }
 
 [data-theme="dark"] {
-  --background: oklch(27.68% 0 0);
-  --foreground: oklch(94.61% 0 0);
+  --background: 27.68% 0 0;
+  --foreground: 94.61% 0 0;
   --background-tr: oklch(35.62% 0 0 / 50%);
 }
 
@@ -26,6 +26,6 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: oklch(var(--foreground));
+  background: oklch(var(--background));
 }

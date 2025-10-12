@@ -33,7 +33,7 @@ export const DropDown = ({
   triggerGapX,
   triggerGapY,
   backgroundColor = "var(--background-tr)",
-  backgroundColorHover = "var(--background)",
+  backgroundColorHover = "oklch(var(--background))",
   calcPosition = true,
   callback,
 }: DropDownProps) => {

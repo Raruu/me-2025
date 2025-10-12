@@ -28,7 +28,7 @@ export const SettingBool = ({
           htmlFor={id}
           className="block overflow-hidden h-5 rounded-full cursor-pointer bg-gray-300 shadow-sm"
           style={{
-            backgroundColor: value ? "var(--tertiary)" : "",
+            backgroundColor: value ? "oklch(var(--tertiary))" : "",
           }}
         >
           <span

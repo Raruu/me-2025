@@ -21,11 +21,11 @@ export const DropDownItem = ({
   disabled,
   iconifyString,
   onClick,
-  hoverColor = "var(--primary)",
+  hoverColor = "oklch(var(--primary))",
   rightIcon,
   rightIconClick,
-  rightIconHoverColor = "var(--background)",
-  rightIconBgHoverColor = "var(--tertiary)",
+  rightIconHoverColor = "oklch(var(--background))",
+  rightIconBgHoverColor = "oklch(var(--tertiary))",
 }: DropDownItemProps) => {
   const { setIsOpen } = useContext(DropDownContentContext);
   const [isHover, setIsHover] = useState(false);

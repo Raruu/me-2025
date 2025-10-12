@@ -10,12 +10,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "oklch(var(--background) / <alpha-value>)",
+        foreground: "oklch(var(--foreground) / <alpha-value>)",
         "background-tr": "var(--background-tr)",
-        primary: "var(--primary)",
-        secondary: "var(--secondary)",
-        tertiary: "var(--tertiary)",
+        primary: "oklch(var(--primary) / <alpha-value>)",
+        secondary: "oklch(var(--secondary) / <alpha-value>)",
+        tertiary: "oklch(var(--tertiary) / <alpha-value>)",
       },
       animation: {
         "bounce-small": "bounce-small 1s infinite",

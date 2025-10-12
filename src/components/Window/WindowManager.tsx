@@ -13,6 +13,8 @@ import { StatusBar } from "../ui/Statusbar/Statusbar";
 import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
+import { useSearchParams } from "next/navigation";
+import { getAllAppsList } from "@/constants/AppsList";
 
 type TaskBarRef = HTMLDivElement &
   BorderConstrains & { taskbarPlacement?: TaskbarPlacement };
@@ -82,6 +84,10 @@ export type BorderConstrains = {
 };
 
 export const WindowManager = () => {
+  const searchParams = useSearchParams();
+
+  const launchQuery = searchParams.getAll("launch");
+
   const statusBarRef = useRef<HTMLDivElement>(
     null as unknown as HTMLDivElement
   );
@@ -152,7 +158,7 @@ export const WindowManager = () => {
         close();
 
         return state.filter((window) => window.id !== action.id);
-      case "ADD_WINDOW":        
+      case "ADD_WINDOW":
         const screenWidth = borderConstrains.right - borderConstrains.left;
         const screenHeight = borderConstrains.bottom - borderConstrains.top;
         if (screenWidth < action.window.size.width) {
@@ -288,6 +294,39 @@ export const WindowManager = () => {
       windows.length,
     ]
   );
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (launchQuery.length > 0) {
+        const appList = getAllAppsList();
+        launchQuery.forEach((query) => {
+          const launcher = appList.find((app) => app.appId === query);
+          if (launcher !== undefined) {
+            dispatch({
+              type: "ADD_WINDOW",
+              window: {
+                zIndex: windows.length,
+                id: Date.now(),
+                title: launcher.title,
+                appId: launcher.appId,
+                initialSubtitle: launcher.initialSubtitle,
+                icon: launcher.icon ?? "mingcute:terminal-box-line",
+                content: launcher.content,
+                isMaximized: launcher.isMaximized ?? false,
+                isMinimized: launcher.isMinimized ?? false,
+                size: launcher.size ?? { width: 300, height: 300 },
+                position: launcher.position ?? { x: 0, y: 0 },
+                minSize: launcher.minSize ?? { width: 300, height: 300 },
+                launcherRef: launcher.launcherRef,
+              },
+            });
+          }
+        });
+      }
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <WindowManagerContext.Provider value={contextValue}>

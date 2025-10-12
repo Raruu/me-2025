@@ -5,6 +5,7 @@ import { mediaQueryContext } from "@/hooks/useMediaQuery";
 import { useElementSize } from "@/hooks/useElementSize";
 import { createRef } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
+import { seeMeeItems } from "@/constants/SeeMeeItems";
 
 const AboutMe = () => {
   const { mediaQuery, elementRef } = useElementSize();
@@ -27,7 +28,7 @@ const AboutMe = () => {
           />
           <div className="h-2"></div>
           <h1 className="text-sm font-bold">
-            I code, me trying react in early 2025 &gt;w&lt;{" "}
+            I code, see my real face in <span className="text-blue-400"><a href={seeMeeItems[1].href}>LinkedIn</a></span>
           </h1>
           <div className="h-2"></div>
           <SeeMee />

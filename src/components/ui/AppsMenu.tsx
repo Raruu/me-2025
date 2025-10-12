@@ -150,7 +150,7 @@ export const AppsMenu = () => {
     <div
       ref={appsMenuRef}
       className="absolute top-0 left-0 w-full h-full
-        bg-[var(--background-tr)] backdrop-blur transition-opacity duration-300"
+        bg-background-tr backdrop-blur transition-opacity duration-300"
       style={{
         paddingTop: `${borderConstrains.top}px`,
         opacity: isAnimating ? 0 : 1,
@@ -187,7 +187,7 @@ export const AppsMenu = () => {
             }}
             className="bg-background appearance-none rounded-3xl w-9/12 sm:w-1/2 lg:w-1/3 xl:w-1/4 h-10
                         py-2 px-4 text-foreground leading-tight border-2 border-background shadow-sm
-                        focus:outline-none focus:bg-background focus:border-[var(--primary)]"
+                        focus:outline-none focus:bg-background focus:border-primary"
           />
         </div>
 
@@ -278,8 +278,8 @@ export const AppsMenu = () => {
               onClick={() => setCurrentPage(i)}
               className={`w-3 h-3 rounded-full ${
                 i === currentPage
-                  ? "bg-[var(--primary)]"
-                  : "bg-[var(--secondary)]"
+                  ? "bg-primary"
+                  : "bg-secondary"
               }`}
             />
           ))}

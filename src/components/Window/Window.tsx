@@ -64,6 +64,7 @@ export const WindowContext = createContext<{
   setWindowColor: React.Dispatch<React.SetStateAction<string | undefined>>;
   windowRef: React.RefObject<HTMLDivElement | null>;
   position: { x: number; y: number };
+  windowId: number;
 }>({
   setModal: () => {},
   setFreeSlot: () => {},
@@ -71,6 +72,7 @@ export const WindowContext = createContext<{
   setWindowColor: () => {},
   windowRef: { current: null },
   position: { x: 0, y: 0 },
+  windowId: 0,
 });
 
 export const Window = ({
@@ -422,7 +424,7 @@ export const Window = ({
       </div>
       <div
         style={{ borderRadius: isMaximized ? 0 : "" }}
-        className={`overflow-auto bg-transparent w-full h-full rounded-b-lg select-all will-change-auto relative flex ${
+        className={`overflow-hidden bg-transparent w-full h-full rounded-b-lg select-all will-change-auto relative flex ${
           isDraggingResize || isDraggingMove || !isFocused
             ? "pointer-events-none"
             : ""
@@ -436,6 +438,7 @@ export const Window = ({
             setWindowColor: setWindowColor,
             windowRef: windowRef,
             position: position,
+            windowId: id,
           }}
         >
           {content}

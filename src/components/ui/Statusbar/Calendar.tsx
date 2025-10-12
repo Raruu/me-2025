@@ -73,7 +73,7 @@ export const Calendar = () => {
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
-          className="p-2 rounded-full hover:bg-[var(--tertiary)] 
+          className="p-2 rounded-full hover:bg-tertiary
             transition-all duration-200 opacity-50 hover:opacity-100 hover:text-background"
         >
           <Icon icon={"mingcute:left-line"} />
@@ -86,7 +86,7 @@ export const Calendar = () => {
         </h2>
         <button
           onClick={handleNextMonth}
-          className="p-2 rounded-full hover:bg-[var(--tertiary)] 
+          className="p-2 rounded-full hover:bg-tertiary 
             transition-all duration-200 opacity-50 hover:opacity-100 hover:text-background"
         >
           <Icon icon={"mingcute:right-line"} />
@@ -111,16 +111,16 @@ export const Calendar = () => {
             <button
               key={index}
               onClick={() => handleDateClick(date)}
-              className={`p-2 text-sm rounded hover:bg-[var(--secondary)] transition-colors duration-200
+              className={`p-2 text-sm rounded hover:bg-secondary transition-colors duration-200
                 ${
                   isSelected
-                    ? `text-foreground bg-[var(--primary)] dark:hover:text-background hover:bg-[var(--tertiary)]`
+                    ? `text-foreground bg-primary dark:hover:text-background hover:bg-tertiary`
                     : ""
                 }
                 ${isCurrentMonth ? "text-foreground" : "text-gray-400"}
                 ${
                   !isSelected && isCurrentMonth
-                    ? "hover:bg-[var(--secondary)] hover:text-foreground dark:hover:text-background"
+                    ? "hover:bg-secondary hover:text-foreground dark:hover:text-background"
                     : ""
                 }`}
               disabled={!isCurrentMonth}

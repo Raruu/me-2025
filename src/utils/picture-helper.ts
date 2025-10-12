@@ -5,10 +5,11 @@ export const bgHzLightImage = "/hz-background-light.webp";
 export const bgVerLightImage = "/ver-background-light.webp";
 export const bgHzDarkImage = "/hz-background-dark.webp";
 export const bgVerDarkImage = "/ver-background-dark.webp";
-export const azusaCatImage = "/me-azusa.webp";
+export const azusaCatImage = "/icon/me-azusa.webp";
 export const noticeAzusaCatImage = "/notice-1.webp";
-export const patapataLanuBiscuit = "/patapata-lanubiscuit.webp";
+export const patapataLanuBiscuit = "/icon/patapata-lanubiscuit.webp";
 export const iconMidokuniLogo512 = "/icon/midokuni_logo_512.webp";
+export const senseiLaptop = "/icon/sensei-laptop.webp";
 
 export const LoadRequiredImage = async (): Promise<boolean> => {
   const imagesToPreload = [
