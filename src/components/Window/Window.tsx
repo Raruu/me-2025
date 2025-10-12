@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { WindowState, WindowManagerContext } from "./WindowManager";
+import { WindowState } from "./WindowManager";
 import {
   MouseEvent,
   useState,
@@ -9,6 +9,7 @@ import {
   useContext,
   createContext,
 } from "react";
+import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 interface WindowActionButtonProps {
   icon: string;

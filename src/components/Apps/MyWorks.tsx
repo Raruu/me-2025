@@ -4,15 +4,16 @@ import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { motion, AnimatePresence } from "framer-motion";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
-import { myWorks } from "@/constants/MyWorks";
 import { WindowContext } from "../Window/Window";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { ServerContext } from "@/providers/ServerContext";
 
 const MyWorks = () => {
   const { mediaQuery, elementRef } = useElementSize();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const { windowId, setSubtitle } = useContext(WindowContext);
+  const myWorks = useContext(ServerContext).myWorks;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -21,7 +22,7 @@ const MyWorks = () => {
       (it) =>
         it.title.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [myWorks, query]);
 
   const groupedByYear = useMemo(() => {
     const map: Record<string, typeof myWorks> = {} as Record<
@@ -68,6 +69,13 @@ const MyWorks = () => {
     setActiveImageIndex(0);
     setLightboxOpen(false);
   }, [selectedId]);
+
+  if (myWorks.length === 0)
+    return (
+      <div className="bg-background select-none w-full h-full overflow-hidden flex items-center justify-center">
+        <div className="text-5xl font-bold">No data</div>
+      </div>
+    );
 
   return (
     <div
@@ -284,7 +292,7 @@ const MyWorks = () => {
                         {selected.liveProject && (
                           <a
                             className="inline-block text-xs px-3 py-2 bg-primary text-white rounded-md hover:bg-tertiary transition-all duration-150 hover:text-black"
-                            href={selected.liveProject}                         
+                            href={selected.liveProject}
                             target="_blank"
                           >
                             <span className="flex items-center gap-1">

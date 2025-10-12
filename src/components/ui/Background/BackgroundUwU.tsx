@@ -4,9 +4,9 @@ import { useEffect, useContext, useState, useCallback } from "react";
 import NextImage from "next/image";
 import { themeType } from "@/styles/theme";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
-import { WindowManagerContext } from "../../Window/WindowManager";
 import { SilhouetteBackground } from "./SilhouetteBackground";
 import { EtcContext } from "@/lib/Etc/Etc";
+import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export const BackgroundUwU = () => {
   const { statusBarRef, taskBarRef } = useContext(WindowManagerContext);

@@ -5,7 +5,6 @@ import {
   useRef,
   useEffect,
   useState,
-  createContext,
   useMemo,
 } from "react";
 import { Window } from "./Window";
@@ -15,31 +14,12 @@ import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
 import { useSearchParams } from "next/navigation";
 import { getAllAppsList } from "@/constants/AppsList";
+import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
-type TaskBarRef = HTMLDivElement &
+export type TaskBarRef = HTMLDivElement &
   BorderConstrains & { taskbarPlacement?: TaskbarPlacement };
 
-type AppsMenuRef = HTMLDivElement & { close: () => void };
-
-export const WindowManagerContext = createContext<{
-  taskBarRef: React.RefObject<TaskBarRef>;
-  statusBarRef: React.RefObject<HTMLDivElement>;
-  appsMenuRef: React.RefObject<AppsMenuRef>;
-  isAppsMenuOpen: boolean;
-  setIsAppsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  windows: WindowState[];
-  borderConstrains: BorderConstrains;
-  dispatch: React.Dispatch<WindowAction>;
-}>({
-  taskBarRef: { current: null as unknown as TaskBarRef },
-  statusBarRef: { current: null as unknown as HTMLDivElement },
-  appsMenuRef: { current: null as unknown as AppsMenuRef },
-  isAppsMenuOpen: false,
-  setIsAppsMenuOpen: () => {},
-  windows: [],
-  borderConstrains: { top: 0, right: 0, bottom: 0, left: 0 },
-  dispatch: () => {},
-});
+export type AppsMenuRef = HTMLDivElement & { close: () => void };
 
 export interface WindowState {
   zIndex: number;

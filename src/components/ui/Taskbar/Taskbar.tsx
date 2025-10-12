@@ -1,7 +1,6 @@
 "use client";
 
 import { ActionDispatch, useContext, useEffect, useRef, useState } from "react";
-import { WindowManagerContext } from "../../Window/WindowManager";
 import {
   TaskbarItem,
   TaskbarItemWindowLauncher,
@@ -15,6 +14,7 @@ import {
 import { TaskBarItems } from "@/constants/TaskBarItems";
 import { MenuAppsList } from "@/constants/AppsList";
 import { EtcContext } from "@/lib/Etc/Etc";
+import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export type TaskbarPlacement = "left" | "bottom" | "right";
 

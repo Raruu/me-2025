@@ -3,9 +3,9 @@ import {
   WindowLauncherProps,
 } from "./Taskbar/TaskbarItem";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { WindowManagerContext } from "../Window/WindowManager";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 import { getAllAppsList } from "@/constants/AppsList";
+import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export const AppsMenu = () => {
   const {
