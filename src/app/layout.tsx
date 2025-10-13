@@ -4,6 +4,8 @@ import { nunito } from "@/styles/fonts";
 import { MyCvJson, MyWorksJson } from "@/constants/ExternalResources";
 import { ServerProvider } from "@/providers/ServerContext";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Me-2025",
   description: "Personal Page for 2025",
@@ -12,7 +14,7 @@ export const metadata: Metadata = {
 async function getExternalData(url: string) {
   try {
     const res = await fetch(url, {
-      cache: "no-cache",
+      cache: "no-store",
     });
 
     if (!res.ok) {
