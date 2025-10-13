@@ -1,1 +1,2 @@
 export const MyWorksJson = "https://raw.githubusercontent.com/Raruu/Raruu/refs/heads/main/assets/porto.json";
+export const MyCvJson = "https://raw.githubusercontent.com/Raruu/Raruu/refs/heads/main/assets/cv.json";

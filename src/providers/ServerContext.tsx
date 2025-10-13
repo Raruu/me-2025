@@ -12,10 +12,15 @@ type Work = {
   liveProject?: string;
 };
 
-type ServerContextType = { myWorks: Work[] };
+type cv = {
+  cv_id: string;
+};
+
+type ServerContextType = { myWorks: Work[]; cv: cv };
 
 export const ServerContext = createContext<ServerContextType>({
   myWorks: [],
+  cv: { cv_id: "" },
 });
 
 export const ServerProvider = ({

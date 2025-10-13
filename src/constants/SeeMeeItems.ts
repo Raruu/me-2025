@@ -14,7 +14,7 @@ export const seeMeeItems: SeeMeeItemProps[] = [
     bgColor: "#0a66c2",
     textColor: "white",
     texts: ["Profile", "See My", "Linkedin"],
-    href: "https://www.linkedin.com/in/hidayat-widi-saputra-65541a293/",
+    href: "https://www.linkedin.com/in/raruu/",
   },
   {
     iconify: "logos:youtube-icon",

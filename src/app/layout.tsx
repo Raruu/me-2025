@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { nunito } from "@/styles/fonts";
-import { MyWorksJson } from "@/constants/ExternalResources";
-import {  ServerProvider } from "@/providers/ServerContext";
+import { MyCvJson, MyWorksJson } from "@/constants/ExternalResources";
+import { ServerProvider } from "@/providers/ServerContext";
 
 export const metadata: Metadata = {
   title: "Me-2025",
   description: "Personal Page for 2025",
 };
 
-async function getMyWorksData() {
+async function getExternalData(url: string) {
   try {
-    const res = await fetch(MyWorksJson, {
+    const res = await fetch(url, {
       cache: "no-cache",
     });
 
@@ -31,12 +31,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const myWorksData = await getMyWorksData();
+  const myWorksData = await getExternalData(MyWorksJson);
+  const myCvData = await getExternalData(MyCvJson);
 
   return (
     <html lang="en">
       <body className={`${nunito.variable} antialiased overflow-hidden`}>
-        <ServerProvider value={{ myWorks: myWorksData }}>
+        <ServerProvider value={{ myWorks: myWorksData, cv: myCvData }}>
           {children}
         </ServerProvider>
       </body>

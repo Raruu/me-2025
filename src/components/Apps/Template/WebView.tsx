@@ -6,9 +6,10 @@ import { EtcContext } from "@/lib/Etc/Etc";
 interface WebViewProps {
   url: string;
   freeSlot?: React.ReactNode;
+  isLoading?: boolean;
 }
 
-export const WebView = ({ url, freeSlot }: WebViewProps) => {
+export const WebView = ({ url, freeSlot, isLoading = false }: WebViewProps) => {
   const { setFreeSlot } = useContext(WindowContext);
   const { silhouetteTr } = useContext(EtcContext).themeSettings;
   const [isLoaded, setIsLoaded] = useState(false);
@@ -18,7 +19,9 @@ export const WebView = ({ url, freeSlot }: WebViewProps) => {
 
   return (
     <div className="w-full h-full flex bg-background">
-      {!isLoaded && <SilhouetteBackground show={true} imgUrl={silhouetteTr} />}
+      {(!isLoaded || isLoading) && (
+        <SilhouetteBackground show={true} imgUrl={silhouetteTr} />
+      )}
       <iframe
         className="w-full h-full"
         src={url}

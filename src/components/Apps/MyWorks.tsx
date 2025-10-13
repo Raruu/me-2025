@@ -117,7 +117,7 @@ const MyWorks = () => {
           </motion.header>
         )}
 
-        <div className="mt-2">
+        <div>
           <AnimatePresence initial={false} mode="popLayout">
             {!selected ? (
               <motion.section
@@ -341,6 +341,12 @@ const MyWorks = () => {
                           </motion.span>
                         ))}
                       </div>
+                    </div>
+
+                    <div>
+                      <h5 className="text-xs text-foreground uppercase mt-6">
+                        Year Created: {selected.year}
+                      </h5>
                     </div>
                   </div>
                 </div>

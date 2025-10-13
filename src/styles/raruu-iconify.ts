@@ -42,5 +42,10 @@ export const raruuIconify = () =>
         height: 24,
         width: 24,
       },
+      "ba-skillbook": {
+        body: '<image href="/icon/ba-skillbook.webp" height="24" width="24"/>',
+        height: 24,
+        width: 24,
+      },
     },
   });
