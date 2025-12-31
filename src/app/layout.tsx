@@ -4,11 +4,30 @@ import { nunito } from "@/styles/fonts";
 import { MyCvJson, MyWorksJson } from "@/constants/ExternalResources";
 import { ServerProvider } from "@/providers/ServerContext";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Me-2025",
-  description: "Personal Page for 2025",
+  title: "Raruu 2K25",
+  description: "Personal Page from 2025",
+  openGraph: {
+    title: "Raruu 2K25",
+    description: "Personal Page from 2025",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1326,
+        height: 825,
+        alt: "Raruu 2K25",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Raruu 2K25",
+    description: "Personal Page from 2025",
+    images: ["/og-image.png"],
+  },
 };
 
 async function getExternalData(url: string) {
