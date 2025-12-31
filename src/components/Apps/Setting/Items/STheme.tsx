@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { SettingNavItemProps } from "../Setting";
+import { SettingNavItemProps } from "..";
 import { EtcContext } from "@/lib/Etc/Etc";
 import Image from "next/image";
 import { WindowContext } from "@/components/Window/Window";

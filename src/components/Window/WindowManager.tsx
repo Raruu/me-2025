@@ -7,7 +7,7 @@ import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
 import { useSearchParams } from "next/navigation";
-import { getAllAppsList } from "@/constants/AppsList";
+import { getAllAppsList } from "@/configs/AppsList";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export type TaskBarRef = HTMLDivElement &

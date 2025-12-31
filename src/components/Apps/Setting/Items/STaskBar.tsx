@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import {  SettingNavItemProps } from "../Setting";
+import {  SettingNavItemProps } from "..";
 import { EtcContext } from "@/lib/Etc/Etc";
 import { TaskbarPlacement } from "@/components/ui/Taskbar/Taskbar";
 import { SettingGroup } from "../SettingGroup";

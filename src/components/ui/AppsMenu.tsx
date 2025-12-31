@@ -4,7 +4,7 @@ import {
 } from "./Taskbar/TaskbarItem";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
-import { getAllAppsList } from "@/constants/AppsList";
+import { getAllAppsList } from "@/configs/AppsList";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export const AppsMenu = () => {

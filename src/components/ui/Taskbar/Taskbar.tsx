@@ -11,8 +11,8 @@ import {
   DropDownItem,
   DropDownItemSeparator,
 } from "../../Dropdown/DropdownItem";
-import { TaskBarItems } from "@/constants/TaskBarItems";
-import { MenuAppsList } from "@/constants/AppsList";
+import { TaskBarItems } from "@/configs/TaskBarItems";
+import { MenuAppsList } from "@/configs/AppsList";
 import { EtcContext } from "@/lib/Etc/Etc";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
