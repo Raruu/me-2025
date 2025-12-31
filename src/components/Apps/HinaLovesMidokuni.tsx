@@ -1,7 +1,7 @@
 import { createRef } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
-import { WindowActionButton } from "../Window/Window";
 import { WebView } from "./Template/WebView";
+import { WindowActionButton } from "../Window/WindowActionButton";
 
 const HinaLovesMidokuni = () => {
   const url = "https://hina.loves.midokuni.com/";

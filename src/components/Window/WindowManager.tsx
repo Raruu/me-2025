@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducer, useRef, useEffect, useState, useMemo } from "react";
-import { Window } from "./Window";
+import { Window } from ".";
 import { StatusBar } from "../ui/Statusbar/Statusbar";
 import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/Background/BackgroundUwU";

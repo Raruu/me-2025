@@ -1,6 +1,6 @@
 import { createRef, useContext, useEffect } from "react";
 import { WindowLauncherProps } from "../../ui/Taskbar/TaskbarItem";
-import { WindowContext } from "../../Window/Window";
+import { WindowContext } from "../../Window";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { SilhouetteBackground } from "../../ui/Background/SilhouetteBackground";
 import { EtcContext } from "@/lib/Etc/Etc";

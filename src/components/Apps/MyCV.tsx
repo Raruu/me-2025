@@ -4,8 +4,8 @@ import { createRef, useContext, useEffect, useState } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { ServerContext } from "@/providers/ServerContext";
 import { WebView } from "./Template/WebView";
-import { WindowActionButton } from "../Window/Window";
 import { Icon } from "@iconify/react";
+import { WindowActionButton } from "../Window/WindowActionButton";
 
 const MyCv = () => {
   const myCV = useContext(ServerContext).cv;

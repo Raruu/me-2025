@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { SettingNavItemProps } from "..";
 import { EtcContext } from "@/lib/Etc/Etc";
 import Image from "next/image";
-import { WindowContext } from "@/components/Window/Window";
+import { WindowContext } from "@/components/Window";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
 import { ButtonNetral } from "@/components/ButtonNetral";

@@ -4,7 +4,7 @@ import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { motion, AnimatePresence } from "framer-motion";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
-import { WindowContext } from "../Window/Window";
+import { WindowContext } from "../Window";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { ServerContext } from "@/providers/ServerContext";
 

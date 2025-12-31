@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { WindowContext } from "@/components/Window/Window";
+import { WindowContext } from "@/components/Window";
 import { SilhouetteBackground } from "@/components/ui/Background/SilhouetteBackground";
 import { EtcContext } from "@/lib/Etc/Etc";
 
