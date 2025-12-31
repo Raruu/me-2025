@@ -16,7 +16,7 @@ const quickLinks = [
   },
   {
     name: "This",
-    url: window.location.href,
+    url: typeof window !== "undefined" ? window.location.href : "",
     icon: "mingcute:terminal-box-line",
   },
 ];
