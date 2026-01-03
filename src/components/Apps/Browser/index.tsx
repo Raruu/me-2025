@@ -2,7 +2,7 @@ import { createRef, useContext, useEffect } from "react";
 import { WindowLauncherProps } from "../../ui/Taskbar/TaskbarItem";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { SilhouetteBackground } from "../../ui/Background/SilhouetteBackground";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import { BrowserProvider, useBrowser } from "./BrowserContext";
 import { BrowserToolbar } from "./BrowserToolbar";
 import { WindowContext } from "@/providers/WindowContext";

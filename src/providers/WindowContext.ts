@@ -13,6 +13,7 @@ export const WindowContext = createContext<{
   setWindowColor: Dispatch<SetStateAction<string | undefined>>;
   windowRef: RefObject<HTMLDivElement | null>;
   position: { x: number; y: number };
+  windowSize: { width: number; height: number };
   windowId: number;
   isDragging: boolean;
 }>({
@@ -22,6 +23,7 @@ export const WindowContext = createContext<{
   setWindowColor: () => {},
   windowRef: { current: null },
   position: { x: 0, y: 0 },
+  windowSize: { width: 0, height: 0 },
   windowId: 0,
   isDragging: false,
 });

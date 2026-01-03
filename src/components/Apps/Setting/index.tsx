@@ -2,6 +2,7 @@ import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
 import { createRef, useState } from "react";
 import { settingItemTaskBar } from "./Items/STaskBar";
 import { settingItemTheme } from "./Items/STheme";
+import { settingItemStartUp } from "./Items/SStartUp";
 import { UILocationItem } from "@/components/ui/components/UILocationItem";
 
 export interface SettingNavItemProps {
@@ -14,6 +15,7 @@ const Settings = () => {
   const settingNavItems: SettingNavItemProps[] = [
     settingItemTheme,
     settingItemTaskBar,
+    settingItemStartUp,
   ];
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
 

@@ -1,6 +1,7 @@
-import { EtcContextType } from "@/lib/Etc/Etc";
+import { EtcContextType } from "@/lib/Etc";
 import { EtcTaskbar } from "@/lib/Etc/EtcTaskbar";
 import { EtcTheme } from "@/lib/Etc/EtcTheme";
+import { EtcStartup } from "@/lib/Etc/EtcStartup";
 
 export const useEtc = (): EtcContextType => {
   //   TaskBar

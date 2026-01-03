@@ -7,7 +7,7 @@ import { DropDown } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { getSystemTheme } from "@/styles/theme";
 import { Calendar } from "./Calendar";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 interface StatusBarProps {

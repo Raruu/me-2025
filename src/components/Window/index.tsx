@@ -393,6 +393,7 @@ export const Window = ({
             setWindowColor: setWindowColor,
             windowRef: windowRef,
             position: position,
+            windowSize: size,
             windowId: id,
             isDragging: isMaximized ? false : isDraggingMove || isDraggingResize,
           }}

@@ -16,6 +16,8 @@ import {
   WindowManagerContext,
   WindowState,
 } from "@/providers/WindowManagerContext";
+import { EtcStartup, StartupAppConfig } from "@/lib/Etc/EtcStartup";
+import { db } from "@/lib/db";
 
 export const WindowManager = () => {
   const searchParams = useSearchParams();
@@ -230,162 +232,182 @@ export const WindowManager = () => {
   const launchQuery = searchParams.getAll("launch");
   const positionQuery = searchParams.getAll("position");
 
+  const { loadStartupApps } = EtcStartup();
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (launchQuery.length > 0) {
-        const appList = getAllAppsList();
-        launchQuery.forEach((query, index) => {
-          const launcher = appList.find((app) => app.appId === query);
-          const position =
-            index < positionQuery.length ? positionQuery[index] : null;
+      const appList = getAllAppsList();
+
+      // Launch startup apps
+      const launchStartupApps = async () => {
+        const startupApps = await loadStartupApps();
+        console.log(startupApps);
+        startupApps.forEach((config, index) => {
+          const launcher = appList.find((app) => app.appId === config.appId);
           if (launcher !== undefined) {
-            const screenWidth =
-              borderConstrains.right - borderConstrains.left ||
-              window.innerWidth;
-            const screenHeight =
-              borderConstrains.bottom - borderConstrains.top ||
-              window.innerHeight;
+            launchApp(launcher, index, config.position || null);
+          }
+        });
+      };
 
-            const winSize = {
-              ...(launcher.size ?? { width: 300, height: 300 }),
-            };
-            const winPos = { ...(launcher.position ?? { x: 0, y: 0 }) };
-            let isMax = launcher.isMaximized ?? false;
+      const launchApp = (
+        launcher: (typeof appList)[number],
+        index: number,
+        position: string | null
+      ) => {
+        const screenWidth =
+          borderConstrains.right - borderConstrains.left || window.innerWidth;
+        const screenHeight =
+          borderConstrains.bottom - borderConstrains.top || window.innerHeight;
 
-            /* Supported position values (case-insensitive):
+        const winSize = {
+          ...(launcher.size ?? { width: 300, height: 300 }),
+        };
+        const winPos = { ...(launcher.position ?? { x: 0, y: 0 }) };
+        let isMax = launcher.isMaximized ?? false;
+
+        /* Supported position values (case-insensitive):
           - fullscreen | max | maximized
           - left, right
           - top-left, top-right, bottom-left, bottom-right
           - center | middle
           - numeric coordinate lists: "x,y" or "x,y,w,h"
             */
-            const parsePosition = (posStr: string | null) => {
-              if (!posStr) return;
-              const s = posStr.toLowerCase();
+        const parsePosition = (posStr: string | null) => {
+          if (!posStr) return;
+          const s = posStr.toLowerCase();
 
-              if (s === "fullscreen" || s === "max" || s === "maximized") {
-                isMax = true;
-                return;
-              }
+          if (s === "fullscreen" || s === "max" || s === "maximized") {
+            isMax = true;
+            return;
+          }
 
-              // halves
-              if (s === "left") {
-                winSize.width = Math.floor(screenWidth / 2);
-                winSize.height = screenHeight;
-                winPos.x = borderConstrains.left;
-                winPos.y =
-                  winSize.height -
-                  winSize.height +
-                  (statusBarRef.current?.clientHeight ?? 0);
-                return;
-              }
-              if (s === "right") {
-                winSize.width = Math.floor(screenWidth / 2);
-                winSize.height = screenHeight;
-                winPos.x = borderConstrains.left + Math.ceil(screenWidth / 2);
-                winPos.y =
-                  borderConstrains.top +
-                  (statusBarRef.current?.clientHeight ?? 0);
-                return;
-              }
+          // halves
+          if (s === "left") {
+            winSize.width = Math.floor(screenWidth / 2);
+            winSize.height = screenHeight;
+            winPos.x = borderConstrains.left;
+            winPos.y =
+              winSize.height -
+              winSize.height +
+              (statusBarRef.current?.clientHeight ?? 0);
+            return;
+          }
+          if (s === "right") {
+            winSize.width = Math.floor(screenWidth / 2);
+            winSize.height = screenHeight;
+            winPos.x = borderConstrains.left + Math.ceil(screenWidth / 2);
+            winPos.y =
+              borderConstrains.top + (statusBarRef.current?.clientHeight ?? 0);
+            return;
+          }
 
-              // corners
-              if (s === "top-left" || s === "topleft") {
-                winPos.x = borderConstrains.left;
-                winPos.y =
-                  winSize.height -
-                  winSize.height +
-                  (statusBarRef.current?.clientHeight ?? 0);
-                return;
-              }
-              if (s === "top-right" || s === "topright") {
-                winPos.x = borderConstrains.left + screenWidth - winSize.width;
-                winPos.y = borderConstrains.top;
-                return;
-              }
-              if (s === "bottom-left" || s === "bottomleft") {
-                winPos.x = borderConstrains.left;
-                winPos.y = borderConstrains.top + screenHeight - winSize.height;
-                return;
-              }
-              if (s === "bottom-right" || s === "bottomright") {
-                winPos.x = borderConstrains.left + screenWidth - winSize.width;
-                winPos.y = borderConstrains.top + screenHeight - winSize.height;
-                return;
-              }
+          // corners
+          if (s === "top-left" || s === "topleft") {
+            winPos.x = borderConstrains.left;
+            winPos.y =
+              winSize.height -
+              winSize.height +
+              (statusBarRef.current?.clientHeight ?? 0);
+            return;
+          }
+          if (s === "top-right" || s === "topright") {
+            winPos.x = borderConstrains.left + screenWidth - winSize.width;
+            winPos.y = borderConstrains.top;
+            return;
+          }
+          if (s === "bottom-left" || s === "bottomleft") {
+            winPos.x = borderConstrains.left;
+            winPos.y = borderConstrains.top + screenHeight - winSize.height;
+            return;
+          }
+          if (s === "bottom-right" || s === "bottomright") {
+            winPos.x = borderConstrains.left + screenWidth - winSize.width;
+            winPos.y = borderConstrains.top + screenHeight - winSize.height;
+            return;
+          }
 
-              // center
-              if (s === "center" || s === "middle") {
-                winPos.x =
-                  borderConstrains.left +
-                  Math.floor((screenWidth - winSize.width) / 2);
-                winPos.y =
-                  borderConstrains.top +
-                  Math.floor((screenHeight - winSize.height) / 2);
-                return;
-              }
+          // center
+          if (s === "center" || s === "middle") {
+            winPos.x =
+              borderConstrains.left +
+              Math.floor((screenWidth - winSize.width) / 2);
+            winPos.y =
+              borderConstrains.top +
+              Math.floor((screenHeight - winSize.height) / 2);
+            return;
+          }
 
-              // numeric coordinates: 'x,y' or 'x,y,w,h'
-              const parts = s.split(",").map((p) => p.trim());
-              const nums = parts
-                .map((p) => Number(p))
-                .filter((n) => !Number.isNaN(n));
-              if (nums.length === 2) {
-                winPos.x = nums[0];
-                winPos.y = nums[1];
-                return;
-              }
-              if (nums.length === 4) {
-                winPos.x = nums[0];
-                winPos.y = nums[1];
-                winSize.width = nums[2];
-                winSize.height = nums[3];
-                return;
-              }
-            };
+          // numeric coordinates: 'x,y' or 'x,y,w,h'
+          const parts = s.split(",").map((p) => p.trim());
+          const nums = parts
+            .map((p) => Number(p))
+            .filter((n) => !Number.isNaN(n));
+          if (nums.length === 2) {
+            winPos.x = nums[0];
+            winPos.y = nums[1];
+            return;
+          }
+          if (nums.length === 4) {
+            winPos.x = nums[0];
+            winPos.y = nums[1];
+            winSize.width = nums[2];
+            winSize.height = nums[3];
+            return;
+          }
+        };
 
-            parsePosition(position);
+        parsePosition(position);
 
-            if (winSize.width > screenWidth) winSize.width = screenWidth;
-            if (winSize.height > screenHeight) winSize.height = screenHeight;
+        if (winSize.width > screenWidth) winSize.width = screenWidth;
+        if (winSize.height > screenHeight) winSize.height = screenHeight;
 
-            // if launcher had 0,0 as position, then center unless position query set it
-            if (
-              (launcher.position?.x === 0 && launcher.position?.y === 0) ||
-              (launcher.position === undefined &&
-                winPos.x === 0 &&
-                winPos.y === 0)
-            ) {
-              if (position === null) {
-                winPos.x =
-                  borderConstrains.left +
-                  Math.floor((screenWidth - winSize.width) / 2);
-                winPos.y =
-                  borderConstrains.top +
-                  Math.floor((screenHeight - winSize.height) / 2);
-              }
-            }
+        // if launcher had 0,0 as position, then center unless position query set it
+        if (
+          (launcher.position?.x === 0 && launcher.position?.y === 0) ||
+          (launcher.position === undefined && winPos.x === 0 && winPos.y === 0)
+        ) {
+          if (position === null) {
+            winPos.x =
+              borderConstrains.left +
+              Math.floor((screenWidth - winSize.width) / 2);
+            winPos.y =
+              borderConstrains.top +
+              Math.floor((screenHeight - winSize.height) / 2);
+          }
+        }
 
-            dispatch({
-              type: "ADD_WINDOW",
-              window: {
-                zIndex: windows.length,
-                id: Date.now() + index,
-                title: launcher.title,
-                appId: launcher.appId,
-                initialSubtitle: launcher.initialSubtitle,
-                icon: launcher.icon ?? "mingcute:terminal-box-line",
-                content: launcher.content,
-                isMaximized: isMax,
-                isMinimized: launcher.isMinimized ?? false,
-                size: winSize,
-                position: winPos,
-                minSize: launcher.minSize ?? { width: 300, height: 300 },
-                launcherRef: launcher.launcherRef,
-              },
-            });
+        dispatch({
+          type: "ADD_WINDOW",
+          window: {
+            zIndex: windows.length,
+            id: Date.now() + index,
+            title: launcher.title,
+            appId: launcher.appId,
+            initialSubtitle: launcher.initialSubtitle,
+            icon: launcher.icon ?? "mingcute:terminal-box-line",
+            content: launcher.content,
+            isMaximized: isMax,
+            isMinimized: launcher.isMinimized ?? false,
+            size: winSize,
+            position: winPos,
+            minSize: launcher.minSize ?? { width: 300, height: 300 },
+            launcherRef: launcher.launcherRef,
+          },
+        });
+      };
+
+      if (launchQuery.length > 0) {
+        launchQuery.forEach((query, index) => {
+          const launcher = appList.find((app) => app.appId === query);
+          const position =
+            index < positionQuery.length ? positionQuery[index] : null;
+          if (launcher !== undefined) {
+            launchApp(launcher, index, position);
           }
         });
+      } else {
+        launchStartupApps();
       }
     }, 1000);
     return () => clearTimeout(timeoutId);

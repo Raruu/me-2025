@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import {  SettingNavItemProps } from "..";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import { TaskbarPlacement } from "@/components/ui/Taskbar/Taskbar";
 import { SettingGroup } from "../SettingGroup";
 import { SettingBool } from "../SettingBool";

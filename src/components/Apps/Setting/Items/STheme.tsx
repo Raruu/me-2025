@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { SettingNavItemProps } from "..";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import Image from "next/image";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";

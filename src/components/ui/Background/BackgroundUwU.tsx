@@ -5,7 +5,7 @@ import NextImage from "next/image";
 import { themeType } from "@/styles/theme";
 import { mapMediaQuery, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SilhouetteBackground } from "./SilhouetteBackground";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 
 export const BackgroundUwU = () => {

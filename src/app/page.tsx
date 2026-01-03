@@ -3,7 +3,7 @@
 import { WindowManager } from "@/components/Window/WindowManager";
 import { useEtc } from "@/hooks/useEtc";
 import { initFileSystem } from "@/lib/db";
-import { EtcContext } from "@/lib/Etc/Etc";
+import { EtcContext } from "@/lib/Etc";
 import { raruuIconify } from "@/styles/raruu-iconify";
 import { LoadRequiredImage } from "@/utils/picture-helper";
 import { useEffect, useState } from "react";
