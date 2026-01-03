@@ -1,5 +1,4 @@
 import { Icon } from "@iconify/react";
-import { WindowState } from "./WindowManager";
 import {
   MouseEvent,
   useState,
@@ -7,10 +6,13 @@ import {
   useCallback,
   useRef,
   useContext,
-  createContext,
 } from "react";
-import { WindowManagerContext } from "@/providers/WindowManagerContext";
+import {
+  WindowManagerContext,
+  WindowState,
+} from "@/providers/WindowManagerContext";
 import { WindowActionButton } from "./WindowActionButton";
+import { WindowContext } from "@/providers/WindowContext";
 
 type ResizeDirection =
   | "top"
@@ -23,28 +25,9 @@ type ResizeDirection =
   | "bottom-right"
   | null;
 
-
 interface WindowProps extends WindowState {
   isFocused: boolean;
 }
-
-export const WindowContext = createContext<{
-  setModal: React.Dispatch<React.SetStateAction<React.ReactNode>>;
-  setFreeSlot: React.Dispatch<React.SetStateAction<React.ReactNode>>;
-  setSubtitle: React.Dispatch<React.SetStateAction<string | undefined>>;
-  setWindowColor: React.Dispatch<React.SetStateAction<string | undefined>>;
-  windowRef: React.RefObject<HTMLDivElement | null>;
-  position: { x: number; y: number };
-  windowId: number;
-}>({
-  setModal: () => {},
-  setFreeSlot: () => {},
-  setSubtitle: () => {},
-  setWindowColor: () => {},
-  windowRef: { current: null },
-  position: { x: 0, y: 0 },
-  windowId: 0,
-});
 
 export const Window = ({
   zIndex,
@@ -297,7 +280,8 @@ export const Window = ({
   const launcherPosY = launcherRef?.current?.getBoundingClientRect().y ?? 0;
 
   return (
-    <div ref={windowRef}
+    <div
+      ref={windowRef}
       className={`absolute flex flex-col w-96 h-96 bg-transparent rounded-lg 
         shadow-lg select-none text-foreground overflow-hidden max-w-full max-h-full ${
           !isDraggingResize && !isDraggingMove
@@ -410,6 +394,7 @@ export const Window = ({
             windowRef: windowRef,
             position: position,
             windowId: id,
+            isDragging: isMaximized ? false : isDraggingMove || isDraggingResize,
           }}
         >
           {content}

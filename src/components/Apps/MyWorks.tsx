@@ -4,15 +4,18 @@ import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { motion, AnimatePresence } from "framer-motion";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
-import { WindowContext } from "../Window";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { ServerContext } from "@/providers/ServerContext";
+import { WindowContext } from "@/providers/WindowContext";
+
+const APP_TITLE = "My Works";
+const APP_ICON = "raruu:sensei-laptop";
 
 const MyWorks = () => {
   const { mediaQuery, elementRef } = useElementSize();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const { windowId, setSubtitle } = useContext(WindowContext);
+  const { windowId, setSubtitle, isDragging } = useContext(WindowContext);
   const myWorks = useContext(ServerContext).myWorks;
 
   const filtered = useMemo(() => {
@@ -82,41 +85,52 @@ const MyWorks = () => {
       className="bg-background select-none w-full h-full overflow-hidden"
       ref={elementRef}
     >
-      <div className="p-4 w-full h-full flex flex-col gap-4 bg-white/5 rounded-md overflow-y-auto overflow-x-hidden">
-        {selected ? (
-          <motion.header
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.36 }}
-            className="flex items-center gap-3"
+      {isDragging && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
+          className="w-full h-full absolute top-0 left-0 z-10 select-none bg-background flex flex-col items-center justify-center"
+        >
+          <Icon icon={APP_ICON} width={128} height={128} />
+          <h1 className="text-2xl font-bold">{APP_TITLE}</h1>
+        </motion.div>
+      )}
+      {selected ? (
+        <motion.header
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.36 }}
+          className="flex items-center gap-3 bg-background p-4 pb-2"
+        >
+          <button
+            onClick={() => setSelectedId(null)}
+            className="text-sm text-foreground/80 bg-white/3 px-3 py-1 rounded-md hover:bg-white/6 flex flex-row gap-4 items-center"
           >
-            <button
-              onClick={() => setSelectedId(null)}
-              className="text-sm text-foreground/80 bg-white/3 px-3 py-1 rounded-md hover:bg-white/6 flex flex-row gap-4 items-center"
-            >
-              ←<h2 className="text-lg font-semibold">Back</h2>
-            </button>
-          </motion.header>
-        ) : (
-          <motion.header
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center justify-center gap-4"
-          >
-            <div className="flex-1 max-w-sm">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search works..."
-                className="bg-background appearance-none rounded-3xl w-full
+            ←<h2 className="text-lg font-semibold">Back</h2>
+          </button>
+        </motion.header>
+      ) : (
+        <motion.header
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-center gap-4 p-4 pb-2"
+        >
+          <div className="flex-1 max-w-sm">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search works..."
+              className="bg-background appearance-none rounded-3xl w-full
                         py-2 px-4 text-foreground leading-tight border-2 shadow-m border-secondary
                         focus:outline-none focus:bg-background focus:border-primary"
-              />
-            </div>
-          </motion.header>
-        )}
-
+            />
+          </div>
+        </motion.header>
+      )}
+      <div className="px-4 w-full h-full flex flex-col gap-4 bg-white/5 rounded-md overflow-y-auto overflow-x-hidden">
         <div>
           <AnimatePresence initial={false} mode="popLayout">
             {!selected ? (
@@ -296,7 +310,7 @@ const MyWorks = () => {
                             target="_blank"
                           >
                             <span className="flex items-center gap-1">
-                              Open Project
+                              Live Project
                               <Icon
                                 icon="fluent:live-24-regular"
                                 className="text-xs"
@@ -443,9 +457,9 @@ const FullImagePreview = ({
 };
 
 export const launcherMyWorks: WindowLauncherProps = {
-  title: `My Works`,
+  title: APP_TITLE,
   appId: "my-works",
-  icon: "raruu:sensei-laptop",
+  icon: APP_ICON,
   content: <MyWorks />,
   size: {
     width: 820,

@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { SettingNavItemProps } from "..";
 import { EtcContext } from "@/lib/Etc/Etc";
 import Image from "next/image";
-import { WindowContext } from "@/components/Window";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
 import { ButtonNetral } from "@/components/ButtonNetral";
@@ -11,6 +10,7 @@ import { db } from "@/lib/db";
 import { SettingGroup } from "../SettingGroup";
 import { SettingBool } from "../SettingBool";
 import { SettingTextField } from "../SettingTextField";
+import { WindowContext } from "@/providers/WindowContext";
 
 const ModalWallpaper = ({
   title,

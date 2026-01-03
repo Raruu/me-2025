@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { WindowContext } from "@/components/Window";
 import { SilhouetteBackground } from "@/components/ui/Background/SilhouetteBackground";
 import { EtcContext } from "@/lib/Etc/Etc";
+import { WindowContext } from "@/providers/WindowContext";
 
 interface WebViewProps {
   url: string;

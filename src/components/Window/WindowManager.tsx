@@ -8,54 +8,14 @@ import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
 import { useSearchParams } from "next/navigation";
 import { getAllAppsList } from "@/configs/AppsList";
-import { WindowManagerContext } from "@/providers/WindowManagerContext";
-
-export type TaskBarRef = HTMLDivElement &
-  BorderConstrains & { taskbarPlacement?: TaskbarPlacement };
-
-export type AppsMenuRef = HTMLDivElement & { close: () => void };
-
-export interface WindowState {
-  zIndex: number;
-  id: number;
-  appId?: string;
-  title: string;
-  icon?: string;
-  initialSubtitle?: string;
-  content: React.ReactNode;
-  isMinimized: boolean;
-  isMaximized: boolean;
-  position: {
-    x: number;
-    y: number;
-  };
-  size: {
-    width: number;
-    height: number;
-  };
-  minSize: {
-    width: number;
-    height: number;
-  };
-  launcherRef?: React.RefObject<HTMLDivElement | null>;
-  initialWindowColor?: string;
-}
-
-export type WindowAction =
-  | { type: "MINIMIZE"; id: number }
-  | { type: "MAXIMIZE"; id: number }
-  | { type: "CLOSE"; id: number }
-  | { type: "ADD_WINDOW"; window: WindowState }
-  | { type: "MOVE"; id: number; position: { x: number; y: number } }
-  | { type: "RESIZE"; id: number; size: { width: number; height: number } }
-  | { type: "FOCUS"; id: number };
-
-export type BorderConstrains = {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-};
+import {
+  AppsMenuRef,
+  BorderConstrains,
+  TaskBarRef,
+  WindowAction,
+  WindowManagerContext,
+  WindowState,
+} from "@/providers/WindowManagerContext";
 
 export const WindowManager = () => {
   const searchParams = useSearchParams();
@@ -323,7 +283,8 @@ export const WindowManager = () => {
                 winSize.width = Math.floor(screenWidth / 2);
                 winSize.height = screenHeight;
                 winPos.x = borderConstrains.left + Math.ceil(screenWidth / 2);
-                winPos.y = borderConstrains.top +
+                winPos.y =
+                  borderConstrains.top +
                   (statusBarRef.current?.clientHeight ?? 0);
                 return;
               }
@@ -428,7 +389,6 @@ export const WindowManager = () => {
       }
     }, 1000);
     return () => clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

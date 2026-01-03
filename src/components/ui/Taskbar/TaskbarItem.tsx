@@ -2,10 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Dispatch, useState, useRef, useEffect } from "react";
-import { WindowAction, WindowState } from "../../Window/WindowManager";
 import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
+import { WindowAction, WindowState } from "@/providers/WindowManagerContext";
 
 export interface WindowLauncherProps
   extends Pick<

@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { WindowContext } from "@/components/Window";
 import { useBrowser } from "./BrowserContext";
+import { WindowContext } from "@/providers/WindowContext";
 
 export const BrowserToolbar = () => {
   const windowContext = useContext(WindowContext);

@@ -13,9 +13,9 @@ import {
 } from "../ui/components/UILocationItem";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { db, FileSystemDB } from "@/lib/db";
-import { WindowContext } from "../Window";
 import { DropDown, DropDownRef } from "../Dropdown/Dropdown";
 import { DropDownItem } from "../Dropdown/DropdownItem";
+import { WindowContext } from "@/providers/WindowContext";
 
 const NavigationButton = ({
   icon,
