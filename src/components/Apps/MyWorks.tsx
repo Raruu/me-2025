@@ -130,7 +130,7 @@ const MyWorks = () => {
           </div>
         </motion.header>
       )}
-      <div className="px-4 w-full h-full flex flex-col gap-4 bg-white/5 rounded-md overflow-y-auto overflow-x-hidden">
+      <div className="px-4 w-full h-full flex flex-col gap-4 rounded-md overflow-y-auto overflow-x-hidden">
         <div>
           <AnimatePresence initial={false} mode="popLayout">
             {!selected ? (
