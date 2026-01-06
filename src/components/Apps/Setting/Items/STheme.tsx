@@ -11,6 +11,7 @@ import { SettingGroup } from "../SettingGroup";
 import { SettingBool } from "../SettingBool";
 import { SettingTextField } from "../SettingTextField";
 import { WindowContext } from "@/providers/WindowContext";
+import { tr } from "motion/react-client";
 
 const ModalWallpaper = ({
   title,
@@ -28,7 +29,7 @@ const ModalWallpaper = ({
   const [value, setValue] = useState(bgUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const { mediaQuery, elementRef } = useElementSize();
+  const { mediaQuery, elementRef } = useElementSize(true);
   const windowRef = useContext(WindowContext).windowRef;
   elementRef.current = windowRef.current;
 

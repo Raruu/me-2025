@@ -3,7 +3,7 @@
 import { useReducer, useRef, useEffect, useState, useMemo } from "react";
 import { Window } from ".";
 import { StatusBar } from "../ui/Statusbar/Statusbar";
-import { Taskbar, TaskbarPlacement } from "../ui/Taskbar/Taskbar";
+import { Taskbar } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";
 import { useSearchParams } from "next/navigation";
@@ -16,8 +16,7 @@ import {
   WindowManagerContext,
   WindowState,
 } from "@/providers/WindowManagerContext";
-import { EtcStartup, StartupAppConfig } from "@/lib/Etc/EtcStartup";
-import { db } from "@/lib/db";
+import { EtcStartup } from "@/lib/Etc/EtcStartup";
 
 export const WindowManager = () => {
   const searchParams = useSearchParams();

@@ -5,6 +5,7 @@ import { launcherMidokuniStudentInsigh } from "@/components/Apps/MidokuniStudent
 import { launcherSetting } from "@/components/Apps/Setting";
 import { launcherFileExplorer } from "@/components/Apps/FileExplorer";
 import { launcherBrowser } from "@/components/Apps/Browser";
+import { launcherShareApps } from "@/components/Apps/ShareApps";
 
 export const MenuAppsList: WindowLauncherProps[] = [
   launcherBrowser,
@@ -12,6 +13,7 @@ export const MenuAppsList: WindowLauncherProps[] = [
   launcherMidokuniStudentInsigh,
   launcherSetting,
   launcherFileExplorer,
+  launcherShareApps,
 ];
 
 export const getAllAppsList = () => {

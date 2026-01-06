@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MediaQuery } from "./useMediaQuery";
 
-export const useElementSize = () => {
+export const useElementSize = (checkHeight = false) => {
   const [mediaQuery, setMediaQuery] = useState<MediaQuery>("default");
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -12,15 +12,17 @@ export const useElementSize = () => {
 
     const observer = new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width;
-      if (width >= 1536) {
+      const height = checkHeight ? entries[0].contentRect.height * 1.5 : width;
+      const size = Math.min(width, height);
+      if (size >= 1536) {
         setMediaQuery("2xl");
-      } else if (width >= 1280) {
+      } else if (size >= 1280) {
         setMediaQuery("xl");
-      } else if (width >= 1024) {
+      } else if (size >= 1024) {
         setMediaQuery("lg");
-      } else if (width >= 768) {
+      } else if (size >= 768) {
         setMediaQuery("md");
-      } else if (width >= 640) {
+      } else if (size >= 640) {
         setMediaQuery("sm");
       } else {
         setMediaQuery("default");
