@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { createRef, useMemo, useState, useEffect, useContext } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,17 +14,37 @@ const MyWorks = () => {
   const { mediaQuery, elementRef } = useElementSize();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const { windowId, setSubtitle, isDragging } = useContext(WindowContext);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showAllTags, setShowAllTags] = useState(false);
+  const [showTags, setShowTags] = useState(true);
+  const { windowId, setSubtitle, isDragging, setFreeSlot } =
+    useContext(WindowContext);
   const myWorks = useContext(ServerContext).myWorks;
 
   const filtered = useMemo(() => {
+    let result = myWorks;
     const q = query.trim().toLowerCase();
-    if (!q) return myWorks;
-    return myWorks.filter(
-      (it) =>
-        it.title.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q)
-    );
-  }, [myWorks, query]);
+    if (q) {
+      result = result.filter(
+        (it) =>
+          it.title.toLowerCase().includes(q) ||
+          it.desc.toLowerCase().includes(q) ||
+          it.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+    }
+    if (selectedTags.length > 0) {
+      result = result.filter((it) =>
+        selectedTags.some((tag) => it.tags.includes(tag))
+      );
+    }
+    return result;
+  }, [myWorks, query, selectedTags]);
+
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    filtered.forEach((it) => it.tags.forEach((t) => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [filtered]);
 
   const groupedByYear = useMemo(() => {
     const map: Record<string, typeof myWorks> = {} as Record<
@@ -73,6 +92,43 @@ const MyWorks = () => {
     setLightboxOpen(false);
   }, [selectedId]);
 
+  useEffect(() => {
+    if (selected) {
+      setFreeSlot(null);
+      return;
+    }
+    setFreeSlot(
+      <div className="flex items-center gap-2 pr-2">
+        {selectedTags.length > 0 && (
+          <button
+            onClick={() => setSelectedTags([])}
+            className="text-xs px-3 py-1.5 rounded-md bg-red-500 text-white border border-red-500/40 hover:bg-red-500/30 transition-colors duration-150 whitespace-nowrap"
+          >
+            Clear filters
+          </button>
+        )}
+        <label className="flex items-center gap-2 text-sm text-foreground/80 cursor-pointer select-none">
+          <span className="whitespace-nowrap">Show all tags</span>
+          <button
+            role="switch"
+            aria-checked={showAllTags}
+            onClick={() => setShowAllTags((v) => !v)}
+            className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
+              showAllTags ? "bg-primary" : "bg-secondary"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                showAllTags ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </label>
+      </div>
+    );
+    return () => setFreeSlot(null);
+  }, [selected, showAllTags, selectedTags, setFreeSlot]);
+
   if (myWorks.length === 0)
     return (
       <div className="bg-background select-none w-full h-full overflow-hidden flex items-center justify-center">
@@ -82,7 +138,7 @@ const MyWorks = () => {
 
   return (
     <div
-      className="bg-background select-none w-full h-full overflow-hidden"
+      className="flex flex-col bg-background select-none w-full h-full overflow-hidden"
       ref={elementRef}
     >
       {isDragging && (
@@ -98,6 +154,7 @@ const MyWorks = () => {
         </motion.div>
       )}
       {selected ? (
+        // Detail
         <motion.header
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -116,267 +173,326 @@ const MyWorks = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-center gap-4 p-4 pb-2"
+          className="flex flex-col gap-3 p-4 pb-2"
         >
-          <div className="flex-1 max-w-sm">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search works..."
-              className="bg-background appearance-none rounded-3xl w-full
-                        py-2 px-4 text-foreground leading-tight border-2 shadow-m border-secondary
-                        focus:outline-none focus:bg-background focus:border-primary"
-            />
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex-1">
+              <button
+                onClick={() => setShowTags((v) => !v)}
+                className={`flex flex-row ml-4 items-center justify-center gap-1 text-xs px-3 py-3 rounded-3xl 
+                bg-transparent  hover:bg-foreground/10 transition-colors duration-150 ${
+                  showTags ? "bg-foreground/30" : "border border-secondary"
+                }`}
+              >
+                {showTags ? (
+                  <Icon icon="mdi:eye" />
+                ) : (
+                  <Icon icon="mdi:eye-off" />
+                )}{" "}
+                Tags
+              </button>
+            </div>
+
+            <div className="flex-[2] max-w-sm">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search works..."
+                className="bg-background appearance-none rounded-3xl w-full
+                          py-2 px-4 text-foreground leading-tight border-2 shadow-m border-secondary
+                          focus:outline-none focus:bg-background focus:border-primary"
+              />
+            </div>
+            <div className="flex-1"></div>
           </div>
+
+          {showTags && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-y-auto max-h-28 scrollbar-thin scrollbar-thumb-secondary"
+            >
+              <div className="flex flex-row flex-wrap gap-2 pb-1 px-5">
+                {availableTags.map((tag) => {
+                  const isActive = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() =>
+                        setSelectedTags((prev) =>
+                          isActive
+                            ? prev.filter((t) => t !== tag)
+                            : [...prev, tag]
+                        )
+                      }
+                      className={`flex-none text-xs px-3 py-1.5 rounded-md border transition-colors duration-150 whitespace-nowrap ${
+                        isActive
+                          ? "bg-primary text-white border-primary"
+                          : "bg-transparent text-foreground/80 border-secondary hover:border-tertiary"
+                      }`}
+                    >
+                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </motion.header>
       )}
       <div className="px-4 w-full h-full flex flex-col gap-4 rounded-md overflow-y-auto overflow-x-hidden">
-        <div>
-          <AnimatePresence initial={false} mode="popLayout">
-            {!selected ? (
-              <motion.section
-                key="grid"
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="px-6"
-              >
-                {groupedByYear.map(({ year, items }) => (
-                  <section key={year} className="mb-6">
-                    <h3 className="text-sm text-foreground px-2 mb-3">
-                      {year}
-                    </h3>
-                    <div className="w-full h-[2px] bg-foreground/60 rounded-md" />
-                    <div
-                      className={
-                        "mt-4 grid gap-4 px-2 " +
-                        mapMediaQuery(mediaQuery, {
-                          default: " grid-cols-1 ",
-                          sm: "grid-cols-2",
-                          lg: "grid-cols-3",
-                          xl: "grid-cols-4",
-                          "2xl": "grid-cols-5",
-                        })
-                      }
-                    >
-                      {items.map((it, idx) => (
-                        <motion.article
-                          key={getId(it.title)}
-                          layout
-                          whileHover={{ scale: 1.05, zIndex: 10 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 24,
-                            delay: idx * 0.02,
-                          }}
-                          onClick={() => setSelectedId(getId(it.title))}
-                          role="button"
-                          tabIndex={0}
-                          className="group relative rounded-lg overflow-hidden bg-neutral-900/8 transform-gpu cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2"
-                        >
-                          <motion.div
-                            layoutId={`card-image-${getId(it.title)}`}
-                            className="w-full h-56 bg-neutral-800/20 overflow-hidden relative"
-                          >
-                            <img
-                              src={it.img[0]}
-                              alt={it.title}
-                              className="w-full h-full object-cover block transform transition-all duration-300 grayscale contrast-[0.95] group-hover:grayscale-0 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                            <div className="absolute left-0 right-0 bottom-0 p-3 bg-gradient-to-t from-black/70 group-hover:from-black via-transparent to-transparent">
-                              <div className="flex items-end justify-between transform transition-transform duration-200 group-hover:-translate-y-2">
-                                <div>
-                                  <h3 className="text-sm font-medium text-white translate-y-5 group-hover:translate-y-0">
-                                    {it.title}
-                                  </h3>
-                                  <p
-                                    className="text-xs text-white/80 mt-1 line-clamp-2 opacity-0 transform translate-y-1 
-                                              truncate max-w-1 group-hover:max-w-max group-hover:whitespace-normal group-hover:translate-y-0 
-                                              group-hover:opacity-100 transition-all duration-200"
-                                  >
-                                    {it.desc}
-                                  </p>
-                                </div>
-                                <motion.span
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="text-[10px] px-2 py-1 bg-white rounded-md text-black"
-                                >
-                                  {it.tags[0] &&
-                                    it.tags[0].charAt(0).toUpperCase() +
-                                      it.tags[0].slice(1)}
-                                </motion.span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </motion.article>
-                      ))}
-                    </div>
-                  </section>
-                ))}
-              </motion.section>
-            ) : (
-              <motion.div
-                key="detail"
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-neutral-900/6 rounded-md overflow-hidden"
-              >
-                <div
-                  className={
-                    "p-4 flex gap-4 " +
-                    mapMediaQuery(mediaQuery, {
-                      default: "flex-col",
-                      md: "flex-row",
-                    })
-                  }
-                >
+        <AnimatePresence mode="popLayout">
+          {!selected ? (
+            <motion.section
+              key="grid"
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="px-6"
+            >
+              {groupedByYear.map(({ year, items }) => (
+                <section key={year} className="mb-6">
+                  <h3 className="text-sm text-foreground px-2 mb-3">{year}</h3>
+                  <div className="w-full h-[2px] bg-foreground/60 rounded-md" />
                   <div
                     className={
-                      "items-center flex flex-col min-w-0 " +
+                      "mt-4 grid gap-4 px-2 " +
                       mapMediaQuery(mediaQuery, {
-                        default: "w-full",
-                        md: "w-1/2",
-                        lg: "w-2/5",
+                        default: " grid-cols-1 ",
+                        sm: "grid-cols-2",
+                        lg: "grid-cols-3",
+                        xl: "grid-cols-4",
+                        "2xl": "grid-cols-5",
                       })
                     }
                   >
-                    <motion.div
-                      layoutId={`card-image-${getId(selected.title)}`}
-                      className={
-                        "w-full rounded-md overflow-hidden mb-3 " +
-                        mapMediaQuery(mediaQuery, {
-                          default: "h-64",
-                          md: "h-80",
-                          lg: "h-96",
-                        })
-                      }
-                    >
-                      <img
-                        src={gallery[activeImageIndex]}
-                        alt={`${selected.title} - ${activeImageIndex + 1}`}
-                        className="w-full h-full object-contain rounded-md cursor-zoom-in"
-                        onClick={() => setLightboxOpen(true)}
-                      />
-                    </motion.div>
-
-                    <div className="overflow-x-auto w-full justify-center flex">
-                      <div className="flex flex-row flex-nowrap gap-2 min-w-0 p-1">
-                        {gallery.map((g, i) => (
-                          <button
-                            key={g}
-                            onClick={() => setActiveImageIndex(i)}
-                            className={`flex-none w-20 h-20 rounded-md overflow-hidden border-2 ${
-                              i === activeImageIndex
-                                ? "border-tertiary"
-                                : "border-transparent"
-                            }`}
-                          >
-                            <img
-                              src={g}
-                              alt={`thumb-${i}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    {items.map((it, idx) => (
+                      <motion.article
+                        key={getId(it.title)}
+                        layout
+                        whileHover={{ scale: 1.05, zIndex: 10 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 24,
+                          delay: idx * 0.02,
+                        }}
+                        onClick={() => setSelectedId(getId(it.title))}
+                        role="button"
+                        tabIndex={0}
+                        className="group relative rounded-lg overflow-hidden bg-neutral-900/8 transform-gpu cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      >
+                        <motion.div
+                          layoutId={`card-image-${getId(it.title)}`}
+                          className="w-full h-56 bg-neutral-800/20 overflow-hidden relative"
+                        >
+                          <img
+                            src={it.img[0]}
+                            alt={it.title}
+                            className="w-full h-full object-cover block transform transition-all duration-300 grayscale contrast-[0.95] group-hover:grayscale-0 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute left-0 right-0 bottom-0 p-3 bg-gradient-to-t from-black/70 group-hover:from-black via-transparent to-transparent">
+                            <div className="flex items-end justify-between transform transition-transform duration-200 group-hover:-translate-y-2">
+                              <div>
+                                <h3 className="text-sm font-medium text-white translate-y-5 group-hover:translate-y-0">
+                                  {it.title}
+                                </h3>
+                                <p
+                                  className="text-xs text-white/80 mt-1 line-clamp-2 opacity-0 transform translate-y-1 
+                                              truncate max-w-1 group-hover:max-w-max group-hover:whitespace-normal group-hover:translate-y-0 
+                                              group-hover:opacity-100 transition-all duration-200"
+                                >
+                                  {it.desc}
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap gap-1 justify-end max-w-[50%]">
+                                {(showAllTags
+                                  ? it.tags
+                                  : it.tags.slice(0, 1)
+                                ).map((tag, tagIdx) => (
+                                  <motion.span
+                                    key={tag}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{
+                                      duration: 0.2,
+                                      delay: tagIdx * 0.05,
+                                    }}
+                                    className="text-[10px] px-2 py-1 bg-white rounded-md text-black"
+                                  >
+                                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                                  </motion.span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </motion.article>
+                    ))}
                   </div>
+                </section>
+              ))}
+            </motion.section>
+          ) : (
+            // Detail
+            <motion.div
+              key="detail"
+              layout
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="bg-neutral-900/6 rounded-md overflow-hidden"
+            >
+              <div
+                className={
+                  "p-4 flex gap-4 " +
+                  mapMediaQuery(mediaQuery, {
+                    default: "flex-col",
+                    md: "flex-row",
+                  })
+                }
+              >
+                <div
+                  className={
+                    "items-center flex flex-col min-w-0 " +
+                    mapMediaQuery(mediaQuery, {
+                      default: "w-full",
+                      md: "w-1/2",
+                      lg: "w-2/5",
+                    })
+                  }
+                >
+                  <motion.div
+                    layoutId={`card-image-${getId(selected.title)}`}
+                    className={
+                      "w-full rounded-md overflow-hidden mb-3 " +
+                      mapMediaQuery(mediaQuery, {
+                        default: "h-64",
+                        md: "h-80",
+                        lg: "h-96",
+                      })
+                    }
+                  >
+                    <img
+                      src={gallery[activeImageIndex]}
+                      alt={`${selected.title} - ${activeImageIndex + 1}`}
+                      className="w-full h-full object-contain rounded-md cursor-zoom-in"
+                      onClick={() => setLightboxOpen(true)}
+                    />
+                  </motion.div>
 
-                  <div className="flex-1">
-                    <h4 className="text-lg font-semibold">{selected.title}</h4>
-                    <p className="text-sm text-foreground/80 mt-2">
-                      {selected.desc}
-                    </p>
-
-                    {selected.desc_long && (
-                      <p className="text-sm text-foreground/80 mt-2">
-                        {selected.desc_long}
-                      </p>
-                    )}
-
-                    {(selected.liveProject || selected.repo) && (
-                      <div className="mt-4 flex gap-2">
-                        {selected.liveProject && (
-                          <a
-                            className="inline-block text-xs px-3 py-2 bg-primary text-white rounded-md hover:bg-tertiary transition-all duration-150 hover:text-black"
-                            href={selected.liveProject}
-                            target="_blank"
-                          >
-                            <span className="flex items-center gap-1">
-                              Live Project
-                              <Icon
-                                icon="fluent:live-24-regular"
-                                className="text-xs"
-                              />
-                            </span>
-                          </a>
-                        )}
-
-                        {selected.repo && (
-                          <a
-                            className="inline-block text-xs px-3 py-2 bg-transparent border border-secondary hover:border-tertiary 
-                                        text-foreground rounded-md hover:bg-tertiary transition-all duration-150 hover:text-black"
-                            href={selected.repo}
-                            target="_blank"
-                          >
-                            <span className="flex items-center gap-1">
-                              View Repository
-                              <Icon
-                                icon="ri:external-link-line"
-                                className="text-xs"
-                              />
-                            </span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="mt-6">
-                      <h5 className="text-xs text-foreground uppercase">
-                        Tags
-                      </h5>
-                      <div className="mt-2 flex gap-2 flex-wrap">
-                        {selected.tags.map((t) => (
-                          <motion.span
-                            key={t}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className="text-xs px-2 py-1 bg-foreground rounded-md text-background"
-                          >
-                            #{t}
-                          </motion.span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h5 className="text-xs text-foreground uppercase mt-6">
-                        Year Created: {selected.year}
-                      </h5>
+                  <div className="overflow-x-auto w-full justify-center flex">
+                    <div className="flex flex-row flex-nowrap gap-2 min-w-0 p-1">
+                      {gallery.map((g, i) => (
+                        <button
+                          key={g}
+                          onClick={() => setActiveImageIndex(i)}
+                          className={`flex-none w-20 h-20 rounded-md overflow-hidden border-2 ${
+                            i === activeImageIndex
+                              ? "border-tertiary"
+                              : "border-transparent"
+                          }`}
+                        >
+                          <img
+                            src={g}
+                            alt={`thumb-${i}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <FullImagePreview
-            {...{
-              gallery,
-              lightboxOpen,
-              activeImageIndex,
-              setActiveImageIndex,
-              setLightboxOpen,
-            }}
-          />
-        </div>
+
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold">{selected.title}</h4>
+                  <p className="text-sm text-foreground/80 mt-2">
+                    {selected.desc}
+                  </p>
+
+                  {selected.desc_long && (
+                    <p className="text-sm text-foreground/80 mt-2">
+                      {selected.desc_long}
+                    </p>
+                  )}
+
+                  {(selected.liveProject || selected.repo) && (
+                    <div className="mt-4 flex gap-2">
+                      {selected.liveProject && (
+                        <a
+                          className="inline-block text-xs px-3 py-2 bg-primary text-white rounded-md hover:bg-tertiary transition-all duration-150 hover:text-black"
+                          href={selected.liveProject}
+                          target="_blank"
+                        >
+                          <span className="flex items-center gap-1">
+                            Live Project
+                            <Icon
+                              icon="fluent:live-24-regular"
+                              className="text-xs"
+                            />
+                          </span>
+                        </a>
+                      )}
+
+                      {selected.repo && (
+                        <a
+                          className="inline-block text-xs px-3 py-2 bg-transparent border border-secondary hover:border-tertiary 
+                                        text-foreground rounded-md hover:bg-tertiary transition-all duration-150 hover:text-black"
+                          href={selected.repo}
+                          target="_blank"
+                        >
+                          <span className="flex items-center gap-1">
+                            View Repository
+                            <Icon
+                              icon="ri:external-link-line"
+                              className="text-xs"
+                            />
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mt-6">
+                    <h5 className="text-xs text-foreground uppercase">Tags</h5>
+                    <div className="mt-2 flex gap-2 flex-wrap">
+                      {selected.tags.map((t) => (
+                        <motion.span
+                          key={t}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-xs px-2 py-1 bg-foreground rounded-md text-background"
+                        >
+                          #{t}
+                        </motion.span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h5 className="text-xs text-foreground uppercase mt-6">
+                      Year Created: {selected.year}
+                    </h5>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <FullImagePreview
+          {...{
+            gallery,
+            lightboxOpen,
+            activeImageIndex,
+            setActiveImageIndex,
+            setLightboxOpen,
+          }}
+        />
       </div>
     </div>
   );
