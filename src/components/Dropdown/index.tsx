@@ -16,6 +16,7 @@ interface DropDownProps {
   backgroundColorHover?: string;
   calcPosition?: boolean;
   callback?: (isOpen: boolean) => void;
+  hoverState?: boolean;
 }
 
 export const DropDownContentContext = React.createContext<{
@@ -36,6 +37,7 @@ export const DropDown = ({
   backgroundColorHover = "oklch(var(--background))",
   calcPosition = true,
   callback,
+  hoverState,
 }: DropDownProps) => {
   React.useEffect(() => {
     if (ref) {
@@ -54,7 +56,6 @@ export const DropDown = ({
   const contentRef = React.useRef<HTMLDivElement>(null);
 
   const handleOpen = () => {
-    // console.log("handleOpen");
     contentRef.current?.classList.remove("hidden");
     setTimeout(() => {
       callback?.(!isOpen);
@@ -151,7 +152,7 @@ export const DropDown = ({
           } transition-all flex flex-col p-4 rounded-3xl backdrop-blur shadow-md max-h-[75vh] overflow-y-auto`}
           onTransitionEnd={onTransitionEnd}
           style={{
-            background: isHover ? backgroundColorHover : backgroundColor,
+            background: isHover || hoverState ? backgroundColorHover : backgroundColor,
             transition: "all, background-color",
             transitionDuration: "100ms, 300ms",
           }}

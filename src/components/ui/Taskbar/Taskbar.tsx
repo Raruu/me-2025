@@ -6,7 +6,7 @@ import {
   TaskbarItemWindowLauncher,
   WindowLauncherProps,
 } from "./TaskbarItem";
-import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
+import { DropDown, DropDownRef } from "../../Dropdown";
 import {
   DropDownItem,
   DropDownItemSeparator,

@@ -15,8 +15,12 @@ export const UILocationItem = ({
 }) => {
   return (
     <div
-      className="flex flex-row items-center gap-2 h-9 w-full pl-2 rounded-md cursor-pointer
-      transition-colors duration-150 dark:hover:text-background dark:hover:bg-secondary hover:bg-tertiary"
+      className={`flex flex-row items-center gap-2 h-9 w-full pl-2 rounded-md
+      transition-colors duration-150 ${
+        onClick
+          ? "cursor-pointer dark:hover:text-background dark:hover:bg-secondary hover:bg-tertiary"
+          : "opacity-50"
+      }`}
       style={{
         backgroundColor: isSelected ? "oklch(var(--primary))" : "",
       }}

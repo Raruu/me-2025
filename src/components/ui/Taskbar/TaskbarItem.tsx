@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Dispatch, useState, useRef, useEffect } from "react";
-import { DropDown, DropDownRef } from "../../Dropdown/Dropdown";
+import { DropDown, DropDownRef } from "../../Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
 import { WindowAction, WindowState } from "@/providers/WindowManagerContext";

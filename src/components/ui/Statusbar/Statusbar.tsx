@@ -3,7 +3,7 @@
 import { Clock } from "@/components/Clock";
 import { Icon } from "@iconify/react";
 import { useContext, useState } from "react";
-import { DropDown } from "../../Dropdown/Dropdown";
+import { DropDown } from "../../Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { getSystemTheme } from "@/styles/theme";
 import { Calendar } from "./Calendar";
