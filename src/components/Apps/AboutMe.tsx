@@ -63,7 +63,7 @@ const AboutMe = () => {
           <h1 className="text-sm font-bold">
             See My{" "}
             <span className="text-blue-400 hover:text-blue-600">
-              <a onClick={handleCvClick} className="cursor-pointer">CV</a>
+              <a onClick={handleCvClick} className="cursor-pointer">CV (ID)</a>
             </span>
           </h1>
           <div className="h-2"></div>

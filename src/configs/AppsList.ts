@@ -6,6 +6,7 @@ import { launcherSetting } from "@/components/Apps/Setting";
 import { launcherFileExplorer } from "@/components/Apps/FileExplorer";
 import { launcherBrowser } from "@/components/Apps/Browser";
 import { launcherShareApps } from "@/components/Apps/ShareApps";
+import { launcherFirstTimeExperience } from "@/components/Apps/FirstTimeExperience";
 
 export const MenuAppsList: WindowLauncherProps[] = [
   launcherBrowser,
@@ -14,6 +15,7 @@ export const MenuAppsList: WindowLauncherProps[] = [
   launcherSetting,
   launcherFileExplorer,
   launcherShareApps,
+  launcherFirstTimeExperience,
 ];
 
 export const getAllAppsList = () => {

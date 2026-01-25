@@ -30,6 +30,8 @@ export interface WindowState {
   };
   launcherRef?: React.RefObject<HTMLDivElement | null>;
   initialWindowColor?: string;
+  callback?: () => void;
+  args?: string[];
 }
 
 export type WindowAction =

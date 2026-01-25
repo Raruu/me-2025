@@ -16,6 +16,7 @@ export const WindowContext = createContext<{
   windowSize: { width: number; height: number };
   windowId: number;
   isDragging: boolean;
+  args?: string[];
 }>({
   setModal: () => {},
   setFreeSlot: () => {},
@@ -26,4 +27,5 @@ export const WindowContext = createContext<{
   windowSize: { width: 0, height: 0 },
   windowId: 0,
   isDragging: false,
+  args: [],
 });

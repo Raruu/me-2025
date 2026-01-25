@@ -1,15 +1,19 @@
 import { WindowLauncherProps } from "@/components/ui/Taskbar/TaskbarItem";
-import { createRef, useState } from "react";
+import { createRef, useContext, useEffect, useState } from "react";
 import { settingItemTaskBar } from "./Items/STaskBar";
 import { settingItemTheme } from "./Items/STheme";
 import { settingItemStartUp } from "./Items/SStartUp";
 import { UILocationItem } from "@/components/ui/components/UILocationItem";
+import { useDBusApp } from "@/providers/DBusContext";
+import { WindowContext } from "@/providers/WindowContext";
 
 export interface SettingNavItemProps {
   title: string;
   icon?: string;
   content: React.ReactNode;
 }
+
+const APPID = "settings";
 
 const Settings = () => {
   const settingNavItems: SettingNavItemProps[] = [
@@ -18,6 +22,21 @@ const Settings = () => {
     settingItemStartUp,
   ];
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
+  const { windowId } = useContext(WindowContext);
+  const dbus = useDBusApp(APPID, windowId);
+
+  useEffect(() => {
+    const subscribe = dbus.subscribe(`${APPID}-events`, (message) => {
+      const openNavIndex = message.data.index;
+      if (openNavIndex !== undefined) {
+        setSelectedNavItem(settingNavItems[openNavIndex]);
+      }
+    });
+
+    return () => {
+      subscribe();
+    };
+  }, []);
 
   return (
     <div className="bg-background w-full h-full flex flex-row select-none overflow-hidden">
@@ -43,7 +62,7 @@ const Settings = () => {
 
 export const launcherSetting: WindowLauncherProps = {
   title: `Settings`,
-  appId: "settings",
+  appId: APPID,
   icon: "f7:gear",
   content: <Settings />,
   size: {

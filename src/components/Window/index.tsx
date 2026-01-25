@@ -44,6 +44,8 @@ export const Window = ({
   minSize,
   launcherRef,
   initialWindowColor,
+  callback,
+  args,
 }: WindowProps) => {
   const { borderConstrains, dispatch } = useContext(WindowManagerContext);
   const [isDraggingMove, setIsDraggingMove] = useState(false);
@@ -57,6 +59,10 @@ export const Window = ({
   const [subtitle, setSubtitle] = useState<string | undefined>(initialSubtitle);
   const [windowColor, setWindowColor] = useState(initialWindowColor);
 
+  useEffect(() => {
+    callback?.();
+  }, []);
+
   const maximize = () => {
     dispatch({ type: "FOCUS", id });
     setTimeout(() => dispatch({ type: "MAXIMIZE", id }), 1);
@@ -69,7 +75,7 @@ export const Window = ({
       | globalThis.MouseEvent
       | MouseEvent
       | React.TouchEvent<HTMLDivElement>
-      | TouchEvent
+      | TouchEvent,
   ): { clientX: number; clientY: number } => {
     if ("touches" in e && e.touches.length > 0) {
       return {
@@ -85,7 +91,7 @@ export const Window = ({
 
   const handleDownResize = (
     e: MouseEvent | React.TouchEvent<HTMLDivElement>,
-    direction: ResizeDirection
+    direction: ResizeDirection,
   ) => {
     e.stopPropagation();
     setIsDraggingResize(true);
@@ -110,7 +116,7 @@ export const Window = ({
         // clientY > borderConstrains.bottom
       );
     },
-    [borderConstrains]
+    [borderConstrains],
   );
 
   useEffect(() => {
@@ -121,7 +127,7 @@ export const Window = ({
     };
 
     const handleResize = (
-      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent
+      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent,
     ) => {
       if (!isDraggingResize || !resizeDirection || isMaximized) return;
       const { clientX, clientY } = getClientCoordinates(e);
@@ -223,7 +229,7 @@ export const Window = ({
 
   useEffect(() => {
     const handleMove = (
-      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent
+      e: globalThis.MouseEvent | React.TouchEvent<HTMLDivElement> | TouchEvent,
     ) => {
       if (!isDraggingMove || isMaximized) return;
       const { clientX, clientY } = getClientCoordinates(e);
@@ -304,8 +310,8 @@ export const Window = ({
             ? `translate(${position.x}px, ${position.y}px)`
             : `translate(${launcherPosX}px, ${launcherPosY}px)`
           : isMaximized
-          ? `translate(${borderConstrains.left}px, ${borderConstrains.top}px)`
-          : `translate(${position.x}px, ${position.y}px)`,
+            ? `translate(${borderConstrains.left}px, ${borderConstrains.top}px)`
+            : `translate(${position.x}px, ${position.y}px)`,
         width: isMaximized
           ? `calc(100% - ${borderConstrains.left}px - (100% - ${borderConstrains.right}px))`
           : size.width,
@@ -395,7 +401,10 @@ export const Window = ({
             position: position,
             windowSize: size,
             windowId: id,
-            isDragging: isMaximized ? false : isDraggingMove || isDraggingResize,
+            isDragging: isMaximized
+              ? false
+              : isDraggingMove || isDraggingResize,
+            args: args,
           }}
         >
           {content}

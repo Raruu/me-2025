@@ -3,6 +3,7 @@ import "./globals.css";
 import { nunito } from "@/styles/fonts";
 import { MyCvJson, MyWorksJson } from "@/constants/ExternalResources";
 import { ServerProvider } from "@/providers/ServerContext";
+import { DBusProvider } from "@/providers/DBusContext";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${nunito.variable} antialiased overflow-hidden`}>
         <ServerProvider value={{ myWorks: myWorksData, cv: myCvData }}>
-          {children}
+          <DBusProvider>
+            {children}
+          </DBusProvider>
         </ServerProvider>
       </body>
     </html>
