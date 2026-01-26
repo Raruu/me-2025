@@ -41,14 +41,23 @@ const ModalWallpaper = ({
   }, [file]);
 
   return (
-    <div className="overflow-hidden absolute w-full h-full select-none">
-      <div className="w-full h-full bg-secondary opacity-50 absolute"></div>
-      <div className="relative flex items-center justify-center w-full h-full">
-        <div className="flex flex-col bg-background rounded-lg p-4 pt-3 gap-4">
-          <h1 className="text-base font-bold tracking-tight">{title}</h1>
+    <div className="overflow-hidden absolute w-full h-full select-none animate-fade-in">
+      {/* Backdrop */}
+      <div
+        className="w-full h-full bg-black/50 backdrop-blur-sm absolute"
+        onClick={onCancel}
+      />
+
+      {/* Dialog */}
+      <div className="relative flex items-center justify-center w-full h-full pointer-events-none">
+        <div className="flex flex-col bg-background rounded-3xl p-6 gap-5 shadow-2xl pointer-events-auto animate-scale-in">
+          {/* Header */}
+          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+
+          {/* Image Preview */}
           <div className="flex flex-col justify-center items-center gap-4">
             <div
-              className="flex items-center justify-center relative"
+              className="flex items-center justify-center relative rounded-2xl overflow-hidden bg-foreground/5"
               style={{
                 width: mapMediaQuery(mediaQuery, {
                   default: "300px",
@@ -78,26 +87,40 @@ const ModalWallpaper = ({
               ref={fileInputRef}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
-            <ButtonNetral
-              text="Change Image"
+            <button
               onClick={() => fileInputRef.current?.click()}
-            />
+              className="px-6 py-2.5 rounded-full text-sm font-medium
+                bg-primary/10 text-primary hover:bg-primary/20
+                transition-all duration-200 active:scale-95"
+            >
+              Change Image
+            </button>
           </div>
 
-          <div className="flex flex-row justify-between gap-2">
+          {/* Actions */}
+          <div className="flex flex-row justify-between gap-3 pt-2">
             <button
               onClick={() => onReset?.()}
-              className="flex items-center justify-center bg-red-400 hover:bg-tertiary 
-              dark:hover:text-background w-16 h-10 rounded-xl transition-colors"
+              className="px-5 py-2.5 rounded-full text-sm font-medium
+                bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg
+                transition-all duration-200 active:scale-95"
             >
               Reset
             </button>
-            <div className="flex flex-row justify-end gap-2">
-              <ButtonNetral text="Cancel" onClick={onCancel} />
+            <div className="flex flex-row gap-3">
+              <button
+                onClick={onCancel}
+                className="px-5 py-2.5 rounded-full text-sm font-medium
+                  text-foreground/80 hover:bg-foreground/10
+                  transition-all duration-200 active:scale-95"
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => onConfirm?.(file)}
-                className="flex items-center justify-center bg-primary hover:bg-tertiary 
-              dark:hover:text-background w-16 h-10 rounded-xl transition-colors"
+                className="px-5 py-2.5 rounded-full text-sm font-medium
+                  bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg
+                  transition-all duration-200 active:scale-95"
               >
                 Save
               </button>
@@ -150,7 +173,7 @@ const Wallpaper = ({
                     applyBg(name, value);
                   }
                 }}
-              ></ModalWallpaper>
+              ></ModalWallpaper>,
             );
           }}
         >
@@ -244,7 +267,7 @@ const SettingThemeContent = () => {
                       applySilhouette(value);
                     }
                   }}
-                ></ModalWallpaper>
+                ></ModalWallpaper>,
               );
             }}
           ></div>

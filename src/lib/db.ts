@@ -31,11 +31,11 @@ const dbPromise = globalThis.indexedDB
       upgrade(db) {
         db.createObjectStore("files", { keyPath: "id" }).createIndex(
           "byFolderId",
-          "folderId"
+          "folderId",
         );
         db.createObjectStore("folders", { keyPath: "id" }).createIndex(
           "byParentId",
-          "parentId"
+          "parentId",
         );
       },
     })
@@ -46,11 +46,11 @@ export const initFileSystem = async () => {
     upgrade(db) {
       db.createObjectStore("files", { keyPath: "id" }).createIndex(
         "byFolderId",
-        "folderId"
+        "folderId",
       );
       db.createObjectStore("folders", { keyPath: "id" }).createIndex(
         "byParentId",
-        "parentId"
+        "parentId",
       );
     },
   });
@@ -117,7 +117,7 @@ export const db = {
 
   async loadChildren(
     parentId: string = "root",
-    type: "ALL" | "FOLDER" | "FILE" = "ALL"
+    type: "ALL" | "FOLDER" | "FILE" = "ALL",
   ) {
     const db = await dbPromise;
     if (!db) throw new Error("DB is not ready");
@@ -154,4 +154,56 @@ export const db = {
     if (!db) throw new Error("DB is not ready");
     db.delete("files", id);
   },
+};
+
+export const getIndexedDBSize = async (): Promise<number> => {
+  try {
+    const dbRequest = indexedDB.open("fileSystem", 1);
+    return new Promise((resolve, reject) => {
+      dbRequest.onsuccess = () => {
+        const db = dbRequest.result;
+        let totalSize = 0;
+        const stores = ["files", "folders"];
+        let completed = 0;
+
+        stores.forEach((storeName) => {
+          if (!db.objectStoreNames.contains(storeName)) {
+            completed++;
+            if (completed === stores.length) {
+              db.close();
+              resolve(totalSize);
+            }
+            return;
+          }
+
+          const transaction = db.transaction([storeName], "readonly");
+          const store = transaction.objectStore(storeName);
+          const getAllRequest = store.getAll();
+
+          getAllRequest.onsuccess = () => {
+            const data = getAllRequest.result;
+            const jsonSize = new Blob([JSON.stringify(data)]).size;
+            totalSize += jsonSize;
+            completed++;
+            if (completed === stores.length) {
+              db.close();
+              resolve(totalSize);
+            }
+          };
+
+          getAllRequest.onerror = () => {
+            completed++;
+            if (completed === stores.length) {
+              db.close();
+              resolve(totalSize);
+            }
+          };
+        });
+      };
+
+      dbRequest.onerror = () => reject(0);
+    });
+  } catch (error) {
+    return 0;
+  }
 };

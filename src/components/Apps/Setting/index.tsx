@@ -3,9 +3,10 @@ import { createRef, useContext, useEffect, useState } from "react";
 import { settingItemTaskBar } from "./Items/STaskBar";
 import { settingItemTheme } from "./Items/STheme";
 import { settingItemStartUp } from "./Items/SStartUp";
+import { settingItemStorage } from "./Items/SStorage";
 import { UILocationItem } from "@/components/ui/components/UILocationItem";
-import { useDBusApp } from "@/providers/DBusContext";
 import { WindowContext } from "@/providers/WindowContext";
+import { useDBusApp } from "@/hooks/useDBusApp";
 
 export interface SettingNavItemProps {
   title: string;
@@ -20,6 +21,7 @@ const Settings = () => {
     settingItemTheme,
     settingItemTaskBar,
     settingItemStartUp,
+    settingItemStorage,
   ];
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
   const { windowId } = useContext(WindowContext);

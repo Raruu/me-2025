@@ -5,16 +5,15 @@ import { Icon } from "@iconify/react";
 import { useContext, useEffect, useState } from "react";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 import { launcherSetting } from "./Setting";
-import { useDBusApp } from "@/providers/DBusContext";
 import { WindowContext } from "@/providers/WindowContext";
 import { EtcStartup } from "@/lib/Etc/EtcStartup";
+import { useDBusApp } from "@/hooks/useDBusApp";
 
 const FirstTimeExperience = () => {
   const { dispatch, windows } = useContext(WindowManagerContext);
   const { windowId, setFreeSlot } = useContext(WindowContext);
   const dbus = useDBusApp(launcherFirstTimeExperience.appId!, windowId);
-  const {  loadStartupApps, addStartupApp, removeStartupApp } =
-    EtcStartup();
+  const { loadStartupApps, addStartupApp, removeStartupApp } = EtcStartup();
 
   const [runInStartup, setRunInStartup] = useState<boolean | null>(null);
 

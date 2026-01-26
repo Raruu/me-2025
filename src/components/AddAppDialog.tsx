@@ -40,34 +40,39 @@ export const AddAppDialog = ({
   return (
     <div
       ref={elementRef}
-      className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-background border border-secondary dark:border-gray-500 rounded-lg shadow-lg w-5/6 flex flex-col"
+        className="bg-background rounded-3xl shadow-2xl w-5/6 flex flex-col overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
         style={{ maxHeight: windowSize.height * 0.8 }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-secondary dark:border-gray-500">
-          <h3 className="text-lg font-bold">Add Application</h3>
+        <div className="flex items-center justify-between p-5 border-b border-foreground/10">
+          <h3 className="text-xl font-semibold">Add Application</h3>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-tertiary text-white hover:text-gray-800 transition-colors"
+            className="p-2 rounded-full hover:bg-foreground/10 transition-all duration-200 active:scale-95"
           >
-            <Icon icon="mdi:close" className="text-xl" />
+            <Icon icon="mdi:close" className="text-xl text-foreground/70" />
           </button>
         </div>
 
-        <div className="p-4 border-b border-secondary dark:border-gray-500">
+        <div className="p-4 border-b border-foreground/10">
           <div className="relative">
+            <Icon
+              icon="mdi:magnify"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-foreground/50"
+            />
             <input
               type="text"
               placeholder="Search applications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-background appearance-none rounded-3xl w-full
-                        py-2 px-4 text-foreground leading-tight border-2 shadow-m border-secondary
-                        focus:outline-none focus:bg-background focus:border-primary"
+              className="bg-foreground/5 appearance-none rounded-full w-full
+                        py-3 pl-11 pr-4 text-foreground leading-tight
+                        focus:outline-none focus:bg-foreground/10 focus:ring-2 focus:ring-primary/50
+                        transition-all duration-200"
               autoFocus
             />
           </div>
@@ -75,24 +80,35 @@ export const AddAppDialog = ({
 
         <div className="overflow-y-auto p-4">
           {filteredApps.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-              {searchQuery
-                ? "No applications found"
-                : "All applications are already added"}
-            </p>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Icon
+                icon={searchQuery ? "mdi:magnify-close" : "mdi:apps"}
+                className="text-5xl text-foreground/30"
+              />
+              <p className="text-sm text-foreground/50 text-center">
+                {searchQuery
+                  ? "No applications found"
+                  : "All applications are already added"}
+              </p>
+            </div>
           ) : (
             <div className={`grid ${getGridCols()} gap-3`}>
               {filteredApps.map((app) => (
                 <button
                   key={app.appId}
                   onClick={() => onAdd(app.appId!)}
-                  className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg hover:bg-primary transition-colors border border-transparent hover:border-secondary"
+                  className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl 
+                    hover:bg-primary/10 active:bg-primary/20 transition-all duration-200 
+                    active:scale-95 group"
                 >
-                  <Icon
-                    icon={app.icon || "mingcute:app-line"}
-                    className="text-4xl"
-                  />
-                  <p className="font-medium text-sm text-center line-clamp-2">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center
+                    group-hover:bg-primary/20 transition-colors duration-200">
+                    <Icon
+                      icon={app.icon || "mingcute:app-line"}
+                      className="text-3xl text-primary"
+                    />
+                  </div>
+                  <p className="font-medium text-sm text-center line-clamp-2 text-foreground/80">
                     {app.title}
                   </p>
                 </button>
@@ -101,6 +117,7 @@ export const AddAppDialog = ({
           )}
         </div>
       </div>
+
     </div>
   );
 };

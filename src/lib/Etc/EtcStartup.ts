@@ -13,6 +13,8 @@ export interface EtcStartupSettings {
   addStartupApp: (appId: string, position?: string) => void;
   removeStartupApp: (appId: string) => void;
   updateStartupAppPosition: (appId: string, position: string) => void;
+  reorderStartupApps: (newOrder: StartupAppConfig[]) => void;
+  moveStartupApp: (appId: string, direction: 'up' | 'down') => void;
 }
 
 export const EtcStartup = (): EtcStartupSettings => {
@@ -68,11 +70,29 @@ export const EtcStartup = (): EtcStartupSettings => {
     saveStartupApps(updatedApps);
   };
 
+  const reorderStartupApps = (newOrder: StartupAppConfig[]) => {
+    saveStartupApps(newOrder);
+  };
+
+  const moveStartupApp = (appId: string, direction: 'up' | 'down') => {
+    const currentIndex = startupApps.findIndex((app) => app.appId === appId);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= startupApps.length) return;
+
+    const newOrder = [...startupApps];
+    [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
+    saveStartupApps(newOrder);
+  };
+
   return {
     startupApps,
     loadStartupApps,
     addStartupApp,
     removeStartupApp,
     updateStartupAppPosition,
+    reorderStartupApps,
+    moveStartupApp,
   };
 };
