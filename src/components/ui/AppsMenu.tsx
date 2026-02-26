@@ -11,8 +11,6 @@ export const AppsMenu = () => {
   const {
     taskBarRef,
     appsMenuRef,
-    windows,
-    dispatch,
     borderConstrains,
     setIsAppsMenuOpen,
   } = useContext(WindowManagerContext);
@@ -39,7 +37,7 @@ export const AppsMenu = () => {
     const appsList = getAllAppsList();
     const chunkedAppsList = Array.from(
       { length: Math.ceil(appsList.length / CHUNK_SIZE) },
-      (_, i) => appsList.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)
+      (_, i) => appsList.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE),
     );
     setAllAppsList(chunkedAppsList);
   }, []);
@@ -58,12 +56,12 @@ export const AppsMenu = () => {
     const allItems = allAppsList.flat();
     const filteredItems = searchQuery
       ? allItems.filter((item) =>
-          item.title?.toLowerCase().includes(searchQuery.toLowerCase())
+          item.title?.toLowerCase().includes(searchQuery.toLowerCase()),
         )
       : allItems;
     const chunkedItems = Array.from(
       { length: Math.ceil(filteredItems.length / CHUNK_SIZE) },
-      (_, i) => filteredItems.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)
+      (_, i) => filteredItems.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE),
     );
 
     setSearchAppsList(chunkedItems);
@@ -112,7 +110,7 @@ export const AppsMenu = () => {
       setDraggingValue(
         currentPage * window.innerWidth * -1 +
           e.touches[0].clientX -
-          draggingStart.current
+          draggingStart.current,
       );
     };
 
@@ -171,8 +169,8 @@ export const AppsMenu = () => {
             ? taskBarRef.current.taskbarPlacement === "bottom"
               ? "translateY(100%)"
               : taskBarRef.current.taskbarPlacement === "left"
-              ? "translateX(-100%)"
-              : "translateX(100%)"
+                ? "translateX(-100%)"
+                : "translateX(100%)"
             : "translateY(0)",
         }}
       >
@@ -224,7 +222,7 @@ export const AppsMenu = () => {
                         sm: "70px",
                         md: "120px",
                       }),
-                    }}                  
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsAnimating(true);
@@ -233,9 +231,7 @@ export const AppsMenu = () => {
                   >
                     <TaskbarItemWindowLauncher
                       taskBarRef={taskBarRef}
-                      windows={windows}
                       windowLauncherProps={item}
-                      dispatch={dispatch}
                       isShowTitle
                       size={parseInt(
                         mapMediaQuery(mediaQuery, {
@@ -244,7 +240,7 @@ export const AppsMenu = () => {
                           lg: "80",
                           xl: "90",
                         }),
-                        10
+                        10,
                       )}
                     />
                   </div>
@@ -264,7 +260,7 @@ export const AppsMenu = () => {
                         }}
                       ></div>
                     );
-                  }
+                  },
                 )}
               </div>
             </div>
@@ -277,9 +273,7 @@ export const AppsMenu = () => {
               key={i}
               onClick={() => setCurrentPage(i)}
               className={`w-3 h-3 rounded-full ${
-                i === currentPage
-                  ? "bg-primary"
-                  : "bg-secondary"
+                i === currentPage ? "bg-primary" : "bg-secondary"
               }`}
             />
           ))}

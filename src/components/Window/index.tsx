@@ -27,6 +27,7 @@ type ResizeDirection =
 
 interface WindowProps extends WindowState {
   isFocused: boolean;
+  isHiddenByWorkspace?: boolean;
 }
 
 export const Window = ({
@@ -46,8 +47,19 @@ export const Window = ({
   initialWindowColor,
   callback,
   args,
+  workspace,
+  isHiddenByWorkspace,
 }: WindowProps) => {
-  const { borderConstrains, dispatch } = useContext(WindowManagerContext);
+  const {
+    borderConstrains,
+    dispatch,
+    windowMode,
+    tilingRects,
+    hoverFocusSuppressedUntilRef,
+    activeWorkspace,
+  } = useContext(WindowManagerContext);
+  const isTiling = windowMode === "tiling";
+  const tilingRect = tilingRects.get(id);
   const [isDraggingMove, setIsDraggingMove] = useState(false);
   const [isDraggingResize, setIsDraggingResize] = useState(false);
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
@@ -58,6 +70,56 @@ export const Window = ({
   const [freeSlot, setFreeSlot] = useState<React.ReactNode>(undefined);
   const [subtitle, setSubtitle] = useState<string | undefined>(initialSubtitle);
   const [windowColor, setWindowColor] = useState(initialWindowColor);
+
+  // Alt+grab mode: hold Alt to drag window from anywhere
+  const [isAltHeld, setIsAltHeld] = useState(false);
+  const [isAltGrabbing, setIsAltGrabbing] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Alt" || e.altKey) setIsAltHeld(true);
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Alt") {
+        setIsAltHeld(false);
+        setIsAltGrabbing(false);
+        setIsDraggingMove(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  // Alt+grab in tiling mode
+  useEffect(() => {
+    if (!isTiling || !isAltGrabbing) return;
+
+    const handleMouseUp = (e: globalThis.MouseEvent) => {
+      for (const [winId, rect] of tilingRects) {
+        if (winId === id) continue;
+        if (
+          e.clientX >= rect.x &&
+          e.clientX <= rect.x + rect.width &&
+          e.clientY >= rect.y &&
+          e.clientY <= rect.y + rect.height
+        ) {
+          dispatch({ type: "SWAP_TILING", id, targetId: winId });
+          dispatch({ type: "FOCUS", id });
+          break;
+        }
+      }
+      setIsAltGrabbing(false);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isTiling, isAltGrabbing, tilingRects, id, dispatch]);
 
   useEffect(() => {
     callback?.();
@@ -285,6 +347,19 @@ export const Window = ({
 
   const launcherPosY = launcherRef?.current?.getBoundingClientRect().y ?? 0;
 
+  // Compute effective position/size for tiling mode
+  const effectivePos =
+    isTiling && tilingRect ? { x: tilingRect.x, y: tilingRect.y } : position;
+  const effectiveSize =
+    isTiling && tilingRect
+      ? { width: tilingRect.width, height: tilingRect.height }
+      : size;
+  const effectiveMaximized = isTiling ? false : isMaximized;
+
+  const workspaceXOffset = isHiddenByWorkspace
+    ? ((workspace ?? 1) - activeWorkspace) * window.innerWidth
+    : 0;
+
   return (
     <div
       ref={windowRef}
@@ -299,9 +374,32 @@ export const Window = ({
           dispatch({ type: "MINIMIZE", id });
         }
       }}
-      onMouseDown={(e: MouseEvent) => focus(e)}
+      onMouseEnter={() => {
+        if (
+          isTiling &&
+          !isFocused &&
+          !isHiddenByWorkspace &&
+          !isMinimized &&
+          Date.now() > hoverFocusSuppressedUntilRef.current
+        ) {
+          dispatch({ type: "FOCUS", id });
+        }
+      }}
+      onMouseDown={(e: MouseEvent) => {
+        focus(e);
+        if (isAltHeld && !effectiveMaximized) {
+          e.preventDefault();
+          setIsAltGrabbing(true);
+          if (!isTiling) {
+            handleDownMove(e);
+          }
+        }
+      }}
       onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => focus(e)}
-      onTouchEnd={() => setIsDraggingMove(false)}
+      onTouchEnd={() => {
+        setIsDraggingMove(false);
+        setIsAltGrabbing(false);
+      }}
       style={{
         top: 0,
         left: 0,
@@ -309,48 +407,57 @@ export const Window = ({
           ? launcherRef?.current === null
             ? `translate(${position.x}px, ${position.y}px)`
             : `translate(${launcherPosX}px, ${launcherPosY}px)`
-          : isMaximized
-            ? `translate(${borderConstrains.left}px, ${borderConstrains.top}px)`
-            : `translate(${position.x}px, ${position.y}px)`,
-        width: isMaximized
+          : effectiveMaximized
+            ? `translate(${borderConstrains.left + workspaceXOffset}px, ${borderConstrains.top}px)`
+            : `translate(${effectivePos.x + workspaceXOffset}px, ${effectivePos.y}px)`,
+        width: effectiveMaximized
           ? `calc(100% - ${borderConstrains.left}px - (100% - ${borderConstrains.right}px))`
-          : size.width,
-        height: isMaximized
+          : effectiveSize.width,
+        height: effectiveMaximized
           ? `calc(100% - ${borderConstrains.top}px - (100% - ${borderConstrains.bottom}px))`
-          : size.height,
-        borderRadius: isMaximized ? 0 : "",
+          : effectiveSize.height,
+        borderRadius: effectiveMaximized ? 0 : "",
         opacity: animateMinimize ? 0 : 1,
         scale: animateMinimize ? 0.75 : 1,
         zIndex: zIndex,
         display: isMinimized ? "none" : "",
+        pointerEvents: isHiddenByWorkspace ? "none" : undefined,
+        cursor:
+          isAltHeld && !effectiveMaximized
+            ? isAltGrabbing
+              ? "grabbing"
+              : "grab"
+            : "",
       }}
     >
       <div
         ref={headerRef}
         style={{
-          borderRadius: isMaximized ? 0 : "",
+          borderRadius: effectiveMaximized || isTiling ? 0 : "",
           minWidth: "130px",
           backgroundColor: windowColor,
         }}
         className="flex flex-row justify-between rounded-t-lg p-2 select-none bg-background-tr backdrop-blur"
         onMouseDown={(e: MouseEvent) => {
-          if (e.target === e.currentTarget) {
+          if (e.target === e.currentTarget && !isTiling) {
             handleDownMove(e);
           }
         }}
         onMouseUp={() => setIsDraggingMove(false)}
         onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
-          if (e.target === e.currentTarget) handleDownMove(e);
+          if (e.target === e.currentTarget && !isTiling) handleDownMove(e);
         }}
       >
         <div className="flex flex-row items-center gap-2">
           {icon && <Icon icon={icon} width={24} height={24} />}
           <div
             className="flex flex-col h-full justify-center"
-            onMouseDown={(e: MouseEvent) => handleDownMove(e)}
-            onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
-              handleDownMove(e)
-            }
+            onMouseDown={(e: MouseEvent) => {
+              if (!isTiling) handleDownMove(e);
+            }}
+            onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+              if (!isTiling) handleDownMove(e);
+            }}
           >
             <h1 className="font-bold text-base leading-none">{title}</h1>
             <p className="font-thin text-xs leading-none">{subtitle}</p>
@@ -359,11 +466,15 @@ export const Window = ({
 
         <div
           className="flex-1 h-full w-full"
-          onMouseDown={(e: MouseEvent) => handleDownMove(e)}
-          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) =>
-            handleDownMove(e)
-          }
-          onDoubleClick={maximize}
+          onMouseDown={(e: MouseEvent) => {
+            if (!isTiling) handleDownMove(e);
+          }}
+          onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
+            if (!isTiling) handleDownMove(e);
+          }}
+          onDoubleClick={() => {
+            if (!isTiling) maximize();
+          }}
         ></div>
         <div id="window-actions" className="flex flex-row items-center">
           {freeSlot}
@@ -384,9 +495,11 @@ export const Window = ({
         </div>
       </div>
       <div
-        style={{ borderRadius: isMaximized ? 0 : "" }}
+        style={{
+          borderRadius: effectiveMaximized || isTiling ? 0 : "",
+        }}
         className={`overflow-hidden bg-transparent w-full h-full rounded-b-lg select-all will-change-auto relative flex ${
-          isDraggingResize || isDraggingMove || !isFocused
+          isDraggingResize || isDraggingMove || !isFocused || isAltHeld
             ? "pointer-events-none"
             : ""
         }`}
@@ -401,9 +514,10 @@ export const Window = ({
             position: position,
             windowSize: size,
             windowId: id,
-            isDragging: isMaximized
-              ? false
-              : isDraggingMove || isDraggingResize,
+            isDragging:
+              effectiveMaximized || isTiling
+                ? false
+                : isDraggingMove || isDraggingResize || isAltGrabbing,
             args: args,
           }}
         >
@@ -420,7 +534,7 @@ export const Window = ({
             left: "0px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "ns-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom")}
           onTouchStart={(e) => handleDownResize(e, "bottom")}
@@ -433,7 +547,7 @@ export const Window = ({
             top: "0px",
             left: "-3px",
             cursor: isDraggingResize ? "" : "ew-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "left")}
           onTouchStart={(e) => handleDownResize(e, "left")}
@@ -446,7 +560,7 @@ export const Window = ({
             top: "0px",
             right: "-3px",
             cursor: isDraggingResize ? "" : "ew-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "right")}
           onTouchStart={(e) => handleDownResize(e, "right")}
@@ -459,7 +573,7 @@ export const Window = ({
             top: "-3px",
             left: "0px",
             cursor: isDraggingResize ? "" : "ns-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top")}
           onTouchStart={(e) => handleDownResize(e, "top")}
@@ -472,7 +586,7 @@ export const Window = ({
             left: "-3px",
             top: "-3px",
             cursor: isDraggingResize ? "" : "nwse-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top-left")}
           onTouchStart={(e) => handleDownResize(e, "top-left")}
@@ -485,7 +599,7 @@ export const Window = ({
             right: "-3px",
             top: "-3px",
             cursor: isDraggingResize ? "" : "nesw-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "top-right")}
           onTouchStart={(e) => handleDownResize(e, "top-right")}
@@ -498,7 +612,7 @@ export const Window = ({
             left: "-3px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "nesw-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom-left")}
           onTouchStart={(e) => handleDownResize(e, "bottom-left")}
@@ -511,7 +625,7 @@ export const Window = ({
             right: "-3px",
             bottom: "-3px",
             cursor: isDraggingResize ? "" : "nwse-resize",
-            display: isMaximized ? "none" : "",
+            display: effectiveMaximized || isTiling ? "none" : "",
           }}
           onMouseDown={(e) => handleDownResize(e, "bottom-right")}
           onTouchStart={(e) => handleDownResize(e, "bottom-right")}

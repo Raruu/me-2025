@@ -4,6 +4,7 @@ import { settingItemTaskBar } from "./Items/STaskBar";
 import { settingItemTheme } from "./Items/STheme";
 import { settingItemStartUp } from "./Items/SStartUp";
 import { settingItemStorage } from "./Items/SStorage";
+import { settingItemWindowMode } from "./Items/SWindowMode";
 import { UILocationItem } from "@/components/ui/components/UILocationItem";
 import { WindowContext } from "@/providers/WindowContext";
 import { useDBusApp } from "@/hooks/useDBusApp";
@@ -20,6 +21,7 @@ const Settings = () => {
   const settingNavItems: SettingNavItemProps[] = [
     settingItemTheme,
     settingItemTaskBar,
+    settingItemWindowMode,
     settingItemStartUp,
     settingItemStorage,
   ];

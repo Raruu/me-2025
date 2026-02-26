@@ -10,7 +10,8 @@ import { EtcStartup } from "@/lib/Etc/EtcStartup";
 import { useDBusApp } from "@/hooks/useDBusApp";
 
 const FirstTimeExperience = () => {
-  const { dispatch, windows } = useContext(WindowManagerContext);
+  const { dispatch, windows, activeWorkspace } =
+    useContext(WindowManagerContext);
   const { windowId, setFreeSlot } = useContext(WindowContext);
   const dbus = useDBusApp(launcherFirstTimeExperience.appId!, windowId);
   const { loadStartupApps, addStartupApp, removeStartupApp } = EtcStartup();
@@ -90,6 +91,7 @@ const FirstTimeExperience = () => {
           position: launcherSetting.position ?? { x: 0, y: 0 },
           minSize: launcherSetting.minSize ?? { width: 300, height: 300 },
           callback: sendMessage,
+          workspace: activeWorkspace,
         },
       });
     }

@@ -9,6 +9,7 @@ import { getSystemTheme } from "@/styles/theme";
 import { Calendar } from "./Calendar";
 import { EtcContext } from "@/lib/Etc";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 interface StatusBarProps {
   children: React.ReactNode;
@@ -51,7 +52,7 @@ export const StatusBar = () => {
       ref={ref}
       className="transition-colors duration-300 z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1"
     >
-      <div className="sm:w-1/3 hidden sm:flex flex-row justify-start">
+      <div className="sm:w-1/3 hidden sm:flex flex-row justify-start items-center gap-2">
         <a href="https://github.com/Raruu" target="_blank" rel="noreferrer">
           <StatusBarItem hoverBgEffect>
             <div className="flex flex-row items-center gap-2">
@@ -60,6 +61,7 @@ export const StatusBar = () => {
             </div>
           </StatusBarItem>
         </a>
+        <WorkspaceSwitcher />
       </div>
       <div className="sm:w-1/3 flex flex-row justify-start sm:justify-center">
         <DropDown

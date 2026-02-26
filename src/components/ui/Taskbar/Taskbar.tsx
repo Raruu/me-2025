@@ -37,7 +37,6 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
     isAppsMenuOpen,
     setIsAppsMenuOpen,
     windows,
-    dispatch,
   } = useContext(WindowManagerContext);
 
   const dropDownRef = useRef<DropDownRef>({
@@ -50,7 +49,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
   const [xContextGap, setXContextGap] = useState(0);
   const [yContextGap, setYContextGap] = useState<number | undefined>(undefined);
   const [widthNotExpanded, setWidthNotExpanded] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [heightNotExpanded, setHeightNotExpanded] = useState<
     number | undefined
@@ -60,14 +59,16 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
     const assignConstrains = () => {
       Object.assign(taskBarRef.current, {
         left:
-          taskbarPlacement === "left" ? taskBarRef.current.clientWidth ?? 0 : 0,
+          taskbarPlacement === "left"
+            ? (taskBarRef.current.clientWidth ?? 0)
+            : 0,
         right:
           taskbarPlacement === "right"
-            ? taskBarRef.current.clientWidth ?? 0
+            ? (taskBarRef.current.clientWidth ?? 0)
             : 0,
         bottom:
           taskbarPlacement === "bottom"
-            ? taskBarRef.current.clientHeight ?? 0
+            ? (taskBarRef.current.clientHeight ?? 0)
             : 0,
         taskbarPlacement: taskbarPlacement,
       });
@@ -79,13 +80,13 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
         taskbarPlacement == "bottom"
           ? (taskBarRef.current.clientWidth ?? 0) / 2
           : taskbarPlacement == "left"
-          ? taskBarRef.current.clientWidth + 48
-          : taskBarRef.current.clientWidth + 8
+            ? taskBarRef.current.clientWidth + 48
+            : taskBarRef.current.clientWidth + 8,
       );
       setYContextGap(
         taskbarPlacement == "bottom"
           ? (taskBarRef.current.clientHeight ?? 80) + 5
-          : undefined
+          : undefined,
       );
       // console.log(xContextGap, yContextGap);
       assignConstrains();
@@ -95,12 +96,12 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
   }, [taskBarRef.current?.clientWidth, taskbarPlacement, isExpanded]);
 
   const [combinedWindows, setCombinedWindows] = useState<WindowLauncherProps[]>(
-    []
+    [],
   );
 
   useEffect(() => {
     const taskbarItemsIds = TaskBarItems.flatMap((item) => item).map(
-      (window) => window.appId
+      (window) => window.appId,
     );
     const windowsNotInTaskbarItemsIds = windows
       .map((window) => window.appId)
@@ -124,13 +125,13 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
         taskbarPlacement === "bottom"
           ? "flex-row bottom-0 left-0 w-full"
           : taskbarPlacement === "left"
-          ? `h-full flex-col left-0`
-          : `h-full flex-col right-0`
+            ? `h-full flex-col left-0`
+            : `h-full flex-col right-0`
       }`}
       style={{
         paddingTop:
           taskbarPlacement !== "bottom"
-            ? statusBarRef.current?.clientHeight ?? 0
+            ? (statusBarRef.current?.clientHeight ?? 0)
             : 0,
       }}
     >
@@ -170,12 +171,12 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
                 setWidthNotExpanded(
                   taskbarPlacement === "bottom"
                     ? taskBarRef.current.clientWidth
-                    : undefined
+                    : undefined,
                 );
                 setHeightNotExpanded(
                   taskbarPlacement !== "bottom"
                     ? taskBarRef.current.clientHeight
-                    : undefined
+                    : undefined,
                 );
               }
               setTimeout(() => {
@@ -202,13 +203,13 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
           width: isExpanded
             ? "100%"
             : taskbarPlacement === "bottom"
-            ? widthNotExpanded ?? ""
-            : "",
+              ? (widthNotExpanded ?? "")
+              : "",
           height: isExpanded
             ? "100%"
             : taskbarPlacement !== "bottom"
-            ? heightNotExpanded ?? ""
-            : "",
+              ? (heightNotExpanded ?? "")
+              : "",
         }}
         onContextMenu={(e) => {
           if (e.target !== e.currentTarget) return;
@@ -228,9 +229,7 @@ export const Taskbar = ({ reTriggerConstrains }: TaskbarProps) => {
             key={index}
             taskBarRef={taskBarRef}
             taskbarPlacement={taskbarPlacement}
-            windows={windows}
             windowLauncherProps={item}
-            dispatch={dispatch}
             ref={item.launcherRef}
             contextMenuCallback={() => {
               if (appsMenuRef.current) {

@@ -1,6 +1,14 @@
 "use client";
 
-import { useReducer, useRef, useEffect, useState, useMemo } from "react";
+import {
+  useReducer,
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useContext,
+} from "react";
 import { Window } from ".";
 import { StatusBar } from "../ui/Statusbar/Statusbar";
 import { Taskbar } from "../ui/Taskbar/Taskbar";
@@ -12,17 +20,33 @@ import {
   AppsMenuRef,
   BorderConstrains,
   TaskBarRef,
+  TilingRect,
   WindowAction,
   WindowManagerContext,
   WindowState,
 } from "@/providers/WindowManagerContext";
 import { EtcStartup } from "@/lib/Etc/EtcStartup";
+import { EtcContext } from "@/lib/Etc";
+import { computeTilingLayout } from "@/utils/tiling-layout";
 
 export const WindowManager = () => {
   const searchParams = useSearchParams();
+  const { windowModeSettings } = useContext(EtcContext);
+  const { windowMode, workspaceCount, tilingGap } = windowModeSettings;
+
+  const [activeWorkspace, setActiveWorkspace] = useState(1);
+  const activeWorkspaceRef = useRef(activeWorkspace);
+  activeWorkspaceRef.current = activeWorkspace;
+  const hoverFocusSuppressedUntilRef = useRef(0);
+
+  useEffect(() => {
+    if (activeWorkspace > workspaceCount) {
+      setActiveWorkspace(workspaceCount);
+    }
+  }, [workspaceCount, activeWorkspace]);
 
   const statusBarRef = useRef<HTMLDivElement>(
-    null as unknown as HTMLDivElement
+    null as unknown as HTMLDivElement,
   );
   const taskBarRef = useRef<TaskBarRef>(null as unknown as TaskBarRef);
   const appsMenuRef = useRef<AppsMenuRef>(null as unknown as AppsMenuRef);
@@ -55,7 +79,7 @@ export const WindowManager = () => {
 
   const reducer = (
     state: WindowState[],
-    action: WindowAction
+    action: WindowAction,
   ): WindowState[] => {
     switch (action.type) {
       case "MINIMIZE":
@@ -75,7 +99,7 @@ export const WindowManager = () => {
       case "CLOSE":
         const close = () => {
           const targetIndex = state.findIndex(
-            (window) => window.id === action.id
+            (window) => window.id === action.id,
           );
           const targetWindow = state[targetIndex];
 
@@ -123,7 +147,7 @@ export const WindowManager = () => {
 
         if (action.window.launcherRef?.current === null) {
           const existingWindow = state.find(
-            (window) => window.appId === action.window.appId
+            (window) => window.appId === action.window.appId,
           );
           if (existingWindow) {
             action.window.launcherRef = existingWindow.launcherRef;
@@ -131,6 +155,8 @@ export const WindowManager = () => {
         }
 
         action.window.zIndex = state.length;
+        action.window.workspace =
+          action.window.workspace ?? activeWorkspaceRef.current;
 
         return [...state, action.window];
       case "MOVE":
@@ -157,7 +183,7 @@ export const WindowManager = () => {
       case "FOCUS":
         const focus = (): boolean => {
           const targetIndex = state.findIndex(
-            (window) => window.id === action.id
+            (window) => window.id === action.id,
           );
           if (targetIndex > -1) {
             const targetWindow = state[targetIndex];
@@ -181,11 +207,30 @@ export const WindowManager = () => {
               }
             }
             targetWindow.zIndex = state.length - 1;
+
+            setActiveWorkspace(targetWindow.workspace!);
           }
           return true;
         };
 
         return focus() ? [...state] : state;
+      case "MOVE_TO_WORKSPACE":
+        return state.map((window) => {
+          if (window.id === action.id) {
+            return { ...window, workspace: action.workspace };
+          }
+          return window;
+        });
+      case "SWAP_TILING":
+        const idxA = state.findIndex((w) => w.id === action.id);
+        const idxB = state.findIndex((w) => w.id === action.targetId);
+        if (idxA === -1 || idxB === -1) return state;
+        const newState = [...state];
+        const tmpZ = newState[idxA].zIndex;
+        newState[idxA] = { ...newState[idxA], zIndex: newState[idxB].zIndex };
+        newState[idxB] = { ...newState[idxB], zIndex: tmpZ };
+        [newState[idxA], newState[idxB]] = [newState[idxB], newState[idxA]];
+        return newState;
       default:
         return state;
     }
@@ -195,7 +240,7 @@ export const WindowManager = () => {
 
   useEffect(() => {
     const hasMaximizedWindow = windows.some(
-      (window) => window.isMaximized && !window.isMinimized
+      (window) => window.isMaximized && !window.isMinimized,
     );
     if (hasMaximizedWindow) {
       document.documentElement.setAttribute("class", "no-tr");
@@ -205,6 +250,155 @@ export const WindowManager = () => {
   }, [windows]);
 
   const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
+
+  // Compute tiling rects for ALL workspaces so slide transition shows proper layouts
+  const tilingRects = useMemo(() => {
+    if (windowMode !== "tiling") return new Map<number, TilingRect>();
+    const rects = new Map<number, TilingRect>();
+    for (let ws = 1; ws <= workspaceCount; ws++) {
+      const wsWindows = windows.filter((w) => w.workspace === ws);
+      const wsRects = computeTilingLayout(
+        wsWindows,
+        borderConstrains,
+        tilingGap,
+      );
+      for (const [id, rect] of wsRects) {
+        rects.set(id, rect);
+      }
+    }
+    return rects;
+  }, [windowMode, windows, borderConstrains, tilingGap, workspaceCount]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const focusedWindow = windows.find(
+        (w) =>
+          w.workspace === activeWorkspaceRef.current &&
+          !w.isMinimized &&
+          w.zIndex === windows.length - 1,
+      );
+
+      // Alt + q Close focused window
+      if (e.altKey && e.key) {
+        if (e.key === "q") {
+          e.preventDefault();
+          if (!focusedWindow) return;
+          dispatch({ type: "CLOSE", id: focusedWindow.id });
+        }
+      }
+
+      // Alt + number to switch workspace
+      if (e.altKey && !e.shiftKey) {
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= workspaceCount) {
+          e.preventDefault();
+          setActiveWorkspace(num);
+          hoverFocusSuppressedUntilRef.current = Date.now() + 400;
+        }
+      }
+
+      // Alt + Ctrl + Shift + Left/Right: move focused window to prev/next workspace
+      if (
+        e.altKey &&
+        e.ctrlKey &&
+        e.shiftKey &&
+        (e.key === "ArrowLeft" || e.key === "ArrowRight")
+      ) {
+        e.preventDefault();
+        if (!focusedWindow) return;
+
+        const currentWs = focusedWindow.workspace ?? activeWorkspaceRef.current;
+        const delta = e.key === "ArrowLeft" ? -1 : 1;
+        const targetWs = currentWs + delta;
+        if (targetWs < 1 || targetWs > workspaceCount) return;
+
+        dispatch({
+          type: "MOVE_TO_WORKSPACE",
+          id: focusedWindow.id,
+          workspace: targetWs,
+        });
+        setActiveWorkspace(targetWs);
+        hoverFocusSuppressedUntilRef.current = Date.now() + 400;
+      }
+
+      // Alt + Shift + Arrow: swap window with nearest neighbor in that direction
+      if (
+        e.altKey &&
+        e.shiftKey &&
+        !e.ctrlKey &&
+        (e.key === "ArrowLeft" ||
+          e.key === "ArrowRight" ||
+          e.key === "ArrowUp" ||
+          e.key === "ArrowDown")
+      ) {
+        e.preventDefault();
+
+        if (!focusedWindow) return;
+
+        const focusedRect = tilingRects.get(focusedWindow.id);
+        if (!focusedRect) return;
+
+        const fcx = focusedRect.x + focusedRect.width / 2;
+        const fcy = focusedRect.y + focusedRect.height / 2;
+
+        const activeWinIds = new Set(
+          windows
+            .filter(
+              (w) =>
+                w.workspace === activeWorkspaceRef.current && !w.isMinimized,
+            )
+            .map((w) => w.id),
+        );
+
+        let bestId: number | null = null;
+        let bestDist = Infinity;
+
+        for (const [winId, rect] of tilingRects) {
+          if (winId === focusedWindow.id) continue;
+          if (!activeWinIds.has(winId)) continue;
+          const cx = rect.x + rect.width / 2;
+          const cy = rect.y + rect.height / 2;
+          const dx = cx - fcx;
+          const dy = cy - fcy;
+
+          let valid = false;
+          switch (e.key) {
+            case "ArrowLeft":
+              valid = dx < 0;
+              break;
+            case "ArrowRight":
+              valid = dx > 0;
+              break;
+            case "ArrowUp":
+              valid = dy < 0;
+              break;
+            case "ArrowDown":
+              valid = dy > 0;
+              break;
+          }
+          if (!valid) continue;
+
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestId = winId;
+          }
+        }
+
+        if (bestId !== null) {
+          dispatch({
+            type: "SWAP_TILING",
+            id: focusedWindow.id,
+            targetId: bestId,
+          });
+          dispatch({ type: "FOCUS", id: focusedWindow.id });
+          hoverFocusSuppressedUntilRef.current = Date.now() + 400;
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [workspaceCount, windows, tilingRects]);
 
   const contextValue = useMemo(
     () => ({
@@ -216,6 +410,11 @@ export const WindowManager = () => {
       windows,
       borderConstrains,
       dispatch,
+      activeWorkspace,
+      setActiveWorkspace,
+      windowMode,
+      tilingRects,
+      hoverFocusSuppressedUntilRef,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -225,7 +424,11 @@ export const WindowManager = () => {
       isAppsMenuOpen,
       borderConstrains,
       windows.length,
-    ]
+      windows,
+      activeWorkspace,
+      windowMode,
+      tilingRects,
+    ],
   );
 
   const launchQuery = searchParams.getAll("launch");
@@ -252,7 +455,7 @@ export const WindowManager = () => {
       const launchApp = (
         launcher: (typeof appList)[number],
         index: number,
-        position: string | null
+        position: string | null,
       ) => {
         const screenWidth =
           borderConstrains.right - borderConstrains.left || window.innerWidth;
@@ -392,6 +595,7 @@ export const WindowManager = () => {
             position: winPos,
             minSize: launcher.minSize ?? { width: 300, height: 300 },
             launcherRef: launcher.launcherRef,
+            workspace: activeWorkspace,
           },
         });
       };
@@ -421,13 +625,17 @@ export const WindowManager = () => {
           className="bg-transparent transition-colors duration-300
         text-background absolute min-h-full min-w-full overflow-hidden z-0"
         >
-          {windows.map((window) => (
-            <Window
-              key={window.id}
-              {...window}
-              isFocused={window.zIndex >= windows.length - 1}
-            />
-          ))}
+          {windows.map((window) => {
+            const isOnActiveWorkspace = window.workspace === activeWorkspace;
+            return (
+              <Window
+                key={window.id}
+                {...window}
+                isFocused={window.zIndex >= windows.length - 1}
+                isHiddenByWorkspace={!isOnActiveWorkspace}
+              />
+            );
+          })}
         </div>
         <Taskbar reTriggerConstrains={handleWindowResize} />
         {isAppsMenuOpen && <AppsMenu />}

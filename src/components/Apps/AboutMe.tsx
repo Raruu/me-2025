@@ -11,7 +11,8 @@ import { launcherMyCv } from "./MyCV";
 
 const AboutMe = () => {
   const { mediaQuery, elementRef } = useElementSize();
-  const { windows, dispatch } = useContext(WindowManagerContext);
+  const { windows, dispatch, activeWorkspace } =
+    useContext(WindowManagerContext);
 
   const handleCvClick = () => {
     dispatch({
@@ -30,6 +31,7 @@ const AboutMe = () => {
         position: launcherMyCv.position ?? { x: 0, y: 0 },
         minSize: launcherMyCv.minSize ?? { width: 300, height: 300 },
         launcherRef: launcherMyCv.launcherRef,
+        workspace: activeWorkspace,
       },
     });
   };
@@ -63,7 +65,9 @@ const AboutMe = () => {
           <h1 className="text-sm font-bold">
             See My{" "}
             <span className="text-blue-400 hover:text-blue-600">
-              <a onClick={handleCvClick} className="cursor-pointer">CV (ID)</a>
+              <a onClick={handleCvClick} className="cursor-pointer">
+                CV (ID)
+              </a>
             </span>
           </h1>
           <div className="h-2"></div>

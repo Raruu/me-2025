@@ -1,17 +1,20 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { Dispatch, useState, useRef, useEffect } from "react";
+import { Dispatch, useState, useRef, useEffect, useContext } from "react";
 import { DropDown, DropDownRef } from "../../Dropdown";
 import { DropDownItem } from "../../Dropdown/DropdownItem";
 import { TaskbarPlacement } from "./Taskbar";
-import { WindowAction, WindowState } from "@/providers/WindowManagerContext";
+import {
+  WindowAction,
+  WindowManagerContext,
+  WindowState,
+} from "@/providers/WindowManagerContext";
 
-export interface WindowLauncherProps
-  extends Pick<
-    WindowState,
-    "title" | "appId" | "icon" | "initialSubtitle" | "content" | "launcherRef"
-  > {
+export interface WindowLauncherProps extends Pick<
+  WindowState,
+  "title" | "appId" | "icon" | "initialSubtitle" | "content" | "launcherRef"
+> {
   isMinimized?: boolean;
   isMaximized?: boolean;
   position?: {
@@ -33,11 +36,9 @@ interface TaskbarItemWindowLauncherProps {
   taskbarPlacement?: TaskbarPlacement;
   taskBarRef: React.RefObject<HTMLDivElement>;
   windowLauncherProps: WindowLauncherProps;
-  windows: WindowState[];
   size?: number;
   isShowTitle?: boolean;
   contextMenuCallback?: () => void;
-  dispatch: Dispatch<WindowAction>;
 }
 
 const IconTitle = ({
@@ -58,7 +59,7 @@ const IconTitle = ({
       style={{
         width: size + 10,
         opacity: isShowTitle || isParentHovered ? 1 : 0,
-        lineHeight: isShowTitle || isParentHovered ? 0.8 : 0,        
+        lineHeight: isShowTitle || isParentHovered ? 0.8 : 0,
       }}
       className={`transition-all duration-300 select-none text-sm hover:flex items-center justify-around
         text-ellipsis overflow-hidden hover:overflow-visible text-center hover:justify-center
@@ -78,17 +79,18 @@ export const TaskbarItemWindowLauncher = ({
   taskbarPlacement,
   taskBarRef,
   windowLauncherProps,
-  windows,
+
   isShowTitle,
   size = 40,
   contextMenuCallback,
-  dispatch,
 }: TaskbarItemWindowLauncherProps) => {
   const [isHovered, setHovered] = useState(false);
   const [isContextOpen, setIsContextOpen] = useState(false);
   const dropDownRef = useRef<DropDownRef>({
     handleOpen: () => {},
   });
+  const { dispatch, windows, activeWorkspace } =
+    useContext(WindowManagerContext);
 
   const [windowsAppId, setwindowsAppId] = useState<WindowState[]>([]);
 
@@ -96,7 +98,7 @@ export const TaskbarItemWindowLauncher = ({
     if (!taskbarPlacement) return;
     // console.log("windowsAppId Changed");
     setwindowsAppId(
-      windows.filter((window) => window.appId === windowLauncherProps.appId)
+      windows.filter((window) => window.appId === windowLauncherProps.appId),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windows.length]);
@@ -119,6 +121,7 @@ export const TaskbarItemWindowLauncher = ({
         position: windowLauncherProps.position ?? { x: 0, y: 0 },
         minSize: windowLauncherProps.minSize ?? { width: 300, height: 300 },
         launcherRef: windowLauncherProps.launcherRef,
+        workspace: activeWorkspace,
       },
     });
   };
@@ -165,8 +168,8 @@ export const TaskbarItemWindowLauncher = ({
           taskbarPlacement === "left"
             ? "left"
             : taskbarPlacement === "right"
-            ? "right"
-            : undefined
+              ? "right"
+              : undefined
         }
         triggerGapX={
           taskbarPlacement !== "bottom"
@@ -231,8 +234,8 @@ export const TaskbarItemWindowLauncher = ({
                         ? expand
                         : hide
                       : index == 1 && windowsAppId.length > 2
-                      ? expand
-                      : hide
+                        ? expand
+                        : hide
                     : "w-2 h-2 -mt-2"
                 }`}
               ></div>
@@ -301,8 +304,8 @@ export const TaskbarItem = ({
           taskbarPlacement === "left"
             ? "left"
             : taskbarPlacement === "right"
-            ? "right"
-            : undefined
+              ? "right"
+              : undefined
         }
         triggerGapX={
           taskbarPlacement !== "bottom"

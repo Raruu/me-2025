@@ -1,5 +1,6 @@
 import { TaskbarPlacement } from "@/components/ui/Taskbar/Taskbar";
-import { createContext } from "react";
+import { WindowMode } from "@/lib/Etc/EtcWindowMode";
+import { createContext, type MutableRefObject } from "react";
 
 export type TaskBarRef = HTMLDivElement &
   BorderConstrains & { taskbarPlacement?: TaskbarPlacement };
@@ -32,6 +33,7 @@ export interface WindowState {
   initialWindowColor?: string;
   callback?: () => void;
   args?: string[];
+  workspace: number;
 }
 
 export type WindowAction =
@@ -41,7 +43,9 @@ export type WindowAction =
   | { type: "ADD_WINDOW"; window: WindowState }
   | { type: "MOVE"; id: number; position: { x: number; y: number } }
   | { type: "RESIZE"; id: number; size: { width: number; height: number } }
-  | { type: "FOCUS"; id: number };
+  | { type: "FOCUS"; id: number }
+  | { type: "MOVE_TO_WORKSPACE"; id: number; workspace: number }
+  | { type: "SWAP_TILING"; id: number; targetId: number };
 
 export type BorderConstrains = {
   top: number;
@@ -49,6 +53,13 @@ export type BorderConstrains = {
   bottom: number;
   left: number;
 };
+
+export interface TilingRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export const WindowManagerContext = createContext<{
   taskBarRef: React.RefObject<TaskBarRef>;
@@ -59,6 +70,11 @@ export const WindowManagerContext = createContext<{
   windows: WindowState[];
   borderConstrains: BorderConstrains;
   dispatch: React.Dispatch<WindowAction>;
+  activeWorkspace: number;
+  setActiveWorkspace: React.Dispatch<React.SetStateAction<number>>;
+  windowMode: WindowMode;
+  tilingRects: Map<number, TilingRect>;
+  hoverFocusSuppressedUntilRef: MutableRefObject<number>;
 }>({
   taskBarRef: { current: null as unknown as TaskBarRef },
   statusBarRef: { current: null as unknown as HTMLDivElement },
@@ -68,4 +84,9 @@ export const WindowManagerContext = createContext<{
   windows: [],
   borderConstrains: { top: 0, right: 0, bottom: 0, left: 0 },
   dispatch: () => {},
+  activeWorkspace: 1,
+  setActiveWorkspace: () => {},
+  windowMode: "windowed",
+  tilingRects: new Map(),
+  hoverFocusSuppressedUntilRef: { current: 0 },
 });
