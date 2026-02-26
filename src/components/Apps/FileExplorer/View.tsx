@@ -1,7 +1,7 @@
 import { DropDownRef, DropDown } from "@/components/Dropdown";
 import { DropDownItem } from "@/components/Dropdown/DropdownItem";
 import { WindowContext } from "@/providers/WindowContext";
-import { formatFileSize } from "@/utils/system";
+import { formatFileSize } from "@/lib/utils/system";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useMemo, useContext, useRef, useState, useEffect } from "react";
 import { ExplorerItemDetails, ExplorerItemCompact, ExplorerItemIcon } from "./ExplorerItem";

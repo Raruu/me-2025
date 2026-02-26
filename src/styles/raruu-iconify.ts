@@ -4,7 +4,7 @@ import {
   azusaCatImage,
   iconMidokuniLogo512,
   patapataLanuBiscuit,
-} from "@/utils/picture-helper";
+} from "@/lib/utils/picture-helper";
 import { addCollection } from "@iconify/react";
 
 export const raruuIconify = () =>

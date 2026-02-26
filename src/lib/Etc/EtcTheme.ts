@@ -7,7 +7,7 @@ import {
   bgVerLightImage,
   bgVerDarkImage,
   themeTrImage,
-} from "@/utils/picture-helper";
+} from "@/lib/utils/picture-helper";
 import { db } from "../db";
 
 export const imageNames = {

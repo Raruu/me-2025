@@ -1,5 +1,5 @@
 import { mapMediaQuery, mediaQueryContext } from "@/hooks/useMediaQuery";
-import { azusaCatImage, noticeAzusaCatImage } from "@/utils/picture-helper";
+import { azusaCatImage, noticeAzusaCatImage } from "@/lib/utils/picture-helper";
 import NextImage from "next/image";
 import { useContext, useState } from "react";
 

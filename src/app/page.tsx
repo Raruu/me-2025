@@ -5,7 +5,7 @@ import { useEtc } from "@/hooks/useEtc";
 import { initFileSystem } from "@/lib/db";
 import { EtcContext } from "@/lib/Etc";
 import { raruuIconify } from "@/styles/raruu-iconify";
-import { LoadRequiredImage } from "@/utils/picture-helper";
+import { LoadRequiredImage } from "@/lib/utils/picture-helper";
 import { useEffect, useState } from "react";
 
 export default function Home() {

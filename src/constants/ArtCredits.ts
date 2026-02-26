@@ -6,7 +6,7 @@ import {
   bgVerLightImage,
   patapataLanuBiscuit,
   themeTrImage,
-} from "@/utils/picture-helper";
+} from "@/lib/utils/picture-helper";
 
 type Arts = {
   linkWhereIFoundThisArt?: string;
