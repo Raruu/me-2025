@@ -10,6 +10,7 @@ import { Calendar } from "./Calendar";
 import { EtcContext } from "@/lib/Etc";
 import { WindowManagerContext } from "@/providers/WindowManagerContext";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
+import Link from "next/link";
 
 interface StatusBarProps {
   children: React.ReactNode;
@@ -50,20 +51,25 @@ export const StatusBar = () => {
   return (
     <header
       ref={ref}
-      className="transition-colors duration-300 z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1"
+      className="transition-colors duration-300 z-[1] flex flex-row items-center justify-between min-h-7 px-3 py-1 h-12 md:h-auto"
     >
-      <div className="sm:w-1/3 hidden sm:flex flex-row justify-start items-center gap-2">
-        <a href="https://github.com/Raruu" target="_blank" rel="noreferrer">
+      <div className="sm:w-1/3 flex flex-row justify-start items-center gap-2">
+        <Link
+          href="https://github.com/Raruu"
+          target="_blank"
+          rel="noreferrer"
+          className="hidden md:flex"
+        >
           <StatusBarItem hoverBgEffect>
             <div className="flex flex-row items-center gap-2">
               <Icon icon={"ri-github-fill"} />
               Raruu
             </div>
           </StatusBarItem>
-        </a>
+        </Link>
         <WorkspaceSwitcher />
       </div>
-      <div className="sm:w-1/3 flex flex-row justify-start sm:justify-center">
+      <div className="sm:w-1/3 flex-row justify-start sm:justify-center hidden md:flex ">
         <DropDown
           triggerGapY={14}
           callback={(isOpen) => {

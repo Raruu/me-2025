@@ -10,12 +10,15 @@ export interface EtcWindowModeSettings {
   setWorkspaceCount: (count: number) => void;
   tilingGap: number;
   setTilingGap: (gap: number) => void;
+  autoTilingMobile: boolean;
+  setAutoTilingMobile: (value: boolean) => void;
 }
 
 export const EtcWindowMode = (): EtcWindowModeSettings => {
   const [windowMode, setWindowModeState] = useState<WindowMode>("windowed");
   const [workspaceCount, setWorkspaceCountState] = useState(9);
   const [tilingGap, setTilingGapState] = useState(4);
+  const [autoTilingMobile, setAutoTilingMobileState] = useState(true);
 
   useEffect(() => {
     const readSettings = async () => {
@@ -31,6 +34,8 @@ export const EtcWindowMode = (): EtcWindowModeSettings => {
             setWorkspaceCountState(parseInt(value) || 9);
           } else if (key === "tilingGap") {
             setTilingGapState(parseInt(value) || 4);
+          } else if (key === "autoTilingMobile") {
+            setAutoTilingMobileState(value === "true");
           }
         }
       }
@@ -38,11 +43,17 @@ export const EtcWindowMode = (): EtcWindowModeSettings => {
     readSettings();
   }, []);
 
-  const saveSettings = (mode: WindowMode, wsCount: number, gap: number) => {
+  const saveSettings = (
+    mode: WindowMode,
+    wsCount: number,
+    gap: number,
+    autoTiling: boolean,
+  ) => {
     const text =
       `windowMode=${mode}\n` +
       `workspaceCount=${wsCount}\n` +
-      `tilingGap=${gap}`;
+      `tilingGap=${gap}\n` +
+      `autoTilingMobile=${autoTiling}`;
     db.saveFile(
       "windowModeSettings",
       "windowMode.conf",
@@ -53,19 +64,24 @@ export const EtcWindowMode = (): EtcWindowModeSettings => {
 
   const setWindowMode = (mode: WindowMode) => {
     setWindowModeState(mode);
-    saveSettings(mode, workspaceCount, tilingGap);
+    saveSettings(mode, workspaceCount, tilingGap, autoTilingMobile);
   };
 
   const setWorkspaceCount = (count: number) => {
     const clamped = Math.max(1, Math.min(9, count));
     setWorkspaceCountState(clamped);
-    saveSettings(windowMode, clamped, tilingGap);
+    saveSettings(windowMode, clamped, tilingGap, autoTilingMobile);
   };
 
   const setTilingGap = (gap: number) => {
     const clamped = Math.max(0, Math.min(32, gap));
     setTilingGapState(clamped);
-    saveSettings(windowMode, workspaceCount, clamped);
+    saveSettings(windowMode, workspaceCount, clamped, autoTilingMobile);
+  };
+
+  const setAutoTilingMobile = (value: boolean) => {
+    setAutoTilingMobileState(value);
+    saveSettings(windowMode, workspaceCount, tilingGap, value);
   };
 
   return {
@@ -75,5 +91,7 @@ export const EtcWindowMode = (): EtcWindowModeSettings => {
     setWorkspaceCount,
     tilingGap,
     setTilingGap,
+    autoTilingMobile,
+    setAutoTilingMobile,
   };
 };

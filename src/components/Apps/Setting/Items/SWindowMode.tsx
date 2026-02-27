@@ -2,8 +2,8 @@ import { useContext } from "react";
 import { SettingNavItemProps } from "..";
 import { EtcContext } from "@/lib/Etc";
 import { WindowMode } from "@/lib/Etc/EtcWindowMode";
-import { SettingGroup } from "../SettingGroup";
 import { SettingBool } from "../SettingBool";
+import { SettingGroup } from "../SettingGroup";
 import { SettingTextField } from "../SettingTextField";
 
 const WindowModeSelector = () => {
@@ -70,12 +70,21 @@ const SettingItemContent = () => {
     tilingGap,
     setTilingGap,
     windowMode,
+    autoTilingMobile,
+    setAutoTilingMobile,
   } = useContext(EtcContext).windowModeSettings;
 
   return (
     <div className="flex flex-col w-full h-full gap-2">
       <SettingGroup title="Window Mode" hideBackground>
         <WindowModeSelector />
+      </SettingGroup>
+      <SettingGroup title="Mobile">
+        <SettingBool
+          title="Use tiling mode in mobile"
+          value={autoTilingMobile}
+          setValue={setAutoTilingMobile}
+        />
       </SettingGroup>
       <SettingGroup title="Workspaces">
         <SettingTextField

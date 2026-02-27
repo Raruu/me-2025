@@ -28,11 +28,22 @@ import { createWindowReducer } from "./windowReducer";
 import { useBorderConstrains } from "@/hooks/useBorderConstrains";
 import { useTilingRects } from "@/hooks/useTilingRects";
 import { useWindowKeyboardShortcuts } from "@/hooks/useWindowKeyboardShortcuts";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export const WindowManager = () => {
   const searchParams = useSearchParams();
   const { windowModeSettings } = useContext(EtcContext);
-  const { windowMode, workspaceCount, tilingGap } = windowModeSettings;
+  const {
+    windowMode: rawWindowMode,
+    workspaceCount,
+    tilingGap,
+    autoTilingMobile,
+  } = windowModeSettings;
+  const mediaQuery = useMediaQuery();
+  const isMobile = mediaQuery === "default" || mediaQuery === "sm";
+  const isMobileRef = useRef(isMobile);
+  isMobileRef.current = isMobile;
+  const windowMode = isMobile && autoTilingMobile ? "tiling" : rawWindowMode;
 
   const [activeWorkspace, setActiveWorkspace] = useState(1);
   const activeWorkspaceRef = useRef(activeWorkspace);
@@ -237,6 +248,7 @@ export const WindowManager = () => {
       launcher: (typeof appList)[number],
       index: number,
       position: string | null,
+      workspace?: number,
     ) => {
       let winSize = { ...(launcher.size ?? { width: 300, height: 300 }) };
       let winPos = { ...(launcher.position ?? { x: 0, y: 0 }) };
@@ -283,7 +295,7 @@ export const WindowManager = () => {
           position: winPos,
           minSize: launcher.minSize ?? { width: 300, height: 300 },
           launcherRef: launcher.launcherRef,
-          workspace: activeWorkspace,
+          workspace: workspace ?? activeWorkspace,
         } as WindowState,
       });
     };
@@ -304,10 +316,13 @@ export const WindowManager = () => {
         });
       } else {
         const startupApps = await loadStartupApps();
-        console.log(startupApps);
         startupApps.forEach((config, index) => {
           const launcher = appList.find((app) => app.appId === config.appId);
-          if (launcher) launchApp(launcher, index, config.position || null);
+          const targetWorkspace = isMobileRef.current
+            ? (index % 9) + 1
+            : undefined;
+          if (launcher)
+            launchApp(launcher, index, config.position || null, targetWorkspace);
         });
       }
     }, 1000);

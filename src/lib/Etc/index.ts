@@ -36,5 +36,7 @@ export const EtcContext = createContext<EtcContextType>({
     setWorkspaceCount: () => {},
     tilingGap: 4,
     setTilingGap: () => {},
+    autoTilingMobile: true,
+    setAutoTilingMobile: () => {},
   },
 });

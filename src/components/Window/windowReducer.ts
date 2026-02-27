@@ -111,7 +111,7 @@ export function createWindowReducer(refs: WindowReducerRefs) {
           position: correctedPos,
         };
 
-        if (focusedWindow.zIndex === state.length - 1) {
+        if (focusedWindow.zIndex === state.length) {
           return state.map((w) => (w.id === action.id ? focusedWindow : w));
         }
 
