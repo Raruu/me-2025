@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { formatBytes } from "../converter";
-import { ImageToolsContext } from "../ImageToolsContext";
+import { formatBytes } from "../lib/converter";
+import { ImageToolsContext } from "../providers/ImageToolsContext";
 
 export const ImagePreview = () => {
   const { file, preview, resultUrl, resultBlob, imgDimensions, handleReset } =

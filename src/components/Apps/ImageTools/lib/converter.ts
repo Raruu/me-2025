@@ -1,4 +1,4 @@
-import { FORMAT_INFO, ICO_PRESETS, OutputFormat } from "./constants";
+import { FORMAT_INFO, ICO_PRESETS, OutputFormat } from "../constants";
 
 export function drawImageToCanvas(
   img: HTMLImageElement,

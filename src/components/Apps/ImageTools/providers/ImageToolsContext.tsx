@@ -9,18 +9,26 @@ import {
   useEffect,
   useState,
 } from "react";
-import { OutputFormat, FORMAT_INFO, RESIZE_PRESETS } from "./constants";
+import { OutputFormat, FORMAT_INFO, RESIZE_PRESETS, ActiveTool } from "../constants";
 import {
   convertImage,
   getFileNameWithoutExt,
   loadImageElement,
-} from "./converter";
+} from "../lib/converter";
 import { WindowContext } from "@/providers/WindowContext";
+
+interface HistoryEntry {
+  file: File;
+  preview: string;
+  imgDimensions: { w: number; h: number };
+}
 
 interface ImageToolsState {
   file: File | null;
   preview: string | null;
   imgDimensions: { w: number; h: number } | null;
+  activeTool: ActiveTool;
+  setActiveTool: Dispatch<SetStateAction<ActiveTool>>;
   outputFormat: OutputFormat;
   setOutputFormat: Dispatch<SetStateAction<OutputFormat>>;
   quality: number;
@@ -42,6 +50,9 @@ interface ImageToolsState {
   handleConvert: () => void;
   handleDownload: () => void;
   handleReset: () => void;
+  applyResult: (blob: Blob, suffix?: string) => Promise<void>;
+  handleUndo: () => void;
+  canUndo: boolean;
 }
 
 export const ImageToolsContext = createContext<ImageToolsState>(
@@ -60,6 +71,7 @@ export const ImageToolsProvider = ({
     w: number;
     h: number;
   } | null>(null);
+  const [activeTool, setActiveTool] = useState<ActiveTool>("convert");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("webp");
   const [quality, setQuality] = useState(90);
   const [icoPresetIndex, setIcoPresetIndex] = useState(0);
@@ -76,6 +88,7 @@ export const ImageToolsProvider = ({
   const [customResizeHeight, setCustomResizeHeight] = useState<number | null>(
     null,
   );
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
     setSubtitle(file ? file.name : undefined);
@@ -92,6 +105,8 @@ export const ImageToolsProvider = ({
     (f: File) => {
       if (preview) URL.revokeObjectURL(preview);
       if (resultUrl) URL.revokeObjectURL(resultUrl);
+      for (const entry of history) URL.revokeObjectURL(entry.preview);
+      setHistory([]);
       setResultBlob(null);
       setResultUrl(null);
 
@@ -104,7 +119,7 @@ export const ImageToolsProvider = ({
         setImgDimensions({ w: img.naturalWidth, h: img.naturalHeight });
       img.src = url;
     },
-    [preview, resultUrl],
+    [preview, resultUrl, history],
   );
 
   const handleConvert = useCallback(async () => {
@@ -171,12 +186,57 @@ export const ImageToolsProvider = ({
   const handleReset = useCallback(() => {
     if (preview) URL.revokeObjectURL(preview);
     if (resultUrl) URL.revokeObjectURL(resultUrl);
+    for (const entry of history) URL.revokeObjectURL(entry.preview);
     setFile(null);
     setPreview(null);
     setImgDimensions(null);
     setResultBlob(null);
     setResultUrl(null);
-  }, [preview, resultUrl]);
+    setHistory([]);
+  }, [preview, resultUrl, history]);
+
+  const applyResult = useCallback(
+    async (blob: Blob, suffix: string = "edited") => {
+      if (file && preview && imgDimensions) {
+        setHistory((prev) => [...prev, { file, preview, imgDimensions }]);
+      }
+
+      const baseName = file ? getFileNameWithoutExt(file.name) : "image";
+      const newFile = new File([blob], `${baseName}_${suffix}.png`, {
+        type: blob.type || "image/png",
+      });
+
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+      const url = URL.createObjectURL(newFile);
+      setFile(newFile);
+      setPreview(url);
+      setResultBlob(null);
+      setResultUrl(null);
+
+      const img = new Image();
+      img.onload = () =>
+        setImgDimensions({ w: img.naturalWidth, h: img.naturalHeight });
+      img.src = url;
+    },
+    [file, preview, imgDimensions, resultUrl],
+  );
+
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+
+    if (preview) URL.revokeObjectURL(preview);
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+
+    setFile(prev.file);
+    setPreview(prev.preview);
+    setImgDimensions(prev.imgDimensions);
+    setResultBlob(null);
+    setResultUrl(null);
+    setHistory((h) => h.slice(0, -1));
+  }, [history, preview, resultUrl]);
+
+  const canUndo = history.length > 0;
 
   return (
     <ImageToolsContext.Provider
@@ -184,6 +244,8 @@ export const ImageToolsProvider = ({
         file,
         preview,
         imgDimensions,
+        activeTool,
+        setActiveTool,
         outputFormat,
         setOutputFormat,
         quality,
@@ -205,6 +267,9 @@ export const ImageToolsProvider = ({
         handleConvert,
         handleDownload,
         handleReset,
+        applyResult,
+        handleUndo,
+        canUndo,
       }}
     >
       {children}

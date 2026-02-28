@@ -7,7 +7,7 @@ import {
   QUALITY_FORMATS,
   RESIZE_PRESETS,
 } from "../constants";
-import { ImageToolsContext } from "../ImageToolsContext";
+import { ImageToolsContext } from "../providers/ImageToolsContext";
 import { mapMediaQuery, MediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 

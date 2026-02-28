@@ -1,6 +1,6 @@
 import { useCallback, useContext, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { ImageToolsContext } from "../ImageToolsContext";
+import { ImageToolsContext } from "../providers/ImageToolsContext";
 
 export const DropZone = () => {
   const { loadFile } = useContext(ImageToolsContext);

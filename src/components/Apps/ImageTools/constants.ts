@@ -1,5 +1,19 @@
 export type OutputFormat = "png" | "jpeg" | "webp" | "bmp" | "ico";
 
+export type ActiveTool = "convert" | "crop" | "remove-bg";
+
+export interface ToolDef {
+  id: ActiveTool;
+  label: string;
+  icon: string;
+}
+
+export const TOOLS: ToolDef[] = [
+  { id: "convert", label: "Convert", icon: "mdi:swap-horizontal" },
+  { id: "crop", label: "Crop", icon: "mdi:crop" },
+  { id: "remove-bg", label: "Remove BG", icon: "mdi:image-remove" },
+];
+
 export interface IcoPreset {
   label: string;
   sizes: number[];
@@ -10,6 +24,21 @@ export interface ResizePreset {
   width: number;
   height: number;
 }
+
+export interface AspectRatioPreset {
+  label: string;
+  w: number;
+  h: number;
+}
+
+export const ASPECT_RATIO_PRESETS: AspectRatioPreset[] = [
+  { label: "1:1", w: 1, h: 1 },
+  { label: "4:3", w: 4, h: 3 },
+  { label: "3:2", w: 3, h: 2 },
+  { label: "16:9", w: 16, h: 9 },
+  { label: "9:16", w: 9, h: 16 },
+  { label: "3:4", w: 3, h: 4 },
+];
 
 export const APP_TITLE = "Image Tools";
 export const APP_ICON = "mdi:image-edit";
