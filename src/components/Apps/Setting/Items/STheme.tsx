@@ -4,14 +4,13 @@ import { EtcContext } from "@/lib/Etc";
 import Image from "next/image";
 import { useElementSize } from "@/hooks/useElementSize";
 import { mapMediaQuery } from "@/hooks/useMediaQuery";
-import { ButtonNetral } from "@/components/ButtonNetral";
 import { imageNames } from "@/lib/Etc/EtcTheme";
 import { db } from "@/lib/db";
 import { SettingGroup } from "../SettingGroup";
 import { SettingBool } from "../SettingBool";
 import { SettingTextField } from "../SettingTextField";
 import { WindowContext } from "@/providers/WindowContext";
-import { tr } from "motion/react-client";
+import { WallpaperFit, WallpaperMode } from "@/styles/theme";
 
 const ModalWallpaper = ({
   title,
@@ -208,38 +207,133 @@ const SettingThemeContent = () => {
     applySilhouette,
     silhouetteDuration,
     setSilhouetteDuration,
+    wallpaperMode,
+    setWallpaperMode,
+    wallpaperSingleUrl,
+    applyWallpaperSingle,
+    wallpaperFit,
+    setWallpaperFit,
   } = useContext(EtcContext).themeSettings;
 
+  const wallpaperFitOptions: WallpaperFit[] = [
+    "cover",
+    "contain",
+    "fill",
+    "none",
+    "scale-down",
+  ];
+
   return (
-    <div>
-      <SettingGroup title="Wallpaper" hideBackground>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Wallpaper
-            title="Horizontal Light"
-            bgUrl={bgHzUrlLight}
-            name={imageNames.bgHzLightImage}
-          />
-          <Wallpaper
-            title="Horizontal Dark"
-            bgUrl={bgHzUrlDark}
-            name={imageNames.bgHzDarkImage}
-          />
-        </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Wallpaper
-            title="Vertical Light"
-            bgUrl={bgVerUrlLight}
-            isVertical
-            name={imageNames.bgVerLightImage}
-          />
-          <Wallpaper
-            title="Vertical Dark"
-            bgUrl={bgVerUrlDark}
-            isVertical
-            name={imageNames.bgVerDarkImage}
-          />
+    <div className="flex flex-col gap-4 overflow-hidden pb-4">
+      <SettingGroup title="Wallpaper Mode">
+        <div className="flex flex-row gap-3 flex-wrap">
+          {(["default", "single"] as WallpaperMode[]).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setWallpaperMode(mode)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 active:scale-95 capitalize
+                ${
+                  wallpaperMode === mode
+                    ? "bg-primary text-white shadow-md"
+                    : "bg-foreground/10 text-foreground hover:bg-foreground/20"
+                }`}
+            >
+              {mode === "default" ? "Default (4 images)" : "Single Image"}
+            </button>
+          ))}
         </div>
       </SettingGroup>
+
+      {wallpaperMode === "single" && (
+        <SettingGroup title="Single Wallpaper" hideBackground>
+          <div className="flex flex-col items-center gap-4">
+            <div
+              className="relative rounded-2xl overflow-hidden bg-foreground/5 w-full"
+              style={{ height: "180px" }}
+            >
+              <Image
+                src={wallpaperSingleUrl}
+                alt="Single Wallpaper"
+                fill
+                style={{ objectFit: wallpaperFit }}
+              />
+              <div
+                className="absolute inset-0 bg-secondary opacity-0 hover:opacity-35 transition-opacity cursor-pointer"
+                onClick={() => {
+                  setModal(
+                    <ModalWallpaper
+                      title="Single Wallpaper"
+                      bgUrl={wallpaperSingleUrl}
+                      onCancel={() => setModal(undefined)}
+                      onReset={async () => {
+                        await db.deleteFile(imageNames.wallpaperSingle);
+                        setModal(undefined);
+                        applyWallpaperSingle(null);
+                      }}
+                      onConfirm={(value) => {
+                        setModal(undefined);
+                        if (value) applyWallpaperSingle(value);
+                      }}
+                    />,
+                  );
+                }}
+              />
+            </div>
+            <p className="text-xs text-foreground/50">Click image to change</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-foreground">Fit Mode</p>
+            <div className="flex flex-row gap-2 flex-wrap">
+              {wallpaperFitOptions.map((fit) => (
+                <button
+                  key={fit}
+                  onClick={() => setWallpaperFit(fit)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 active:scale-95 capitalize
+                    ${
+                      wallpaperFit === fit
+                        ? "bg-primary text-white shadow-md"
+                        : "bg-foreground/10 text-foreground hover:bg-foreground/20"
+                    }`}
+                >
+                  {fit}
+                </button>
+              ))}
+            </div>
+          </div>
+        </SettingGroup>
+      )}
+
+      {wallpaperMode === "default" && (
+        <SettingGroup title="Wallpaper" hideBackground>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Wallpaper
+              title="Horizontal Light"
+              bgUrl={bgHzUrlLight}
+              name={imageNames.bgHzLightImage}
+            />
+            <Wallpaper
+              title="Horizontal Dark"
+              bgUrl={bgHzUrlDark}
+              name={imageNames.bgHzDarkImage}
+            />
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Wallpaper
+              title="Vertical Light"
+              bgUrl={bgVerUrlLight}
+              isVertical
+              name={imageNames.bgVerLightImage}
+            />
+            <Wallpaper
+              title="Vertical Dark"
+              bgUrl={bgVerUrlDark}
+              isVertical
+              name={imageNames.bgVerDarkImage}
+            />
+          </div>
+        </SettingGroup>
+      )}
+
       <SettingGroup title="Silhouette Transition">
         <div className="relative w-full h-48">
           <Image

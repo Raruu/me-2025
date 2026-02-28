@@ -47,7 +47,7 @@ const SettingItemContent = () => {
   const { isExpanded, setIsExpanded } = useContext(EtcContext).taskbarSettings;
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col pb-4 overflow-hidden">
       <SettingGroup title="Taskbar Position" hideBackground>
         <TaskBarPosition />
       </SettingGroup>

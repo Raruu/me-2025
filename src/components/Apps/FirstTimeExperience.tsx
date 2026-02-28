@@ -115,7 +115,7 @@ const FirstTimeExperience = () => {
         <div className="flex flex-row gap-4 mb-2">
           {/* Startup Apps */}
           <button
-            onClick={() => openSettings(2)}
+            onClick={() => openSettings(3)}
             className="relative rounded-2xl p-4 text-left
               hover:shadow-lg transition-all duration-150 hover:-translate-y-1
               overflow-hidden w-1/2 border border-background-tr"

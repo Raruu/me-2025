@@ -1,4 +1,4 @@
-import { EtcThemeSettings } from "@/styles/theme";
+import { EtcThemeSettings, WallpaperFit, WallpaperMode } from "@/styles/theme";
 import { initTheme, reducer as themeReducer } from "@/styles/theme";
 import { useEffect, useReducer, useState } from "react";
 import {
@@ -16,6 +16,7 @@ export const imageNames = {
   bgVerLightImage: "bgVerLight",
   bgVerDarkImage: "bgVerDark",
   silhouetteTr: "silhouetteTr",
+  wallpaperSingle: "wallpaperSingle",
 };
 
 export const EtcTheme = (): EtcThemeSettings => {
@@ -75,6 +76,56 @@ export const EtcTheme = (): EtcThemeSettings => {
     loadSilhouette();
   };
 
+  const [wallpaperMode, setWallpaperModeState] = useState<WallpaperMode>("default");
+  const [wallpaperSingleUrl, setWallpaperSingleUrl] = useState(bgHzLightImage);
+  const [wallpaperFit, setWallpaperFitState] = useState<WallpaperFit>("cover");
+
+  const loadWallpaperSettings = async () => {
+    const single = await db.loadFile(imageNames.wallpaperSingle);
+    setWallpaperSingleUrl(
+      single ? URL.createObjectURL(single.blob) : bgHzLightImage
+    );
+
+    const settingsFile = await db.loadFile("wallpaperSettings");
+    if (settingsFile) {
+      const text = await settingsFile.blob.text();
+      const lines = text.split("\n");
+      for (const line of lines) {
+        const [key, value] = line.split("=");
+        if (key === "mode") setWallpaperModeState(value as WallpaperMode);
+        if (key === "fit") setWallpaperFitState(value as WallpaperFit);
+      }
+    }
+  };
+
+  const saveWallpaperSettings = async (mode: WallpaperMode, fit: WallpaperFit) => {
+    await db.saveFile(
+      "wallpaperSettings",
+      "wallpaperSettings.conf",
+      "etc",
+      new Blob([`mode=${mode}\nfit=${fit}`], { type: "text/plain" })
+    );
+  };
+
+  const setWallpaperMode = async (mode: WallpaperMode) => {
+    setWallpaperModeState(mode);
+    await saveWallpaperSettings(mode, wallpaperFit);
+  };
+
+  const setWallpaperFit = async (fit: WallpaperFit) => {
+    setWallpaperFitState(fit);
+    await saveWallpaperSettings(wallpaperMode, fit);
+  };
+
+  const applyWallpaperSingle = async (file: File | null) => {
+    if (file) await db.saveFile(imageNames.wallpaperSingle, imageNames.wallpaperSingle, "azusaEnvironment", file);
+    URL.revokeObjectURL(wallpaperSingleUrl);
+    const single = await db.loadFile(imageNames.wallpaperSingle);
+    setWallpaperSingleUrl(
+      single ? URL.createObjectURL(single.blob) : bgHzLightImage
+    );
+  };
+
   const [silhouetteDuration, setSilhouetteDuration] = useState(700);
 
   const loadSilhouetteDuration = async () => {
@@ -106,6 +157,7 @@ export const EtcTheme = (): EtcThemeSettings => {
     loadSilhouetteDuration();
     loadSilhouette();
     loadImages();
+    loadWallpaperSettings();
   }, []);
 
   return {
@@ -120,5 +172,11 @@ export const EtcTheme = (): EtcThemeSettings => {
     applySilhouette: applySilhouette,
     silhouetteDuration: silhouetteDuration,
     setSilhouetteDuration: eSetSilhouetteDuration,
+    wallpaperMode: wallpaperMode,
+    setWallpaperMode: setWallpaperMode,
+    wallpaperSingleUrl: wallpaperSingleUrl,
+    applyWallpaperSingle: applyWallpaperSingle,
+    wallpaperFit: wallpaperFit,
+    setWallpaperFit: setWallpaperFit,
   };
 };

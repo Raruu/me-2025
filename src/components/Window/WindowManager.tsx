@@ -10,7 +10,7 @@ import {
   useContext,
 } from "react";
 import { Window } from ".";
-import { StatusBar } from "../ui/Statusbar/Statusbar";
+import { StatusBar } from "../ui/Statusbar";
 import { Taskbar } from "../ui/Taskbar/Taskbar";
 import { BackgroundUwU } from "../ui/Background/BackgroundUwU";
 import { AppsMenu } from "../ui/AppsMenu";

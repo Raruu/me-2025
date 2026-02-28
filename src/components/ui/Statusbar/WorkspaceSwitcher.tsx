@@ -15,7 +15,7 @@ export const WorkspaceSwitcher = () => {
   const workspaces = Array.from({ length: workspaceCount }, (_, i) => i + 1);
 
   return (
-    <div className="flex flex-row items-center gap-0.5">
+    <div className="flex flex-row items-center gap-2 md:gap-0.5">
       {workspaces.map((ws) => {
         const isActive = ws === activeWorkspace;
         const hasWindows = windows.some(
@@ -30,7 +30,7 @@ export const WorkspaceSwitcher = () => {
               hoverFocusSuppressedUntilRef.current = Date.now() + 400;
             }}
             className={cn(
-              "min-w-8 md:min-w-[22px] h-8 md:h-[18px] rounded-md text-xs font-bold transition-all duration-200 flex items-center justify-center",
+              "min-w-8 md:min-w-6 h-8 md:h-6 rounded-md text-xs font-bold transition-all duration-200 flex items-center justify-center",
               isActive
                 ? "bg-primary text-primary-foreground scale-110"
                 : hasWindows

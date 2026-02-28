@@ -75,7 +75,7 @@ const SettingItemContent = () => {
   } = useContext(EtcContext).windowModeSettings;
 
   return (
-    <div className="flex flex-col w-full h-full gap-2">
+    <div className="flex flex-col gap-2 pb-4">
       <SettingGroup title="Window Mode" hideBackground>
         <WindowModeSelector />
       </SettingGroup>

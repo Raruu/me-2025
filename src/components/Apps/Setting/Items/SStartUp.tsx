@@ -208,7 +208,7 @@ const SettingItemContent = () => {
 
   return (
     <>
-      <div className="flex flex-col w-full h-full gap-4">
+      <div className="flex flex-col gap-4 pb-4">
         <SettingGroup
           title="Startup Applications"
           subtitle="Applications that will launch automatically on startup"

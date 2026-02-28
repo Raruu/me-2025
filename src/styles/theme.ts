@@ -3,6 +3,8 @@
 import { ActionDispatch } from "react";
 
 export type themeType = "light" | "dark" | "tr-light" | "tr-dark";
+export type WallpaperMode = "default" | "single";
+export type WallpaperFit = "contain" | "cover" | "fill" | "none" | "scale-down";
 
 export interface EtcThemeSettings {
   theme: themeType;
@@ -16,6 +18,12 @@ export interface EtcThemeSettings {
   applySilhouette: (file: File | null) => void;
   silhouetteDuration: number;
   setSilhouetteDuration: (duration: number) => void;
+  wallpaperMode: WallpaperMode;
+  setWallpaperMode: (mode: WallpaperMode) => void;
+  wallpaperSingleUrl: string;
+  applyWallpaperSingle: (file: File | null) => void;
+  wallpaperFit: WallpaperFit;
+  setWallpaperFit: (fit: WallpaperFit) => void;
 }
 
 export const getSystemTheme = (): themeType => {

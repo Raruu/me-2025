@@ -118,9 +118,10 @@ function StorageSettings() {
   return (
     <>
       {DialogComponent}
-      <div className="flex flex-col w-full h-full overflow-y-auto gap-4">
+      <div className="flex flex-col pb-4 gap-4">
         <SettingGroup
           title="Storage Information"
+          hideBackground
           badge={
             <button
               onClick={calculateStorage}

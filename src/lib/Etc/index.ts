@@ -28,6 +28,12 @@ export const EtcContext = createContext<EtcContextType>({
     applySilhouette: () => {},
     silhouetteDuration: 0,
     setSilhouetteDuration: () => {},
+    wallpaperMode: "default",
+    setWallpaperMode: () => {},
+    wallpaperSingleUrl: "",
+    applyWallpaperSingle: () => {},
+    wallpaperFit: "cover",
+    setWallpaperFit: () => {},
   },
   windowModeSettings: {
     windowMode: "windowed",

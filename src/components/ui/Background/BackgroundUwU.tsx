@@ -19,7 +19,10 @@ export const BackgroundUwU = () => {
     bgHzUrlDark: bgHzDarkImage,
     bgVerUrlLight: bgVerLightImage,
     bgVerUrlDark: bgVerDarkImage,
-    silhouetteDuration, silhouetteTr
+    silhouetteDuration, silhouetteTr,
+    wallpaperMode,
+    wallpaperSingleUrl,
+    wallpaperFit,
   } = useContext(EtcContext).themeSettings;
   const [bgUrl, setBgUrl] = useState(silhouetteTr);
   
@@ -98,16 +101,29 @@ export const BackgroundUwU = () => {
         ></div>
 
         {/* Wallpaper */}
-        <NextImage
-          src={bgUrl}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10"
-          style={{ width: "100%", height: "auto" }}
-          width={0}
-          height={0}
-          unoptimized
-          priority
-          alt="background Image"
-        />
+        {wallpaperMode === "single" ? (
+          <div className="fixed inset-0 -z-10">
+            <NextImage
+              src={wallpaperSingleUrl}
+              fill
+              style={{ objectFit: wallpaperFit }}
+              unoptimized
+              priority
+              alt="background Image"
+            />
+          </div>
+        ) : (
+          <NextImage
+            src={bgUrl}
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10"
+            style={{ width: "100%", height: "auto" }}
+            width={0}
+            height={0}
+            unoptimized
+            priority
+            alt="background Image"
+          />
+        )}
       </div>
 
       <SilhouetteBackground

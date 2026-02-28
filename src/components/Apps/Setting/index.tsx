@@ -55,10 +55,8 @@ const Settings = () => {
           />
         ))}
       </div>
-      <div className="w-full flex justify-center">
-        <div className="max-w-4xl flex-1 p-4 overflow-auto">
-          {selectedNavItem.content}
-        </div>
+      <div className="w-full flex justify-center overflow-auto">
+        <div className="max-w-4xl flex-1 p-4">{selectedNavItem.content}</div>
       </div>
     </div>
   );
