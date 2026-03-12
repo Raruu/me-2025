@@ -1,18 +1,32 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { nunito } from "@/styles/fonts";
 import { MyCvJson, MyWorksJson } from "@/constants/ExternalResources";
 import { ServerProvider } from "@/providers/ServerContext";
 import { DBusProvider } from "@/providers/DBusContext";
+import { RegisterSW } from "@/components/RegisterSW";
+import { PWAInstallProvider } from "@/providers/PWAInstallContext";
 
 export const dynamic = "force-dynamic";
+
+export const viewport: Viewport = {
+  themeColor: "#8b5cf6",
+};
 
 export const metadata: Metadata = {
   title: "Raruu 2K25",
   description: "Personal Page from 2025",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Raruu 2K25",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     title: "Raruu 2K25",
-    description: "Personal Page from 2025",
+    description: "Raruu's Personal Page from 2025",
     images: [
       {
         url: "/og-image.png",
@@ -26,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Raruu 2K25",
-    description: "Personal Page from 2025",
+    description: "Raruu's Personal Page from 2025",
     images: ["/og-image.png"],
   },
 };
@@ -58,11 +72,17 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/pwa-icons/apple-touch-icon.png" />
+      </head>
       <body className={`${nunito.variable} antialiased overflow-hidden`}>
+        <RegisterSW />
         <ServerProvider value={{ myWorks: myWorksData, cv: myCvData }}>
-          <DBusProvider>
-            {children}
-          </DBusProvider>
+          <PWAInstallProvider>
+            <DBusProvider>
+              {children}
+            </DBusProvider>
+          </PWAInstallProvider>
         </ServerProvider>
       </body>
     </html>

@@ -5,6 +5,7 @@ import { settingItemTheme } from "./Items/STheme";
 import { settingItemStartUp } from "./Items/SStartUp";
 import { settingItemStorage } from "./Items/SStorage";
 import { settingItemWindowMode } from "./Items/SWindowMode";
+import { settingItemAbout } from "./Items/SAbout";
 import { UILocationItem } from "@/components/ui/components/UILocationItem";
 import { WindowContext } from "@/providers/WindowContext";
 import { useDBusApp } from "@/hooks/useDBusApp";
@@ -24,6 +25,7 @@ const Settings = () => {
     settingItemWindowMode,
     settingItemStartUp,
     settingItemStorage,
+    settingItemAbout,
   ];
   const [selectedNavItem, setSelectedNavItem] = useState(settingNavItems[0]);
   const { windowId } = useContext(WindowContext);
