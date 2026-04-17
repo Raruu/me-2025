@@ -127,6 +127,7 @@ export const WindowManager = () => {
 
   const launchQuery = searchParams.getAll("launch");
   const positionQuery = searchParams.getAll("position");
+  const workspaceQuery = searchParams.getAll("workspace");
   const { loadStartupApps } = EtcStartup();
 
   const buildLaunchHelper = useCallback(() => {
@@ -312,14 +313,22 @@ export const WindowManager = () => {
           const launcher = appList.find((app) => app.appId === query);
           const position =
             index < positionQuery.length ? positionQuery[index] : null;
-          if (launcher) launchApp(launcher, index, position);
+          const targetWorkspaceRaw =
+            index < workspaceQuery.length ? workspaceQuery[index] : undefined;
+          const targetWorkspaceParsed = Number(targetWorkspaceRaw);
+          const targetWorkspace = Number.isInteger(targetWorkspaceParsed)
+            ? targetWorkspaceParsed
+            : isMobileRef.current
+              ? (index % workspaceCount) + 1
+              : undefined;
+          if (launcher) launchApp(launcher, index, position, targetWorkspace);
         });
       } else {
         const startupApps = await loadStartupApps();
         startupApps.forEach((config, index) => {
           const launcher = appList.find((app) => app.appId === config.appId);
           const targetWorkspace = isMobileRef.current
-            ? (index % 9) + 1
+            ? (index % workspaceCount) + 1
             : undefined;
           if (launcher)
             launchApp(launcher, index, config.position || null, targetWorkspace);

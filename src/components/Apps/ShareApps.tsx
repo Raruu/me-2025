@@ -2,6 +2,7 @@ import { createRef, useMemo, useState, useContext, useEffect } from "react";
 import { WindowLauncherProps } from "../ui/Taskbar/TaskbarItem";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { WindowContext } from "@/providers/WindowContext";
+import { EtcContext } from "@/lib/Etc";
 import { getAllAppsList } from "@/configs/AppsList";
 import { AddAppDialog } from "../AddAppDialog";
 import { POSITION_OPTIONS } from "@/configs/Position";
@@ -14,18 +15,25 @@ const PRODUCTION_HOST = "https://me-2025.vercel.app";
 interface SelectedApp {
   appId: string;
   position: string;
+  targetWorkspace?: number;
 }
 
 const SelectedAppItem = ({
   app,
   position,
+  targetWorkspace,
+  workspaceCount,
   onRemove,
   onPositionChange,
+  onTargetWorkspaceChange,
 }: {
   app: WindowLauncherProps;
   position: string;
+  targetWorkspace?: number;
+  workspaceCount: number;
   onRemove: (appId: string) => void;
   onPositionChange: (appId: string, position: string) => void;
+  onTargetWorkspaceChange: (appId: string, targetWorkspace?: number) => void;
 }) => {
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-background border border-secondary dark:border-gray-500">
@@ -47,6 +55,25 @@ const SelectedAppItem = ({
           </option>
         ))}
       </select>
+      <select
+        value={targetWorkspace ?? ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          onTargetWorkspaceChange(
+            app.appId!,
+            value === "" ? undefined : Number(value),
+          );
+        }}
+        className="flex-shrink-0 px-3 py-1 rounded-lg bg-background border border-secondary dark:border-gray-500 text-sm focus:outline-none focus:border-primary"
+        title="Target workspace"
+      >
+        <option value="">Auto</option>
+        {Array.from({ length: workspaceCount }, (_, i) => i + 1).map((ws) => (
+          <option key={ws} value={ws}>
+            WS {ws}
+          </option>
+        ))}
+      </select>
       <button
         onClick={() => onRemove(app.appId!)}
         className="flex-shrink-0 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
@@ -60,6 +87,8 @@ const SelectedAppItem = ({
 
 const ShareApps = () => {
   const { setSubtitle, windowSize } = useContext(WindowContext);
+  const { windowModeSettings } = useContext(EtcContext);
+  const { workspaceCount } = windowModeSettings;
   const [useCurrentHost, setUseCurrentHost] = useState(false);
   const [selectedApps, setSelectedApps] = useState<SelectedApp[]>([]);
   const [currentHost, setCurrentHost] = useState<string>("");
@@ -102,13 +131,19 @@ const ShareApps = () => {
     selectedApps.forEach((app) => {
       params.append("launch", app.appId);
       params.append("position", app.position);
+      if (app.targetWorkspace !== undefined) {
+        params.append("workspace", String(app.targetWorkspace));
+      }
     });
 
     return `${baseUrl}/?${params.toString()}`;
   }, [selectedApps, useCurrentHost, currentHost]);
 
   const handleAdd = (appId: string) => {
-    setSelectedApps([...selectedApps, { appId, position: "maximized" }]);
+    setSelectedApps([
+      ...selectedApps,
+      { appId, position: "maximized", targetWorkspace: undefined },
+    ]);
     setShowAddMenu(false);
   };
 
@@ -121,6 +156,17 @@ const ShareApps = () => {
       selectedApps.map((app) =>
         app.appId === appId ? { ...app, position } : app
       )
+    );
+  };
+
+  const handleTargetWorkspaceChange = (
+    appId: string,
+    targetWorkspace?: number,
+  ) => {
+    setSelectedApps(
+      selectedApps.map((app) =>
+        app.appId === appId ? { ...app, targetWorkspace } : app,
+      ),
     );
   };
 
@@ -221,8 +267,11 @@ const ShareApps = () => {
                   key={app.appId}
                   app={app}
                   position={selectedApp?.position || "maximized"}
+                  targetWorkspace={selectedApp?.targetWorkspace}
+                  workspaceCount={workspaceCount}
                   onRemove={handleRemove}
                   onPositionChange={handlePositionChange}
+                  onTargetWorkspaceChange={handleTargetWorkspaceChange}
                 />
               );
             })
