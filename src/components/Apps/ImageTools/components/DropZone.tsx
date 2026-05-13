@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { ImageToolsContext } from "../providers/ImageToolsContext";
 
@@ -23,6 +23,30 @@ export const DropZone = () => {
     },
     [loadFile],
   );
+
+  const handlePaste = useCallback(
+    (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          const f = item.getAsFile();
+          if (f) {
+            e.preventDefault();
+            loadFile(f);
+            break;
+          }
+        }
+      }
+    },
+    [loadFile],
+  );
+
+  useEffect(() => {
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, [handlePaste]);
 
   return (
     <label
