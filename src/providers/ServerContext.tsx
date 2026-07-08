@@ -1,5 +1,6 @@
 "use client";
-import { createContext } from "react";
+import { BaseExternalResource } from "@/constants/ExternalResources";
+import { createContext, useMemo } from "react";
 
 type Work = {
   title: string;
@@ -25,8 +26,25 @@ export const ServerContext = createContext<ServerContextType>({
 
 export const ServerProvider = ({
   children,
-  value,
+  myWorks,
+  cv,
 }: {
   children: React.ReactNode;
-  value: ServerContextType;
-}) => <ServerContext.Provider value={value}>{children}</ServerContext.Provider>;
+  myWorks: Work[];
+  cv: cv;
+}) => {
+  const value = useMemo<ServerContextType>(() => {
+    const parsedMyWorks = myWorks.map((work) => ({
+      ...work,
+      img: work.img.map((path) => `${BaseExternalResource}${path}`),
+    }));
+
+    const parsedCv = { ...cv, cv_id: `${BaseExternalResource}${cv.cv_id}` };
+
+    return { myWorks: parsedMyWorks, cv: parsedCv };
+  }, [myWorks, cv]);
+
+  return (
+    <ServerContext.Provider value={value}>{children}</ServerContext.Provider>
+  );
+};

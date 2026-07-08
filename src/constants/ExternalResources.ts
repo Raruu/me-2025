@@ -1,2 +1,5 @@
-export const MyWorksJson = "https://raw.githubusercontent.com/Raruu/Raruu/refs/heads/main/assets/porto.json";
-export const MyCvJson = "https://raw.githubusercontent.com/Raruu/Raruu/refs/heads/main/assets/cv.json";
+import { env } from "@/lib/env";
+
+export const BaseExternalResource = env.NEXT_PUBLIC_EXTERNAL_RESOURCE;
+export const MyWorksJson = `${BaseExternalResource}/assets/porto.json`;
+export const MyCvJson = `${BaseExternalResource}/assets/cv.json`;

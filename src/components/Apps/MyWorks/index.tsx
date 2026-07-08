@@ -31,7 +31,6 @@ const MyWorks = () => {
     setShowAllTags,
     showTags,
     setShowTags,
-    selectedId,
     setSelectedId,
     selected,
     getId,

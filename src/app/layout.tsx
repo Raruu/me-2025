@@ -77,11 +77,9 @@ export default async function RootLayout({
       </head>
       <body className={`${nunito.variable} antialiased overflow-hidden`}>
         <RegisterSW />
-        <ServerProvider value={{ myWorks: myWorksData, cv: myCvData }}>
+        <ServerProvider myWorks={myWorksData} cv={myCvData}>
           <PWAInstallProvider>
-            <DBusProvider>
-              {children}
-            </DBusProvider>
+            <DBusProvider>{children}</DBusProvider>
           </PWAInstallProvider>
         </ServerProvider>
       </body>
